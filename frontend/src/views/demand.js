@@ -70,7 +70,7 @@ const DemandForm = () => {
             Notification(true, "Talebiniz alınmıştır. Onaylandığında size bildirim gönderilecektir. ");
             setTimeout(() => {
                 navigate('/');
-            }, 2000);
+            }, 1000);
 
 
 
@@ -150,7 +150,13 @@ const DemandForm = () => {
                             { min: 8, message: 'Şifreniz en az 8 karakter olmalıdır!' },
                             {
                                 validator: (_, value) => {
-                                    const regex = /^(?=.[a-zçğıöşü])(?=.[A-ZÇĞİÖŞÜ])(?=.\d)(?=.[@#$%^&+=!()_])[A-Za-zçğıöşüÇĞİÖŞÜ\d@#$%^&+=!()_]{8,}$/;
+                                    const regex = /^(?=.*[a-zçğıöşü])(?=.*[A-ZÇĞİÖŞÜ])(?=.*\d)(?=.*[@#$%^&+=!()_.\-?*\\{}[\]\/'"<>,;|`½])[A-Za-zçğıöşüÇĞİÖŞÜ\d@#$%^&+=!()_.\-?*\\{}[\]\/'"<>,;|`½]{8,}$/;
+
+
+
+
+
+
                                     if (!regex.test(value)) {
                                         return Promise.reject('Şifreniz en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir!');
                                     }

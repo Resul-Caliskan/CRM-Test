@@ -42,7 +42,7 @@ const CVList = () => {
     setLoading(true);
     try {
       const postResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/nominee/adayuser`,
+        `${process.env.REACT_APP_API_URL}/api/nominee/aday-user`,
         { companyId: companyId }
       );
 

@@ -13,10 +13,8 @@ const emailRoutes = require('./src/routes/emailRoutes');
 const cvRoutes=require('./src/routes/cvRoutes');
 const parameterRoutes= require('./src/routes/parameterRoutes');
 const path = require('path');
-
 const userRoutes =require('./src/routes/userRoutes');
 const nomineeRoutes =require('./src/routes/nomineeRoutes');
-const path = require('path');
 
 
 const app = express();

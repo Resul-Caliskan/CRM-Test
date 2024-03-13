@@ -18,7 +18,7 @@ const AdminPositionDetail = () => {
   const [isKnown, setIsKnown] = useState(true);
   const [position, setPosition] = useState(null);
   const { id } = useParams();
-  const apiUrl = process.env.REACT_APP_API_URL;
+ 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const openNomineeDetail = () => {
@@ -30,9 +30,9 @@ const AdminPositionDetail = () => {
   };
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("girdi");
+    
     if (!user || user.role === null) {
-      console.log("girdi");
+      
       fetchData().then(data => {
         console.log("cevap:", data);
         dispatch(login(data.user));
@@ -45,27 +45,32 @@ const AdminPositionDetail = () => {
       });
     }
 
-
-    fetchNominees();
+    
     getPositionById(id);
+    fetchNominees();
+    
+    
   }, [])
 
   const fetchNominees = async () => {
-    setLoading(true);
+    setLoading(false);
     try {
-      const response = await axios.post(`${apiUrl}/api/nominee/pozisyon`, { positionId: position._id })
+   
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/nominee/pozisyon-admin`, { positionId:id })
+      
       const nominees = response.data.sharedNominees;
       const suggested = response.data.allCv;
       setNominees(nominees);
       setSuggestedNominees(suggested);
+      setLoading(false);
     } catch (error) {
       setError(error.message);
     }
-    setLoading(false);
+    
   }
   const getPositionById = async (id) => {
     try {
-      const response = await axios.get(`${apiUrl}/api/positions/${id}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/positions/${id}`);
       setPosition(response.data);
       return response.data;
     } catch (error) {
@@ -76,7 +81,7 @@ const AdminPositionDetail = () => {
   const handleNomineeDetail = (nominee, isKnown) => {
     if (nominee && nominee._id) {
       setIsKnown(isKnown);
-      setNomineeDetail(nominee); // Ayrıca, detayları almak için bir state de kullanabiliriz
+      setNomineeDetail(nominee);
       openNomineeDetail();
     } else {
       console.error("Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz.");

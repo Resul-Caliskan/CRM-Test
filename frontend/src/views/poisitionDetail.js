@@ -32,7 +32,7 @@ const PositionDetail = () => {
   const fetchNominees = async () => {
     setLoading(false);
     try {
-      const response = await axios.post(`${apiUrl}/api/nominee/pozisyon`,{positionId:id});
+      const response = await axios.post(`${apiUrl}/api/nominee/pozisyon-user`,{positionId:id});
       const nominees = response.data.sharedNominees;
       const suggested = response.data.allCv;
       console.log("nominees: "+nominees);

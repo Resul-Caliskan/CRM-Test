@@ -5,17 +5,17 @@ const AreUSure = ({ isOpen, onClose, onConfirm, children }) => {
     <>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded">
+          <div className="bg-white p-8 rounded ">
             {children}
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-center mt-4">
               <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline"
+                className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-200/20 dark:shadow-lg dark:shadow-red-500/50 font-medium rounded-lg text-sm px-[32px] py-2.5 text-center mx-4"
                 onClick={onConfirm}
               >
                 Sil
               </button>
               <button
-                className="ml-4 bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline"
+                className="text-white bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-300 dark:focus:ring-gray-800 shadow-lg shadow-gray-200/20 dark:shadow-lg dark:shadow-gray-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center mx-l-2"
                 onClick={onClose}
               >
                 Vazgeç

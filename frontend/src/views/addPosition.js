@@ -61,7 +61,7 @@ const AddPosition = () => {
       Notification(true, "Pozisyon eklendi.");
       setTimeout(() => {
         navigate('/home');
-    }, 2000);
+    }, 1000);
       console.log("Form gönderildi:", values);
       setLoading(false);
       form.resetFields();
@@ -124,7 +124,7 @@ const AddPosition = () => {
             name="experienceperiod"
             rules={[{ required: true, message: "Deneyim Süresini Giriniz!" }]}
           >
-            <Select  showSearch optionFilterProp="children" placeholder="Deneyim Süresi Seç">
+            <Select showSearch optionFilterProp="children" placeholder="Deneyim Süresi Seç">
               {parameters.map((parameter, index) => {
                 if (parameter.title === "Deneyim Süresi") {
                   return parameter.values.map((value, idx) => (

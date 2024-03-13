@@ -8,7 +8,7 @@ const Customer = require("../models/customer");
 // Müşteri ekleme işlemi
 exports.addCustomer = async (req, res) => {
   try {
-    console.log("BODYYYY" + req.body.companycountry);
+    console.log("BODYYYY" + req.body);
     const newCustomer = new Customer({
       companyname: req.body.companyname,
       companytype: req.body.companytype,

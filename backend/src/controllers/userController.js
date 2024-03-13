@@ -7,7 +7,7 @@ exports.checkUserMail = async (req, res) => {
     const mail=req.body.email
   try {
     const users = await User.findOne({ email:mail });
-    res.status(200).json(users._id);
+    res.status(200).json({id:users._id});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

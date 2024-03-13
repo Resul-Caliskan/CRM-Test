@@ -1,5 +1,5 @@
 
-export const validateForm = (email,password) => {
+export const validateForm = (email, password) => {
 
   const errors = {};
 
@@ -7,11 +7,10 @@ export const validateForm = (email,password) => {
 
     errors.email = 'Email alanı boş bırakılamaz';
 
-  } else if (!/\S+@\S+\.\S+/.test(email)) {
-
+  } else if (!/^\S+@\S+\.(com|net|org)$/i.test(email)) {
     errors.email = 'Geçerli bir email girin';
-
   }
+
 
   if (!password) {
 

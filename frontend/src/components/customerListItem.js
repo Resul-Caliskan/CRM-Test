@@ -11,9 +11,9 @@ const CustomerListItem = ({ customer, onEdit }) => {
         <li><strong>Firma Türü:</strong> {customer.companytype}</li>
         <li><strong>Sektör:</strong> {customer.companysector}</li>
         <li><strong>Web Sitesi:</strong> {customer.companyweb}</li>
-        <li><strong>Ülke:</strong> {customer.companycountry[1]}</li>
-        <li><strong>Şehir:</strong> {customer.companycity[1]}</li>
-        <li><strong>İlçe:</strong> {customer.companycounty[1]}</li>
+        <li><strong>Ülke:</strong> {customer.companycountry}</li>
+        <li><strong>Şehir:</strong> {customer.companycity}</li>
+        <li><strong>İlçe:</strong> {customer.companycounty}</li>
         <li><strong>Adres:</strong> {customer.companyadress}</li>
         <li><strong>İlgili Kişi:</strong> {customer.contactname}</li>
         <li><strong>İlgili Kişi Numarası:</strong> {customer.contactnumber}</li>

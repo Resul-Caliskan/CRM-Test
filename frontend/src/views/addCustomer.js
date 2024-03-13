@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select } from "antd";
-import { useNavigate } from "react-router-dom";
-import { fetchData } from "../utils/fetchData";
-import { useDispatch, useSelector } from "react-redux";
-import { login } from "../redux/authSlice";
+
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Select } from 'antd';
+import { useNavigate } from 'react-router-dom'
+import { fetchData } from '../utils/fetchData';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../redux/authSlice';
 import axios from "axios";
 import Notification from "../utils/notification";
 import { PhoneInput } from "react-international-phone";
@@ -15,6 +16,7 @@ import {
   CitySelect,
   CountrySelect,
   StateSelect,
+  LanguageSelect,
 } from "react-country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
 const { Option } = Select;
@@ -36,13 +38,15 @@ const CompanyForm = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [countries, setCountries] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [phone, setPhone] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [cities, setCities] = useState([]);
+  const [phone, setPhone] = useState('');
   const isValid = isPhoneValid(phone);
 
   const [countryid, setCountryid] = useState(0);
   const [stateid, setstateid] = useState(0);
   const [parameters, setParameters] = useState([]);
+
 
   useEffect(() => {
     // Ülkeleri çeken API isteği
@@ -62,31 +66,30 @@ const CompanyForm = () => {
 
     if (!user || user.role === null) {
       console.log("girdi");
-      fetchData()
-        .then((data) => {
-          console.log("cevap:", data);
-          dispatch(login(data.user));
+      fetchData().then(data => {
+        console.log("cevap:", data);
+        dispatch(login(data.user));
 
-          if (data.user.role !== "admin") {
-            navigate("/forbidden");
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        if (data.user.role !== 'admin') {
+          navigate('/forbidden');
+        }
+
+      }).catch(error => {
+        console.error(error);
+      });
     }
     fetchParameters();
-  }, []);
+  }, [])
   const fetchParameters = async () => {
-    await axios
-      .get("https://backend-crm.fly.dev/api/parameters")
-      .then((response) => {
+    await axios.get(`${process.env.REACT_APP_API_URL}/api/parameters`)
+      .then(response => {
         console.log(response);
         console.log("DATAA PARAMETER: " + response.data);
         setParameters(response.data);
+
       })
-      .catch((error) => {
-        console.error("Roles fetching failed:", error);
+      .catch(error => {
+        console.error('Roles fetching failed:', error);
       });
   };
 
@@ -94,17 +97,17 @@ const CompanyForm = () => {
     setSelectedCountry(e.target.value);
   };
   const handleSubmit = async (values) => {
-    console.log("api url" + `${apiUrl}/api/customers`);
+    console.log("api url"+ `${apiUrl}/api/customers`);
     setLoading(true);
     try {
-      const response = await axios.post(`${apiUrl}/api/customers`, {
+      const response = await axios.post( `${apiUrl}/api/customers`, {
         companyname: values.companyName,
         companytype: values.companyType,
         companysector: values.industry,
         companyadress: values.address,
-        companycity: values.city.name,
-        companycountry: values.country.name,
-        companycounty: values.ilce.name,
+        companycity: [values.city.id,values.city.name],
+        companycountry: [values.country.id,values.country.name,],
+        companycounty:[values.ilce.id,values.ilce.name],
         companyweb: values.website,
         contactname: values.contactPerson,
         contactmail: values.contactEmail,
@@ -112,44 +115,31 @@ const CompanyForm = () => {
       });
 
       if (response.status !== 201) {
-        throw new Error("Bir hata oluştu");
+        throw new Error('Bir hata oluştu');
       }
 
-      console.log("Form gönderildi:", values);
+      console.log('Form gönderildi:', values);
       setLoading(false);
       form.resetFields();
+    } catch (error) {
+
+      console.error('sdsds', values);
+
       Notification(true, "Müşteri başarıyla eklendi.");
       setTimeout(() => {
-        navigate("/adminhome");
+        navigate('/adminhome');
       }, 2000);
-    } catch (error) {
-      Notification(false, "Müşteri eklerken bir hata oluştu.");
-      console.error("sdsds", values);
-      console.error("Form gönderilirken bir hata oluştu:", error);
-      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center mt-10">
-      <div className="w-full max-w-lg item">
+    <div className="flex justify-center items-center w-screen mt-5">
+      <div className="w-full max-w-lg">
         <h2 className="text-center text-2xl mb-6">Firma Ekle</h2>
-        <Form
-          form={form}
-          onFinish={handleSubmit}
-          layout="vertical"
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        >
+        <Form form={form} onFinish={handleSubmit} layout="vertical" className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              label="Firma Adı"
-              name="companyName"
-              rules={[{ required: true, message: "Firma adını giriniz!" }]}
-            >
-              <Input
-                placeholder="Firma Adı"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+            <Form.Item label="Firma Adı" name="companyName" rules={[{ required: true, message: 'Firma adını giriniz!' }]}>
+              <Input placeholder="Firma Adı" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
             </Form.Item>
             <Form.Item
               label="Firma Türü"
@@ -198,44 +188,21 @@ const CompanyForm = () => {
                 })}
               </Select>
             </Form.Item>
-            <Form.Item
-              label="Web Sitesi"
-              name="website"
-              rules={[{ required: true, message: "Web sitesi giriniz!" }]}
-            >
-              <Input
-                placeholder="Web Sitesi"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+            <Form.Item label="Web Sitesi" name="website" rules={[{ required: true, message: 'Web sitesi giriniz!' }]}>
+              <Input placeholder="Web Sitesi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
             </Form.Item>
+
+
+
+
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              label="İlgili Kişi"
-              name="contactPerson"
-              rules={[{ required: true, message: "İlgili kişi giriniz!" }]}
-            >
-              <Input
-                placeholder="İlgili Kişi"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+
+            <Form.Item label="İlgili Kişi" name="contactPerson" rules={[{ required: true, message: 'İlgili kişi giriniz!' }]}>
+              <Input placeholder="İlgili Kişi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
             </Form.Item>
-            <Form.Item
-              label="İlgili Kişi Email"
-              name="contactEmail"
-              rules={[
-                {
-                  required: true,
-                  message: "Email giriniz!",
-                  type: "email",
-                  message: "Geçerli bir email adresi giriniz!",
-                },
-              ]}
-            >
-              <Input
-                placeholder="İlgili Kişi Email"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+            <Form.Item label="İlgili Kişi Email" name="contactEmail" rules={[{ required: true, message: 'Email giriniz!', type: 'email', message: 'Geçerli bir email adresi giriniz!' }]}>
+              <Input placeholder="İlgili Kişi Email" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
             </Form.Item>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -263,12 +230,9 @@ const CompanyForm = () => {
                 value={phone}
                 onChange={(phone) => setPhone(phone)}
               />
+
             </Form.Item>
-            <Form.Item
-              label="Ülke"
-              name="country"
-              rules={[{ required: true, message: "Ülke giriniz!" }]}
-            >
+            <Form.Item label="Ülke" name="country" rules={[{ required: true, message: 'Ülke giriniz!' }]}>
               <CountrySelect
                 onChange={(e) => {
                   setCountryid(e.id);
@@ -278,11 +242,8 @@ const CompanyForm = () => {
             </Form.Item>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Form.Item
-              label="Şehir"
-              name="city"
-              rules={[{ required: true, message: "İl seçiniz!" }]}
-            >
+
+            <Form.Item label="Şehir" name="city" rules={[{ required: true, message: 'İl seçiniz!' }]}>
               <StateSelect
                 countryid={countryid}
                 onChange={(e) => {
@@ -290,12 +251,9 @@ const CompanyForm = () => {
                 }}
                 placeholder="Select State"
               />
+
             </Form.Item>
-            <Form.Item
-              label="İlçe"
-              name="ilce"
-              rules={[{ required: true, message: "İlçe seçiniz!" }]}
-            >
+            <Form.Item label="İlçe" name="ilce" rules={[{ required: true, message: 'İlçe seçiniz!' }]} >
               <CitySelect
                 countryid={countryid}
                 stateid={stateid}
@@ -306,23 +264,11 @@ const CompanyForm = () => {
               />
             </Form.Item>
           </div>
-          <Form.Item
-            label="Adres"
-            name="address"
-            rules={[{ required: true, message: "Adres giriniz!" }]}
-          >
-            <Input.TextArea
-              placeholder="Adres"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
+          <Form.Item label="Adres" name="address" rules={[{ required: true, message: 'Adres giriniz!' }]}>
+            <Input.TextArea placeholder="Adres" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
           </Form.Item>
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
-            >
+            <Button type="primary" htmlType="submit" loading={loading} className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline">
               Kaydet
             </Button>
           </Form.Item>

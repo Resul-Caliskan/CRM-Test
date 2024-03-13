@@ -1,6 +1,6 @@
 export default function NomineeDetail({ nominee, onClose, isKnown }) {
     if (!nominee) {
-        console.log(isKnown);
+        
         return null;
     }
 

@@ -6,8 +6,8 @@ import { BiLogOut } from 'react-icons/bi';
 import { VscGitPullRequestGoToChanges } from 'react-icons/vsc';
 import { MdMoveToInbox } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux'; // useSelector ve useDispatch import edildi
-import { setSelectedOption } from '../redux/selectedOptionSlice';  // Redux'da selectedOption'ı güncellemek için action creator import edildi
+import { useSelector, useDispatch } from 'react-redux'; 
+import { setSelectedOption } from '../redux/selectedOptionSlice';
 import UserForm from '../views/addUser';
 import CompanyForm from '../views/addCustomer';
 import ListCustomers from '../views/listCustomer';
@@ -173,7 +173,7 @@ export default function SideBar() {
                                         <MdMoveToInbox className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
                                     </span>
                                     <span className="flex-1 ms-3 whitespace-nowrap">
-                                       Sistem Parametreleri
+                                        Parametreler
                                     </span>
                                 </a>
                             </li>
