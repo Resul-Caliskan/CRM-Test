@@ -5,4 +5,7 @@ const authenticationMiddleware = require("../middlewares/authenticationMiddlewar
 
 router.post('/sendemail',authenticationMiddleware.authenticateToken, emailController.sendEmail);
 
+
+router.post('/sendemail-password', emailController.sendChangePasswordMail);
+
 module.exports = router;

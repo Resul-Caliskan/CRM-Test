@@ -12,7 +12,12 @@ const positionRoutes = require('./src/routes/positionRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
 const cvRoutes=require('./src/routes/cvRoutes');
 const parameterRoutes= require('./src/routes/parameterRoutes');
+const path = require('path');
+
+const userRoutes =require('./src/routes/userRoutes');
 const nomineeRoutes =require('./src/routes/nomineeRoutes');
+const path = require('path');
+
 
 const app = express();
 
@@ -24,6 +29,8 @@ mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: t
   .then(() => console.log('MongoDB bağlantısı başarılı'))
   .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
+  
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api/customers',customerRoutes);
@@ -34,7 +41,8 @@ app.use('/api',emailRoutes);
 app.use('/api',cvRoutes);
 app.use('/api',parameterRoutes);
 app.use('/api',nomineeRoutes);
-
+app.use('/api',userRoutes);
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 

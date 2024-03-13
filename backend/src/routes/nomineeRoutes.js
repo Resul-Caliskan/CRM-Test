@@ -6,8 +6,10 @@ router.post('/nominee/add', nomineeController.addNominee);
 
 router.post('/nominee/aday-admin', nomineeController.getNomineeByCompanyIdAdmin);
 
-router.post('/nominee/pozisyon', nomineeController.getNomineeByPositionId); 
+router.post('/nominee/pozisyon-admin', nomineeController.getNomineeByPositionIdAdmin); 
 
-router.post('/nominee/adayuser', nomineeController.getNomineeByCompanyIdUser);
+router.post('/nominee/aday-user', nomineeController.getNomineeByCompanyIdUser);
+
+router.post('/nominee/pozisyon-user', nomineeController.getNomineeByPositionIdUser); 
 
 module.exports = router;
