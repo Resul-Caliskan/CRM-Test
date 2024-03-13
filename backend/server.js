@@ -16,7 +16,6 @@ const path = require('path');
 
 const userRoutes =require('./src/routes/userRoutes');
 const nomineeRoutes =require('./src/routes/nomineeRoutes');
-const path = require('path');
 
 
 const app = express();
