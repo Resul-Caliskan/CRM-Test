@@ -5,6 +5,7 @@ import { validateForm } from '../utils/formValidation';
 import logo from '../assets/login.png'
 import { LoadingOutlined } from '@ant-design/icons';
 import Notification from '../utils/notification';
+import {useParams} from 'react-router-dom';
 
 
 
@@ -15,6 +16,7 @@ export default function SetPassword() {
     const [passwordError, setPasswordError] = useState("");
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState("");
+    const {id}=useParams();
     const handlePasswordChange = (e) => {
         const { value } = e.target;
         setPassword(value);
