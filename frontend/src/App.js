@@ -43,7 +43,7 @@ function App() {
         <Route path='/forbidden' element={<Forbidden />} />;
         <Route path='/demand' element={< DemandForm/>} />;
         <Route path='/reset-password' element={< ResetPassword/>} />;
-        <Route path='/set-password' element={< SetPassword/>} />;
+        <Route path='/set-password/:id' element={< SetPassword/>} />;
         <Route path="/position-detail/:id"  element={<PrivateRoute Component={PositionDetail} />} />
         <Route path="/admin-position-detail/:id"  element={<PrivateRoute Component={AdminPositionDetail} />} />
       </Routes>
