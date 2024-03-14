@@ -28,7 +28,7 @@ export default function SentPassword() {
                             type='submit'
                             className='bg-black text-white w-full h-9 hover:bg-gray-700 rounded-lg flex items-center justify-center'
                             onClick={handleSent}
-                        >Mail adresini kontrol et
+                        >E-postamı kontrol et
                         </button>
                     <Button className='h-9 border-1 border-[#133163]  text-[#133163]' onClick={() => handleRoute()}>Giriş sayfasına geri dön</Button> 
                     

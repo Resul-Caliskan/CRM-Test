@@ -4,12 +4,13 @@ const express = require("express");
 
 // user ekleme işlemi
 exports.checkUserMail = async (req, res) => {
-    const mail=req.body.email
+  const mail = req.body.email;
   try {
-    const users = await User.findOne({ email:mail });
-    res.status(200).json({id:users._id});
+    const users = await User.findOne({ email: mail });
+    res.status(200).json({ id: users._id });
+    console.log("users" + users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ message: "Böyle Bir Kullanıcı Bulunamadı" });
   }
 };
 

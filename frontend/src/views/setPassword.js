@@ -8,9 +8,11 @@ import { LoadingOutlined } from "@ant-design/icons";
 import Notification from "../utils/notification";
 import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import axios from 'axios';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function SetPassword() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,13 +24,10 @@ export default function SetPassword() {
 
   useEffect(() => {
     if (id) {
-       const token = jwtDecode(id);
-     
-       
-      
-        console.log("id:"+ token.id);
-        setUserId(token.id);
-      
+      const token = jwtDecode(id);
+
+      console.log("id:" + token.id);
+      setUserId(token.id);
     }
   }, []);
   const handlePasswordChange = (e) => {
@@ -56,12 +55,13 @@ export default function SetPassword() {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-      }, 1800);
-      Notification(
-        "success",
-        "Şifreniz başarıyla oluşturuldu!",
-        "Kullanıcı bilgileriniz ile giriş yapabilirsiniz"
-      );
+        navigate("/");
+        Notification(
+          "success",
+          "Şifreniz başarıyla oluşturuldu!",
+          "Kullanıcı bilgileriniz ile giriş yapabilirsiniz"
+        );
+      }, 1000);
     } catch (error) {
       setLoading(false);
       Notification(
@@ -85,7 +85,7 @@ export default function SetPassword() {
           <div className="flex flex-col">
             <label className="   text-gray-600 text-sm">Şifre</label>
             <Form.Item name="password" rules={[]} hasFeedback>
-              <Input.Password onChange={handlePasswordChange} />
+              <Input.Password allowClear={true} onChange={handlePasswordChange} />
             </Form.Item>
           </div>
           <div className="flex flex-col ">
@@ -94,6 +94,7 @@ export default function SetPassword() {
               <Form.Item
                 name="confirm"
                 onChange={handleConfirmPasswordChange}
+                
                 dependencies={["password"]}
                 hasFeedback
                 rules={[
@@ -113,7 +114,7 @@ export default function SetPassword() {
                   }),
                 ]}
               >
-                <Input.Password />
+                <Input.Password allowClear={true}/>
               </Form.Item>
               <Alert
                 message="Şifre Kuralları"
@@ -160,7 +161,7 @@ export default function SetPassword() {
                   {loading ? (
                     <LoadingOutlined style={{ marginRight: "5px" }} spin />
                   ) : null}
-                  {loading ? "" : "Giriş Yap"}
+                  {loading ? "" : "Şifre Belirle"}
                 </button>
               ) : (
                 <Button disabled={true} className="h-9 w-full mt-5">

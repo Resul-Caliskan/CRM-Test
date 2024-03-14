@@ -5,6 +5,7 @@ import Notification from "../utils/notification";
 import { FaTimes, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { IoAddCircleSharp } from "react-icons/io5";
 import AreUSure from "../components/areUSure";
+import { getIdFromToken } from "../utils/getIdFromToken";
 
 
 const ListPosition = () => {
@@ -12,6 +13,7 @@ const ListPosition = () => {
   const [positions, setPositions] = useState([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
+  const companyId = getIdFromToken(localStorage.getItem("token"));
 
 
 
@@ -25,7 +27,7 @@ const ListPosition = () => {
 
   const fetchPositions = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/positions`);
+      const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
       setPositions(response.data);
     } catch (error) {
       console.error("Customers fetching failed:", error);

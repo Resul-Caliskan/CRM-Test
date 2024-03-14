@@ -22,12 +22,13 @@ import AdminPositionDetail from './views/adminPositionDetail';
 import ResetPassword from './views/resetPassword';
 import SetPassword from './views/setPassword';
 import SentPassword from './views/sentPassword';
+import { Toaster } from 'react-hot-toast';
 
 
 function App() {
   return (
     <Router>
-
+    <Toaster/>
       <Routes>
         <Route path="/addcustomer" element={<PrivateRoute Component={CompanyForm}  />} />
         <Route path="/edit-customer/:id" element={<PrivateRoute Component={EditCustomerForm} />} />

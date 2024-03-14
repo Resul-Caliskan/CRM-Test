@@ -20,4 +20,5 @@ router.put('/positions/add/:id', positionController.addNomineeIdToPosition);
 
 router.get('/positions/:id',authenticationMiddleware.authenticateToken, positionController.getPositionById);
 
+router.get("/positions/get/:id", positionController.getPositionByCompanyId);
 module.exports = router;

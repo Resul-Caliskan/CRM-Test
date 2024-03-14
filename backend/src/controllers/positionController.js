@@ -103,3 +103,19 @@ exports.addNomineeIdToPosition = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getPositionByCompanyId = async (req, res) => {
+  try {
+    console.log("Şirket ID'sine göre pozisyonları getirme işlemine girdi " + req.params.id);
+    const companyId = req.params.id;
+    const positions = await Position.find({ companyId: companyId });
+
+    if (!positions || positions.length === 0) {
+      return res.status(404).json({ message: "Şirkete ait pozisyonlar bulunamadı." });
+    }
+
+    res.status(200).json(positions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -6,10 +6,12 @@ import { MailOutlined, LoadingOutlined } from "@ant-design/icons";
 import { validateForm } from "../utils/formValidation";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Notification from "../utils/notification";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
+  const [emailError, setEmailError] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState("");
@@ -31,11 +33,24 @@ export default function ResetPassword() {
             recipientEmail: email,
           }
         );
+        // Reset the form state after successful submission
+        setEmail("");
+        setErrors({}); // Clear any existing validation errors
+        setLoading(false); // Reset loading state
         navigate("/sent-password");
-      } catch (error) {}
+      } catch (error) {
+        // Handle error
+      }
     } catch (error) {
+      Notification(
+        "error",
+        "Böyle Bir Kullanıcı Bulunamadı",
+        "Girmiş Olduğunuz E-Posta Adresinizi Kontrol Ediniz"
+      );
       setLoading(false);
-      console.log(errors.response.data.message);
+      setEmail("");
+
+      setEmailError(true); // Clear any existing validation errors
     }
   };
 
@@ -44,6 +59,7 @@ export default function ResetPassword() {
     setEmail(value);
     const validationResult = validateForm(value);
     setErrors(validationResult);
+    setEmailError(validationResult);
   };
 
   return (
@@ -79,6 +95,8 @@ export default function ResetPassword() {
                 placeholder="E-posta adresinizi giriniz"
                 onChange={handleInputChange}
                 disabled={loading}
+                status={emailError?"":"error"}
+                allowClear={true}
                 prefix={
                   <MailOutlined
                     className={
