@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import logo from "../assets/login.png";
-import VHlogo from '../assets/vhlogo.png'
+import VHlogo from "../assets/vhlogo.png";
 import { Button, Form, Input } from "antd";
 import { MailOutlined, LoadingOutlined } from "@ant-design/icons";
 import { validateForm } from "../utils/formValidation";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ export default function ResetPassword() {
         navigate("/sent-password");
       } catch (error) {}
     } catch (error) {
+      setLoading(false);
       console.log(errors.response.data.message);
     }
   };
@@ -113,8 +114,8 @@ export default function ResetPassword() {
           </a>
         </Form>
         <div class="fixed bottom-0 right-0 mb-6 mr-4">
-                    <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
-                </div>
+          <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
+        </div>
       </div>
     </div>
   );
