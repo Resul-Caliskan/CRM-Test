@@ -24,7 +24,9 @@ export default function SetPassword() {
     if (id) {
       const decoded = jwtDecode(id);
       if (decoded && decoded.id) {
+        
         setUserId(decoded.id);
+        console.log("id"+userId);
       }
     }
   }, []);
@@ -45,7 +47,7 @@ export default function SetPassword() {
     e.preventDefault();
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/user-update-password${userId}`,
+        `${process.env.REACT_APP_API_URL}/api/user-update-password/${userId}`,
         {
           password: password,
         }
