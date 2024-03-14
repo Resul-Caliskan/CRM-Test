@@ -7,7 +7,7 @@ import VHlogo from "../assets/vhlogo.png";
 import { LoadingOutlined } from "@ant-design/icons";
 import Notification from "../utils/notification";
 import { useParams } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export default function SetPassword() {
   const [userId, setUserId] = useState(null);
