@@ -1,7 +1,7 @@
 import React from "react";
 import { useState,useEffect } from "react";
 import { Button, Input, Form, Alert } from "antd";
-import {axios} from "axios";
+import axios from 'axios';
 import { validateForm } from "../utils/formValidation";
 import logo from "../assets/login.png";
 import VHlogo from "../assets/vhlogo.png";
