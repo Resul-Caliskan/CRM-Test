@@ -7,7 +7,7 @@ import VHlogo from "../assets/vhlogo.png";
 import { LoadingOutlined } from "@ant-design/icons";
 import Notification from "../utils/notification";
 import { useParams } from "react-router-dom";
-import jwt_decode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 export default function SetPassword() {
   const [userId, setUserId] = useState(null);
@@ -21,7 +21,7 @@ export default function SetPassword() {
 
   useEffect(() => {
     if (id) {
-      const decoded = jwt_decode(id);
+      const decoded = jwtDecode(id);
       if (decoded && decoded.id) {
         setUserId(decoded.id);
       }
