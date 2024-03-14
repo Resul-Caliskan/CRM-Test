@@ -1,7 +1,7 @@
 import { notification } from 'antd';
  
 const Notification = (success, messageText) => {
-    if (success) {
+    if (success==="success") {
         notification.success({
             message: 'Başarılı',
             description: messageText,

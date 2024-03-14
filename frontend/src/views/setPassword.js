@@ -1,7 +1,6 @@
-import React from "react";
-import { useState,useEffect } from "react";
+import React, { useEffect } from "react";
+import { useState } from "react";
 import { Button, Input, Form, Alert } from "antd";
-import axios from 'axios';
 import { validateForm } from "../utils/formValidation";
 import logo from "../assets/login.png";
 import VHlogo from "../assets/vhlogo.png";
@@ -9,6 +8,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import Notification from "../utils/notification";
 import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import axios from 'axios';
 
 export default function SetPassword() {
   const [userId, setUserId] = useState(null);
@@ -22,12 +22,13 @@ export default function SetPassword() {
 
   useEffect(() => {
     if (id) {
-      const decoded = jwtDecode(id);
-      if (decoded && decoded.id) {
-        
-        setUserId(decoded.id);
-        console.log("id"+userId);
-      }
+       const token = jwtDecode(id);
+     
+       
+      
+        console.log("id:"+ token.id);
+        setUserId(token.id);
+      
     }
   }, []);
   const handlePasswordChange = (e) => {
@@ -65,7 +66,7 @@ export default function SetPassword() {
       setLoading(false);
       Notification(
         "error",
-        "Şifreniz oluştulamadı",
+        "Şifreniz oluşturulamadı",
         "Şifreniz oluşturulurken bir hata oluştu lütfen tekrar deneyiniz"
       );
     }

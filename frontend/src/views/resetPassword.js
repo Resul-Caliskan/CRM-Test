@@ -23,12 +23,11 @@ export default function ResetPassword() {
           email: email,
         }
       );
-      setId(response.data.id);
       try {
         const response2 = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/sendemail-password`,
           {
-            id: id,
+            id: response.data.id,
             recipientEmail: email,
           }
         );
