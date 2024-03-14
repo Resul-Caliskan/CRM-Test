@@ -1,4 +1,4 @@
-import logo from '../assets/images/login.png'
+import logo from '../assets/login.png'
 import { Button, Form} from 'antd'
 import { CheckCircleFilled} from '@ant-design/icons';
 import VHlogo from '../assets/vhlogo.png'
