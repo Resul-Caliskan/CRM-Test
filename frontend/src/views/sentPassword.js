@@ -1,7 +1,7 @@
 import logo from '../assets/images/login.png'
 import { Button, Form} from 'antd'
 import { CheckCircleFilled} from '@ant-design/icons';
-import VHlogo from '../assets/images/vhlogo.png'
+import VHlogo from '../assets/vhlogo.png'
 import { useNavigate } from 'react-router-dom';
  
 export default function SentPassword() {
