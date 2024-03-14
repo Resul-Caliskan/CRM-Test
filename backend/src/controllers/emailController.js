@@ -103,7 +103,7 @@ const sendChangePasswordMail = async (req, res) => {
             text-decoration: none;
             border-radius: 5px;
           "
-          href="https://crm-daltonlar-4kexnryco-resuls-projects-29a3dfa5.vercel.app/set-password/${mailToken}"
+          href="https://crm-daltonlar-qebtqs8ip-resuls-projects-29a3dfa5.vercel.app/set-password/${mailToken}"
           >Şifremi Değiştir
         </a>
         <p style="margin-bottom: 20px; padding-top: 60px; font-size: medium">
