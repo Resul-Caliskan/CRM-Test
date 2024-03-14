@@ -249,6 +249,9 @@ export default function Login() {
 
 
                 </form>
+                <div class="fixed bottom-0 right-0 mb-6 mr-4">
+                    <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
+                </div>
             </div>
         </div>
 
