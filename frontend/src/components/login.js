@@ -13,6 +13,7 @@ import { login } from '../redux/authSlice';
 import logo from '../assets/login.png'
 import { MailOutlined, LockOutlined, EyeOutlined } from '@ant-design/icons';
 import { LoadingOutlined } from '@ant-design/icons';
+import VHlogo from '../assets/vhlogo.png'
 
 
 

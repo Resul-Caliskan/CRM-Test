@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Button, Input, Form, Alert } from 'antd';
 import { validateForm } from '../utils/formValidation';
 import logo from '../assets/login.png'
+import VHlogo from '../assets/vhlogo.png'
 import { LoadingOutlined } from '@ant-design/icons';
 import Notification from '../utils/notification';
 import { useParams } from 'react-router-dom';
