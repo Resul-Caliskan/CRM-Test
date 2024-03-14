@@ -16,7 +16,7 @@ export default function SetPassword() {
     const [passwordError, setPasswordError] = useState("");
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState("");
-    const{id}=useParams();
+    const {id}=useParams();
     const handlePasswordChange = (e) => {
         const { value } = e.target;
         setPassword(value);
