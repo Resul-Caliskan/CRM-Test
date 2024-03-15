@@ -115,7 +115,7 @@ const EditCustomerForm = () => {
  
         Notification(true, "Müşteri bilgileri güncellendi.","Müşteri bilgileri başarılı bir şekilde güncellendi");
          setTimeout(() => {
-                navigate('/home');
+                navigate('/adminhome');
             }, 2000);
         setLoading(false);
         setCustomerData(response.data);
