@@ -113,7 +113,7 @@ const EditCustomerForm = () => {
         });
         
  
-        Notification(true, "Müşteri bilgileri güncellendi.","Müşteri bilgileri başarılı bir şekilde güncellendi");
+        Notification("success", "Müşteri bilgileri güncellendi.","Müşteri bilgileri başarılı bir şekilde güncellendi");
          setTimeout(() => {
                 navigate('/adminhome');
             }, 2000);
@@ -121,7 +121,7 @@ const EditCustomerForm = () => {
         setCustomerData(response.data);
         form.resetFields();
     } catch (error) {
-        Notification(false, "Müşteri bilgileri güncellenemedi.","Müşteri bilgileri güncellenemedi Lütfen Tekrar Deneyiniz");
+        Notification("error", "Müşteri bilgileri güncellenemedi.","Müşteri bilgileri güncellenemedi Lütfen Tekrar Deneyiniz");
         console.error('Müşteri güncellenirken bir hata oluştu:', error);
         setLoading(false);
     }
