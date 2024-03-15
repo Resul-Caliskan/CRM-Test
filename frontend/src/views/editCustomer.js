@@ -114,7 +114,9 @@ const EditCustomerForm = () => {
         
  
         Notification(true, "Müşteri bilgileri güncellendi.");
-        
+         setTimeout(() => {
+                navigate('/home');
+            }, 2000);
         setLoading(false);
         setCustomerData(response.data);
         form.resetFields();
