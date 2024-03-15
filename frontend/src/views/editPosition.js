@@ -67,14 +67,14 @@ const EditPosition = () => {
             });
             console.log('Form gönderildi:', values);
             setLoading(false);
-            Notification(true, "Başarıyla güncellendi.");
+            Notification(true, "Başarıyla güncellendi.","Pozisyon Güncellemesi Başarılı");
 
             setTimeout(() => {
                 navigate('/home');
             }, 2000);
         } catch (error) {
             console.error('Form gönderilirken bir hata oluştu:', error);
-            Notification(false, "Bir hata oluştu.");
+            Notification(false, "Bir hata oluştu.","Pozisyon güncellenirken bir hata oluştu");
             setLoading(false);
         }
     };
