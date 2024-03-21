@@ -7,7 +7,7 @@ import { FaTimes } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
 import SearchInput from "../components/searchInput"; // Dikkat edin: Büyük harfle başlamalı
 import Highlighter from "react-highlight-words";
-
+ 
 const CVList = () => {
   const [sharedItems, setSharedItems] = useState([]);
   const [cvs, setCvs] = useState([]);
@@ -20,24 +20,85 @@ const CVList = () => {
   const [nomineeDetail, setNomineeDetail] = useState();
   const [isKnown, setIsKnown] = useState(true);
   const [inputValue, setInputValue] = useState(searchTerm);
-
+ 
   const openNomineeDetail = () => {
     setIsNomineeDetailOpen(true);
   };
-
+ 
   const closeNomineeDetail = () => {
     setIsNomineeDetailOpen(false);
   };
-  
+ 
   const filterCandidates = (candidates, shared, term) => {
     if (!term) return candidates;
-   
+ 
+    return candidates.filter((nominee) => {
+      const { name, title, education, skills } = nominee;
+ 
+      if (!name || !title || !education || !skills) return false;
+ 
+      return (
+        name.toLowerCase().includes(term.toLowerCase()) ||
+        title.toLowerCase().includes(term.toLowerCase()) ||
+        education.some(edu => edu.degree.toLowerCase().includes(term.toLowerCase())) ||
+        skills.some(skill => skill.toLowerCase().includes(term.toLowerCase()))
+      );
+    });
   };
-
+ 
+  const filterCvs = (cvs, isNormal, searchTerm) => {
+    return cvs.filter(candidate => {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+ 
+      // Check title
+      if (candidate.title.toLowerCase().includes(lowerCaseSearchTerm)) {
+        console.log("title: " + lowerCaseSearchTerm);
+        return true;
+      }
+ 
+      // Check skills
+      if (candidate.skills.some(skill => skill.toLowerCase().includes(lowerCaseSearchTerm))) {
+        console.log("Skills: " + lowerCaseSearchTerm);
+        return true;
+      }
+ 
+      // Check experience
+      if (
+        candidate.experience.some(exp =>
+          exp.position.toLowerCase().includes(lowerCaseSearchTerm) ||
+          exp.company.toLowerCase().includes(lowerCaseSearchTerm) ||
+          exp.duration.includes(searchTerm) ||
+          exp.description.toLowerCase().includes(lowerCaseSearchTerm)
+        )
+      ) {
+        console.log("Experience: " + lowerCaseSearchTerm);
+        return true;
+      }
+ 
+      // Check education
+      if (
+        candidate.education.some(edu =>
+          edu.degree.toLowerCase().includes(lowerCaseSearchTerm) ||
+          edu.university.toLowerCase().includes(lowerCaseSearchTerm) ||
+          edu.graduation_year.toString().includes(searchTerm)
+        )
+      ) {
+        console.log("Education: " + lowerCaseSearchTerm);
+        return true;
+      }
+ 
+      return false;
+    });
+  };
+ 
+ 
+ 
+ 
+ 
   useEffect(() => {
     fetchCVs();
   }, []);
-
+ 
   const fetchCVs = async () => {
     setLoading(true);
     try {
@@ -45,7 +106,7 @@ const CVList = () => {
         `${process.env.REACT_APP_API_URL}/api/nominee/get-nominees`,
         { companyId: companyId ,isAdmin:false}
       );
-
+ 
       const shared = postResponse.data.sharedNominees;
       const cvPool = postResponse.data.allCvs;
       console.log("AAAAAAA" + cvPool);
@@ -56,7 +117,7 @@ const CVList = () => {
     }
     setLoading(false);
   };
-
+ 
   const handleNomineeDetail = (nominee, isKnown) => {
     if (nominee && nominee._id) {
       setIsKnown(isKnown);
@@ -68,16 +129,16 @@ const CVList = () => {
       );
     }
   };
-
+ 
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
-
+ 
   return (
     <div>
       <div>
         <SearchInput
-
+ 
           searchTerm={searchTerm.toLowerCase()} // searchTerm'i küçük harfe çevirme işlemi burada gerçekleştirilecek
           onSearch={handleSearch}
         />
@@ -103,7 +164,7 @@ const CVList = () => {
                       textToHighlight={nominee.name ||''}
                     />
                   </h4>
-
+ 
                   <p>
                     <strong>Unvan:</strong>
                     <Highlighter
@@ -155,7 +216,7 @@ const CVList = () => {
         <div className="cols-span-1 p-4">
           <h2 className="text-center font-semibold text-xl mb-6">CV HAVUZU</h2>
           <div className="grid grid-cols-1 gap-4">
-            {filterCandidates(cvs, false, searchTerm).map((nominee, index) => (
+            {filterCvs(cvs, false, searchTerm).map((nominee, index) => (
               <div
                 key={index}
                 className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
@@ -220,5 +281,5 @@ const CVList = () => {
     </div>
   );
 };
-
+ 
 export default CVList;
