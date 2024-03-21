@@ -242,7 +242,7 @@ const ListDemand = () => {
       }
     } catch (error) {
       console.error("Talep onaylanırken bir hata oluştu:", error);
-      showNotification(false, "Talep onaylanırken bir hata oluştu!");
+      Notification("error", "Talep onaylanırken bir hata oluştu!");
     }
   };
 
@@ -252,12 +252,12 @@ const ListDemand = () => {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/demands/${demandId}`
       );
-      Notification(true, "Talep başarılı bir şekilde silinmiştir.");
+      Notification("success", "Talep başarılı bir şekilde silinmiştir.");
       setTimeout(() => {}, 2000);
       fetchDemands();
     } catch (error) {
       console.error("Talep silinirken bir hata oluştu:", error);
-      showNotification(false, "Talep silinirken bir hata oluştu!");
+      Notification("error", "Talep silinirken bir hata oluştu!");
     } finally {
       setDeleteConfirmation(null);
     }
