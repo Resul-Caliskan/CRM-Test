@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { Button, Input, Form, Alert } from "antd";
+import { Button, Input, Form, Alert, ConfigProvider, Space } from "antd";
+import { IoCloseCircleSharp } from "react-icons/io5";
+import { CheckCircleFilled } from "@ant-design/icons";
 import { validateForm } from "../utils/formValidation";
 import VHlogo from "../assets/vhlogo.png";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -107,20 +109,61 @@ export default function SetPassword() {
             Lütfen şifre kurallarına uygun olarak şifrenizi belirleyiniz.
           </p>
           <div className="flex flex-col">
-            <label className="   text-gray-600 text-sm">Şifre</label>
-            <Form.Item name="password" rules={[]} hasFeedback>
-              <Input.Password
-                allowClear={true}
-                onChange={handlePasswordChange}
-              />
+            <label className="text-gray-600 text-sm mb-1">Şifre</label>
+            <Form.Item name="password" rules={[password.length >= 8]} hasFeedback={{
+              validateStatus: password.length < 8 ? 'error' : '',
+              help: password.length < 8 ? 'Şifre en az 8 karakter uzunluğunda olmalıdır.' : ''
+            }}>
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Input: (password.length < 8 || !(/[a-zA-Z]/.test(password)) ||
+                      !(/\d/.test(password))) && password.length > 0
+                      ? {
+                        colorPrimary: "red",
+                        hoverBorderColor: "red",
+                        activeBorderColor: "red",
+                        activeShadow: "pink",
+                        colorBorder: "red"
+
+                      }
+                      : {
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "#133163",
+                        activeBorderColor: "#133163",
+
+                      },
+                  },
+                }}>
+
+
+                <Space className={"block"}>
+                  <Input
+                    onBlur={handlePasswordChange}
+                    placeholder="Şifrenizi yazınız"
+                    disabled={loading}
+                    className="h-[40px]"
+                    suffix={
+                      (password.length < 8 || !(/[a-zA-Z]/.test(password)) ||
+                        !(/\d/.test(password))) && password.length > 0
+                        ? (<div >
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-4 "
+                          />
+                        </div>)
+                        : password.length>0&&<CheckCircleFilled className="text-green-500 size-4" />
+                    }
+                  />
+                </Space>
+              </ConfigProvider>
+
             </Form.Item>
           </div>
           <div className="flex flex-col ">
             <div className="relative">
-              <label className="text-gray-600 text-sm ">Şifre Tekrar</label>
+              <label className="text-gray-600 text-sm">Şifre Tekrar</label>
               <Form.Item
                 name="confirm"
-                onChange={handleConfirmPasswordChange}
                 dependencies={["password"]}
                 hasFeedback
                 rules={[
@@ -140,7 +183,46 @@ export default function SetPassword() {
                   }),
                 ]}
               >
-                <Input.Password allowClear={true} />
+                <ConfigProvider
+                  theme={{
+                    components: {
+                      Input: confirm !== password && confirm.length > 0
+                        ? {
+                          colorPrimary: "red",
+                          hoverBorderColor: "red",
+                          activeBorderColor: "red",
+                          activeShadow: "pink",
+                          colorBorder: "red"
+                        }
+                        : {
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "#133163",
+                          activeBorderColor: "#133163",
+                        },
+                    },
+                  }}
+                >
+                  <Space className={"block"}>
+                    <Input
+                      className="mt-1 h-[40px]"
+                      onBlur={handleConfirmPasswordChange}
+                      placeholder="Şifrenizi tekrar yazınız"
+                      disabled={loading}
+                      suffix={
+                      (confirm.length < 8 || !(/[a-zA-Z]/.test(confirm)) ||confirm!==password||
+                        !(/\d/.test(confirm))) && confirm.length > 0 
+                        ? (<div >
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-4 "
+                          />
+                        </div>)
+                        : confirm.length>0&&<CheckCircleFilled className="text-green-500 size-4" />
+                    }
+                    />
+                  </Space>
+
+                </ConfigProvider>
+
               </Form.Item>
               <Alert
                 message="Şifre Kuralları"
@@ -178,20 +260,20 @@ export default function SetPassword() {
             </div>
             <div className="flex row justify-between mt-2 mb-2">
               {password === confirm &&
-              password.length >= 8 &&
-              /[a-zA-Z]/.test(password) &&
-              /\d/.test(password) ? (
-                <button
+                password.length >= 8 &&
+                /[a-zA-Z]/.test(password) &&
+                /\d/.test(password) ? (
+                <Button
                   type="submit"
-                  className="bg-black text-white w-full h-9 hover:bg-gray-700 rounded-lg flex items-center justify-center mt-5"
                   onClick={handleSubmit}
+                  className="bg-[#0150C7] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
                   disabled={loading}
                 >
                   {loading ? (
                     <LoadingOutlined style={{ marginRight: "5px" }} spin />
                   ) : null}
                   {loading ? "" : "Şifre Belirle"}
-                </button>
+                </Button>
               ) : (
                 <Button disabled={true} className="h-9 w-full mt-5">
                   Şifre Belirle
