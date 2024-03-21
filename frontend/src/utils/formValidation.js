@@ -10,6 +10,9 @@ export const validateForm = (email, password) => {
   } else if (!/^\S+@\S+\.(com|net|org)$/i.test(email)) {
     errors.email = 'Geçerli bir email girin';
   }
+  else{
+    errors.email=false;
+  }
 
 
   if (!password) {
@@ -20,6 +23,9 @@ export const validateForm = (email, password) => {
 
     errors.password = 'Geçersiz Şifre';
 
+  }
+  else{
+    errors.password=false;
   }
 
   return errors;

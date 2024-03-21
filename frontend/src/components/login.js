@@ -1,8 +1,8 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { CheckCircleFilled, EyeInvisibleOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Input } from "antd";
+import { Button, Checkbox, ConfigProvider, Input, Space } from "antd";
 import { useNavigate } from "react-router-dom";
 import { validateForm } from "../utils/formValidation";
 import { setAuthToken } from "../utils/setAuthToken";
@@ -11,10 +11,13 @@ import { IoCloseCircleSharp } from "react-icons/io5";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../redux/authSlice";
 import logo from "../assets/login.png";
+import logoIcon from "../assets/logoIcon.png";
+import logoText from "../assets/logoText.png";
 import { MailOutlined, LockOutlined, EyeOutlined } from "@ant-design/icons";
 import { LoadingOutlined } from "@ant-design/icons";
 import VHlogo from "../assets/vhlogo.png";
 import Notification from "../utils/notification";
+import "./Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,27 +32,41 @@ export default function Login() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      if (windowWidth <= 576) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleEmailChange = (e) => {
     const { value } = e.target;
     setEmail(value);
     setEmailError("");
-    const newErrors = validateForm(value, password);
-    setErrors(newErrors);
-    setEmailError(newErrors.email || "");
+    const { email } = validateForm(value, password);
+    setErrors(email);
+    setEmailError(email);
   };
 
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setPassword(value);
     setPasswordError("");
-    const newErrors = validateForm(email, value);
-    setErrors(newErrors);
-    setPasswordError(newErrors.password || "");
+    const { password } = validateForm(email, value);
+    setErrors(password);
+    setPasswordError(password);
   };
 
   const handleSubmit = async (e) => {
-    console.log("aaaapii " + apiUrl);
+    console.log("aaaapi");
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
@@ -57,7 +74,7 @@ export default function Login() {
     }, 1800);
     const errors = validateForm(email, password);
 
-    if (Object.keys(errors).length === 0) {
+    if (errors.email === false && errors.password === false) {
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/auth/login`,
@@ -106,6 +123,7 @@ export default function Login() {
         console.log("girdiiii");
       }
     } else {
+      console.log("bbb");
       setErrors(errors);
       setEmailError(errors.email);
       setPasswordError(errors.password);
@@ -114,13 +132,27 @@ export default function Login() {
   };
 
   return (
-    <div className="flex ">
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 w-2/5">
-        <img src={logo} alt="Resim" className="w-full h-screen" />
-      </div>
+    <div className="flex container-div">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
+        {isVisible && (
 
-      <div className="flex flex-col justify-center items-center h-screen bg-white w-3/5">
-        <form onSubmit={handleSubmit} className="max-w-[458px] w-full mx-auto ">
+          <div className="loginFirst">
+
+            <div className="loginSecond">
+              <img src={logo} alt="Resim" className="h-screen" />
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="loginLogo">
+        <img src={logoIcon} alt="Logo" className="logoIcon" />
+        <img src={logoText} alt="Logo" className="logoText" />
+      </div>
+      <div className="flex flex-col justify-center items-center h-screen bg-white form-div">
+        <form
+          onSubmit={handleSubmit}
+          className={`max-w-[458px] w-full mx-auto form`}
+        >
           <p className="text-3xl  text-left font-semibold">
             İnsan Kaynaklarında Dijital Adımınız!
           </p>
@@ -129,57 +161,84 @@ export default function Login() {
           </h4>
           <div className="flex flex-col py-2">
             <label className="mb-2 text-gray-600 text-sm">Mail</label>
-            <Input
-              value={email}
-              disabled={loading}
-              placeholder="Mail adresinizi yazınız"
-              rules={[
-                {
-                  required: true,
-                  message: "Email giriniz!",
-                  type: "email",
-                  message: "Geçerli bir email adresi giriniz!",
+            <ConfigProvider
+              theme={{
+                components: {
+                  Input: emailError
+                    ? {
+                      colorPrimary: "#133163",
+                      hoverBorderColor: "red",
+                      activeBorderColor: "red",
+                    }
+                    : {
+                      colorPrimary: "#133163",
+                      hoverBorderColor: "#133163",
+                      activeBorderColor: "#133163",
+                    },
                 },
-              ]}
-              className={`focus:custom-blue text-sm border pl-3 p-2 ${
-                emailError ? "border-custom-red" : email ? "" : ""
-              }`}
-              onChange={(e) => {
-                handleEmailChange(e);
-                setEmail(e.target.value);
               }}
-              prefix={
-                <MailOutlined
-                  className={`mr-2 ${
-                    emailError
-                      ? "text-red-500"
-                      : email
-                      ? "text-green-500"
-                      : "text-gray-500"
-                  }`}
+            >
+              <Space className={" block"}>
+                <Input
+                  value={email}
+                  disabled={loading}
+                  placeholder="Mail adresinizi yazınız"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Email giriniz!",
+                      type: "email",
+                      message: "Geçerli bir email adresi giriniz!",
+                    },
+                  ]}
+                  className={`focus:custom-blue text-sm border pl-3 p-2   ${emailError ? "border-custom-red" : email ? "" : ""
+                    } `}
+                  onFocus={() => {
+                    setEmailError();
+                  }}
+                  onBlur={(e) => {
+                    handleEmailChange(e);
+                    setEmail(e.target.value);
+                  }}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                  prefix={
+                    <MailOutlined
+                      className={`mr-2 ${emailError
+                        ? "text-red-500"
+                        : email && emailError === false
+                          ? "text-green-500"
+                          : "text-gray-500"
+                        }`}
+                    />
+                  }
+                  suffix={
+                    emailError ? (
+                      <div style={{ paddingRight: "8px" }}>
+                        <IoCloseCircleSharp
+                          className="text-red-500 size-[16px] cursor-pointer ml-2"
+                          onClick={() => {
+                            setEmail("");
+                            setEmailError("");
+                          }}
+                        />
+                      </div>
+                    ) : email && emailError === false ? (
+                      <div style={{ paddingRight: "8px" }}>
+                        <CheckCircleFilled
+                          style={{
+                            color: "#52c41a",
+                            fontSize: 14,
+                            marginTop: 2,
+                          }}
+                        />
+                      </div>
+                    ) : null
+                  }
                 />
-              }
-              suffix={
-                emailError ? (
-                  <div style={{ paddingRight: "8px" }}>
-                    <IoCloseCircleSharp
-                      className="text-red-500 size-[16px] cursor-pointer ml-2"
-                      onClick={() => {
-                        setEmail("");
-                        setEmailError("");
-                      }}
-                    />
-                  </div>
-                ) : email ? (
-                  <div style={{ paddingRight: "8px" }}>
-                    <CheckCircleFilled
-                      style={{ color: "#52c41a", fontSize: 14, marginTop: 2 }}
-                    />
-                  </div>
-                ) : null
-              }
-            />
-
+              </Space>
+            </ConfigProvider>
             {emailError && (
               <p className="text-custom-red text-xs font-light mt-1">
                 {emailError}
@@ -189,72 +248,96 @@ export default function Login() {
           <div className="flex flex-col py-2">
             <div className="relative">
               <label className="text-gray-600 text-sm ">Şifre</label>
-              <Input
-                value={password}
-                placeholder="Şifrenizi yazınız"
-                rules={[
-                  {
-                    required: true,
-                    message: "Şifre giriniz!",
-                    type: "password",
-                    message: "Geçerli bir şifre giriniz!",
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Input: passwordError
+                      ? {
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "red",
+                        activeBorderColor: "red",
+                      }
+                      : {
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "#133163",
+                        activeBorderColor: "#133163",
+                      },
                   },
-                ]}
-                className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${
-                  passwordError ? "border-custom-red" : password ? "" : ""
-                }`}
-                disabled={loading}
-                onChange={(e) => {
-                  handlePasswordChange(e);
-                  setPassword(e.target.value);
                 }}
-                prefix={
-                  <LockOutlined
-                    className={`mr-2 ${
-                      passwordError
-                        ? "text-red-500"
-                        : password
-                        ? "text-green-500"
-                        : "text-gray-500"
-                    }`}
+              >
+                <Space className="block">
+                  <Input
+                    value={password}
+                    placeholder="Şifrenizi yazınız"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Şifre giriniz!",
+                        type: "password",
+                        message: "Geçerli bir şifre giriniz!",
+                      },
+                    ]}
+                    className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${passwordError ? "border-custom-red" : password ? "" : ""
+                      }`}
+                    disabled={loading}
+                    onFocus={() => {
+                      setPasswordError();
+                    }}
+                    // onBlur={(e) => {
+                     
+                    // }}
+                    onChange={(e) => {
+                      handlePasswordChange(e);
+                      setPassword(e.target.value);
+                    }}
+                    prefix={
+                      <LockOutlined
+                        className={`mr-2 ${passwordError
+                          ? "text-red-500"
+                          : password && passwordError === false
+                            ? "text-green-500"
+                            : "text-gray-500"
+                          }`}
+                      />
+                    }
+                    suffix={
+                      <div
+                        className="flex flex-row items-center justify-center"
+                        style={{ paddingRight: "8px" }}
+                      >
+                        {showPassword ? (
+                          <EyeInvisibleOutlined
+                            className="mr-2 size-4"
+                            onClick={() => {
+                              setShowPassword(!showPassword);
+                            }}
+                          />
+                        ) : (
+                          <EyeOutlined
+                            className="mr-2 size-4"
+                            onClick={() => {
+                              setShowPassword(!showPassword);
+                            }}
+                          />
+                        )}
+                        {passwordError && (
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-[16px] cursor-pointer ml-2"
+                            onClick={() => {
+                              setPassword("");
+                              setPasswordError("");
+                            }}
+                          />
+                        )}
+                        {passwordError === false && password && (
+                          <CheckCircleFilled className="text-green-500 size-4" />
+                        )}
+                      </div>
+                    }
+                    type={showPassword ? "text" : "password"}
                   />
-                }
-                suffix={
-                  <div
-                    className="flex flex-row items-center justify-center"
-                    style={{ paddingRight: "8px" }}
-                  >
-                    {showPassword ? (
-                      <EyeInvisibleOutlined
-                        className="mr-2 size-4"
-                        onClick={() => {
-                          setShowPassword(!showPassword);
-                        }}
-                      />
-                    ) : (
-                      <EyeOutlined
-                        className="mr-2 size-4"
-                        onClick={() => {
-                          setShowPassword(!showPassword);
-                        }}
-                      />
-                    )}
-                    {passwordError && (
-                      <IoCloseCircleSharp
-                        className="text-red-500 size-[16px] cursor-pointer ml-2"
-                        onClick={() => {
-                          setPassword("");
-                          setPasswordError("");
-                        }}
-                      />
-                    )}
-                    {!passwordError && password && (
-                      <CheckCircleFilled className="text-green-500 size-4" />
-                    )}
-                  </div>
-                }
-                type={showPassword ? "text" : "password"}
-              />
+                </Space>
+              </ConfigProvider>
               {passwordError && (
                 <p className=" text-custom-red text-xs font-light mt-1">
                   {passwordError}
@@ -273,7 +356,10 @@ export default function Login() {
             </div>
           </div>
 
-          {email && password && !emailError && !passwordError ? (
+          {email &&
+            password &&
+            emailError === false &&
+            passwordError === false ? (
             <button
               type="submit"
               className="bg-black text-white w-full h-9 hover:bg-gray-700 rounded-lg flex items-center justify-center mt-5"
@@ -292,17 +378,15 @@ export default function Login() {
           )}
 
           <div className="mt-2">
-            <a href="/demand" className="text-left underline text-sm ">
-              Kayıt için talep oluşturunuz.
-            </a>
             <p className="text-xs  text-center font-thin mt-6">
               Kullanıcı bilgileriniz her zaman güvende!
             </p>
           </div>
         </form>
-        <div class="fixed bottom-0 right-0 mb-6 mr-4">
+        <div class="fixed bottom-0 right-0 mb-6 mr-4 vh-logo">
           <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
         </div>
+
       </div>
     </div>
   );

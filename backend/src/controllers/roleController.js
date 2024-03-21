@@ -1,38 +1,33 @@
-const Role = require("../models/role") 
+const Role = require("../models/role");
 
-const express = require('express');
+const express = require("express");
 
-// Müşteri ekleme işlemi
 exports.addRole = async (req, res) => {
-    try {
-      const newRole = new Role({
-        role: req.body.role,
-       
-      });
-      await newRole.save();
-      res.status(201).json({ message: 'Rol başarıyla eklendi.' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
+  try {
+    const newRole = new Role({
+      role: req.body.role,
+    });
+    await newRole.save();
+    res.status(201).json({ message: "Rol başarıyla eklendi." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-
-  // Tüm rolleri çekme işlemi
 exports.getAllRoles = async (req, res) => {
-    try {
-      const roles = await Role.find();
-      res.status(200).json(roles);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
+  try {
+    const roles = await Role.find();
+    res.status(200).json(roles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-
-  exports.deleteRole = async (req, res) => {
-    try {
-      await Role.findByIdAndDelete(req.params.id);
-      res.status(200).json({ message: 'Rol başarıyla silindi.' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
+exports.deleteRole = async (req, res) => {
+  try {
+    await Role.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Rol başarıyla silindi." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

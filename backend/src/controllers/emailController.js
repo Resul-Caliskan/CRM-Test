@@ -35,7 +35,7 @@ const sendEmail = async (req, res) => {
 const sendChangePasswordMail = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: "Gmail", // E-posta servisi (örneğin Gmail)
+      service: "Gmail", //e-mail service Gmail for example
       auth: {
         user: "resulcaliskansau@gmail.com", // buraya venhancer e-posta adresi gelecek
         pass: "boou obke qieo vnqe", // buraya venhancer  e-posta adresi için şifre oluşturulmalı
@@ -46,7 +46,7 @@ const sendChangePasswordMail = async (req, res) => {
     const mailToken = jwt.sign({ id }, config.secretKey, {
       expiresIn: "1d",
     });
-    // Gönderilecek e-posta içeriği
+    
     const mailOptions = {
       from: "resulcaliskansau@gmail.com",
       to: req.body.recipientEmail,
@@ -69,7 +69,7 @@ const sendChangePasswordMail = async (req, res) => {
       </style>
       </head>
       <body style= " font-family: Arial, sans-serif; width:70%;">
-      <header style="background-color: #0057d9; color: white; text-align: left;">
+      <header style="background-color: #000000; color: white; text-align: left;">
         <h1 style="padding-left: 30px; padding-top: 20px; margin-bottom: 0;">HR Hub</h1>
          <h2 style="padding-left: 30px; margin-top: 0; margin-bottom:0;">CRM</h2>
       </header>
@@ -86,7 +86,7 @@ const sendChangePasswordMail = async (req, res) => {
           src="https://crm-test-z2p9.onrender.com/kilit.jpeg"
         />
         <h3 style="margin-bottom: 5px;">
-          Sayın kullanıcı şifrenizi değiştirmek mi istiyorsunuz?
+          Şifrenizi değiştirmek mi istiyorsunuz?
         </h3>
         <p style="margin-bottom: 10px; padding-top: 10px; font-size: medium">
           Şifrenizi değiştirmek istiyorsanız butona tıklayınız.
@@ -98,12 +98,12 @@ const sendChangePasswordMail = async (req, res) => {
             padding-inline-start: 30px;
             padding-inline-end: 30px;
             border-radius: 8px;
-            background-color: black;
+            background-color: #0057D9;
             color: white;
             text-decoration: none;
             border-radius: 5px;
           "
-          href="https://crm-daltonlar-4kexnryco-resuls-projects-29a3dfa5.vercel.app/set-password/${mailToken}"
+          href="https://localhost:3001/set-password/${mailToken}"
           >Şifremi Değiştir
         </a>
         <p style="margin-bottom: 20px; padding-top: 60px; font-size: medium">
@@ -120,7 +120,7 @@ const sendChangePasswordMail = async (req, res) => {
       `,
     };
 
-    // E-postayı gönderme
+    // send e-mail
     transporter.sendMail(mailOptions, function (err, info) {
       if (err) {
         console.error("E-posta gönderme hatası:", err);

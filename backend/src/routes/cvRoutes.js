@@ -16,9 +16,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// router.post("/uploadfiles", upload.single("file"), pdfController.uploadPdf);
-// router.get("/getfiles", pdfController.getPdfs);
-router.post("/getcv",authenticationMiddleware.authenticateToken, pdfController.sendPdf);
-router.get("/getallcvs/:id",authenticationMiddleware.authenticateToken, pdfController.getPdfById);
+router.post(
+  "/getcv",
+  authenticationMiddleware.authenticateToken,
+  pdfController.sendPdf
+);
+router.get(
+  "/getallcvs/:id",
+  authenticationMiddleware.authenticateToken,
+  pdfController.getPdfById
+);
 
 module.exports = router;

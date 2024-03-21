@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import filterFunciton from '../utils/globalSearchFunction';
 import SearchInput from '../components/searchInput';
 import Highlighter from 'react-highlight-words';
 import { IoAddCircleSharp } from "react-icons/io5";

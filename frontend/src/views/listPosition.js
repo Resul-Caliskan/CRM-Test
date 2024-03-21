@@ -79,14 +79,14 @@ const ListPosition = () => {
         className="bg-green-500 mx-10 mb-3 hover:bg-green-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline"
         onClick={handleAddPosition}
       >
-        Yeni Talep{" "}
+        Yeni Talep Oluştur{" "}
         <IoAddCircleSharp
           className="inline-block ml-3"
           style={{ fontSize: "24px" }}
         />
       </button>
       <div className="overflow-xauto px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {positions.map((position) => (
             <div
               key={position.id}
@@ -114,19 +114,19 @@ const ListPosition = () => {
               </div>
               <div class="mt-4 flex justify-between items-center">
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline flex items-center"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
                   onClick={() => handlePositionDetails(position._id)}
                 >
                   Detaylar <FaInfoCircle className="inline-block ml-1" />
                 </button>
                 <button
-                  className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline flex items-center"
+                  className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold  lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
                   onClick={() => handleEditPosition(position._id)}
                 >
                   Düzenle <FaEdit className="inline-block ml-1" />
                 </button>
                 <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline flex items-center"
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold  lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
                   onClick={() => showDeleteConfirmationModal(position._id)}
                 >
                   Sil <FaTimes className="inline-block ml-1" />

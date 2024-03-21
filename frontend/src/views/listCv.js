@@ -30,8 +30,8 @@ const CVList = () => {
   };
   
   const filterCandidates = (candidates, shared, term) => {
-    if (!term) return candidates; // Add this line to check if 'term' is defined
-    // Rest of your filtering logic...
+    if (!term) return candidates;
+   
   };
 
   useEffect(() => {
@@ -42,15 +42,15 @@ const CVList = () => {
     setLoading(true);
     try {
       const postResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/nominee/aday-user`,
-        { companyId: companyId }
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-nominees`,
+        { companyId: companyId ,isAdmin:false}
       );
 
       const shared = postResponse.data.sharedNominees;
-      const cvHavuzu = postResponse.data.allCv;
-      console.log("AAAAAAA" + cvHavuzu);
+      const cvPool = postResponse.data.allCvs;
+      console.log("AAAAAAA" + cvPool);
       setSharedItems(shared);
-      setCvs(cvHavuzu);
+      setCvs(cvPool);
     } catch (error) {
       setError(error.message);
     }
@@ -82,8 +82,8 @@ const CVList = () => {
           onSearch={handleSearch}
         />
       </div>
-      <div className="flex">
-        <div className="w-1/2 p-4 border-r-2 border-">
+      <div className="grid sm:grid-cols-2">
+        <div className="cols-span-1 p-4 md:border-r-2">
           <h2 className="text-center font-semibold text-xl mb-6">
             {" "}
             BENİMLE PAYLAŞILANLAR
@@ -152,8 +152,7 @@ const CVList = () => {
             )}
           </ul>
         </div>
-        <div className="w-px bg-gray-300 h-full"></div>
-        <div className="w-1/2 p-4">
+        <div className="cols-span-1 p-4">
           <h2 className="text-center font-semibold text-xl mb-6">CV HAVUZU</h2>
           <div className="grid grid-cols-1 gap-4">
             {filterCandidates(cvs, false, searchTerm).map((nominee, index) => (

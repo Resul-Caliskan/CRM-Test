@@ -1,20 +1,42 @@
-import React, { useState } from "react";
-import logo from "../assets/login.png";
+import React, { useEffect, useState } from "react";
 import VHlogo from "../assets/vhlogo.png";
-import { Button, Form, Input } from "antd";
-import { MailOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button, ConfigProvider, Form, Input, Space } from "antd";
+import {
+  MailOutlined,
+  LoadingOutlined,
+  CheckCircleFilled,
+} from "@ant-design/icons";
 import { validateForm } from "../utils/formValidation";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Notification from "../utils/notification";
+import "../components/Login.css";
+import logo from "../assets/login.png";
+import logoIcon from "../assets/logoIcon.png";
+import logoText from "../assets/logoText.png";
+import { IoCloseCircleSharp } from "react-icons/io5";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
-  const [emailError, setEmailError] = useState("");
+  const [emailError, setEmailError] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState("");
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      if (windowWidth <= 576) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -54,21 +76,32 @@ export default function ResetPassword() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleEmailChange = (e) => {
     const { value } = e.target;
     setEmail(value);
-    const validationResult = validateForm(value);
-    setErrors(validationResult);
-    setEmailError(validationResult);
+    setEmailError("");
+    const { email } = validateForm(value, true);
+    setErrors(email);
+    setEmailError(email);
   };
 
   return (
-    <div className="flex">
-      <div className="hidden sm:block  flex-col justify-center items-center h-full bg-gray-100 w-2/5">
-        <img src={logo} alt="Resim" className="w-full h-screen" />
+    <div className="flex container-div">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
+        {isVisible && (
+          <div className="loginFirst">
+            <div className="loginSecond">
+              <img src={logo} alt="Resim" className="h-screen" />
+            </div>
+          </div>
+        )}
       </div>
-      <div className="flex  justify-center items-center h-screen bg-white w-3/5">
-        <Form className="flex flex-col gap-5 w-full mx-auto max-w-md">
+      <div className="loginLogo">
+        <img src={logoIcon} alt="Logo" className="logoIcon" />
+        <img src={logoText} alt="Logo" className="logoText" />
+      </div>
+      <div className="flex flex-col justify-center items-center h-screen bg-white form-div mx-auto">
+        <Form className="flex flex-col  w-full mx-auto form p-5">
           <div>
             <h1 className="text-4xl font-semibold mb-2">Şifre Yenile</h1>
             <p className="text-base">
@@ -91,43 +124,103 @@ export default function ResetPassword() {
                 },
               ]}
             >
-              <Input
-                placeholder="E-posta adresinizi giriniz"
-                onChange={handleInputChange}
-                disabled={loading}
-                status={emailError?"":"error"}
-                allowClear={true}
-                prefix={
-                  <MailOutlined
-                    className={
-                      !errors.email && email.length > 0 ? "text-green-500" : ""
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Input: emailError
+                      ? {
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "red",
+                          activeBorderColor: "red",
+                        }
+                      : {
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "#133163",
+                          activeBorderColor: "#133163",
+                        },
+                  },
+                }}
+              >
+                <Space className={" block"}>
+                  <Input
+                    value={email}
+                    disabled={loading}
+                    placeholder="Mail adresinizi yazınız"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Email giriniz!",
+                        type: "email",
+                        message: "Geçerli bir email adresi giriniz!",
+                      },
+                    ]}
+                    className={`focus:custom-blue text-sm border pl-3 p-2   ${
+                      emailError ? "border-custom-red" : email ? "" : ""
+                    } `}
+                    onFocus={() => {
+                      setEmailError();
+                    }}
+                    onBlur={(e) => {
+                      handleEmailChange(e);
+                      setEmail(e.target.value);
+                    }}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
+                    prefix={
+                      <MailOutlined
+                        className={`mr-2 ${
+                          emailError
+                            ? "text-red-500"
+                            : email && emailError === false
+                            ? "text-green-500"
+                            : "text-gray-500"
+                        }`}
+                      />
+                    }
+                    suffix={
+                      emailError ? (
+                        <div style={{ paddingRight: "8px" }}>
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-[16px] cursor-pointer ml-2"
+                            onClick={() => {
+                              setEmail("");
+                              setEmailError("");
+                            }}
+                          />
+                        </div>
+                      ) : email && emailError === false ? (
+                        <div style={{ paddingRight: "8px" }}>
+                          <CheckCircleFilled
+                            style={{
+                              color: "#52c41a",
+                              fontSize: 14,
+                              marginTop: 2,
+                            }}
+                          />
+                        </div>
+                      ) : null
                     }
                   />
-                }
-              />
+                </Space>
+              </ConfigProvider>
             </Form.Item>
           </div>
-          {email && !errors.email ? (
-            <button
-              onClick={handleSubmit}
-              className="h-9 bg-black text-white hover:bg-gray-700  rounded-lg"
-            >
-              {" "}
-              {loading ? (
-                <LoadingOutlined style={{ marginRight: "5px" }} spin />
-              ) : (
-                "İlerle"
-              )}
-            </button>
-          ) : (
-            <Button disabled="true" className="h-9">
-              İlerle
-            </Button>
-          )}
+
+          <Button
+            onClick={handleSubmit}
+            className="bg-[#0150C7] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
+            disabled={!(email && emailError === false)}
+          >
+            {loading ? (
+              <LoadingOutlined style={{ marginRight: "5px" }} spin />
+            ) : (
+              "İlerle"
+            )}
+          </Button>
+
           <a href="/">
-            <p className="text-center text-base hover:font-semibold hover:text-gray-700">
-              Giriş sayfasına geri dön
-            </p>
+            <p className="text-center text-base ">Giriş sayfasına geri dön</p>
           </a>
         </Form>
         <div class="fixed bottom-0 right-0 mb-6 mr-4">

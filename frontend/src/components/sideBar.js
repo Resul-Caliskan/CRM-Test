@@ -1,201 +1,223 @@
-import React, { useEffect, useState } from 'react';
-import { RiArrowDropDownLine } from 'react-icons/ri';
-import { MdDashboardCustomize } from 'react-icons/md';
-import { FaUsersLine } from 'react-icons/fa6';
-import { BiLogOut } from 'react-icons/bi';
-import { VscGitPullRequestGoToChanges } from 'react-icons/vsc';
-import { MdMoveToInbox } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux'; 
-import { setSelectedOption } from '../redux/selectedOptionSlice';
-import UserForm from '../views/addUser';
-import CompanyForm from '../views/addCustomer';
-import ListCustomers from '../views/listCustomer';
-import ListDemand from '../views/listDemand';
-import ListPosition from '../views/listPosition';
-import Parameters from '../views/parameters';
-import AdminListPosition from '../views/adminListPositions';
+import React, { useEffect, useState } from "react";
+import { RiArrowDropDownLine } from "react-icons/ri";
+import { MdDashboardCustomize } from "react-icons/md";
+import { FaUsersLine } from "react-icons/fa6";
+import { BiLogOut } from "react-icons/bi";
+import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
+import { MdMoveToInbox } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedOption } from "../redux/selectedOptionSlice";
+import UserForm from "../views/addUser";
+import CompanyForm from "../views/addCustomer";
+import ListCustomers from "../views/listCustomer";
+import ListDemand from "../views/listDemand";
+import ListPosition from "../views/listPosition";
+import Parameters from "../views/parameters";
+import AdminListPosition from "../views/adminListPositions";
+import "./style.css";
+import hrhub from "../assets/hrhub.png";
+import avatar from "../assets/avatar.png";
+import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 
 export default function SideBar() {
-    const selectedOption = useSelector(state => state.selectedOption.selectedOption); 
-    const dispatch = useDispatch(); 
-
-    const handleOptionClick = (option) => {
-        dispatch(setSelectedOption(option));
-    };
-
-    useEffect(() => {
-        if (!localStorage.getItem('token')) {
-            navigate('/');
-        }
-    }, [selectedOption]);
-
-    const [isOpen, setIsOpen] = useState(false);
-    const navigate = useNavigate();
-    const LogOut = () => {
-        localStorage.clear();
-        return navigate('/');
-    };
-
-    let renderComponent;
-
-    switch (selectedOption) {
-        case 'add-customer':
-            renderComponent = <CompanyForm />;
-            break;
-        case 'list-demands':
-            renderComponent = <ListDemand />;
-            break;
-        case 'list-customers':
-            renderComponent = <ListCustomers />;
-            break;
-        case 'list-positions':
-            renderComponent = <AdminListPosition />;
-            break;
-        case 'parameters':
-            renderComponent = <Parameters />;
-            break;
-        case 'edit-customer':
-            renderComponent = <ListPosition />;
-            break;
-        default:
-            renderComponent = <ListCustomers />;
+  const selectedOption = useSelector(
+    (state) => state.selectedOption.selectedOption
+  );
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  let renderComponent;
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/");
     }
+  }, [selectedOption]);
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+  const handleOptionClick = (option) => {
+    dispatch(setSelectedOption(option));
+  };
+  const handleLogout = () => {
+    localStorage.clear();
+    return navigate("/");
+  };
+  switch (selectedOption) {
+    case "add-customer":
+      renderComponent = <CompanyForm />;
+      break;
+    case "list-demands":
+      renderComponent = <ListDemand />;
+      break;
+    case "list-customers":
+      renderComponent = <ListCustomers />;
+      break;
+    case "list-positions":
+      renderComponent = <AdminListPosition />;
+      break;
+    case "parameters":
+      renderComponent = <Parameters />;
+      break;
+    case "edit-customer":
+      renderComponent = <ListPosition />;
+      break;
+    default:
+      renderComponent = <ListCustomers />;
+  }
 
-    return (
-        <div className="relative">
-            <div className="flex">
-                <aside
-                    id="sidebar-multi-level-sidebar"
-                    className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
-                    aria-label="Sidebar"
-                >
-                    <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-                        <ul className="space-y-2 font-medium">
-                            <li>
-                                <a
-                                    href="#"
-                                    className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedOption === '' ? 'bg-gray-300' : ''}`}
-                                >
-                                    <span>
-                                        <MdDashboardCustomize className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="ms-3">Dashboard</span>
-                                </a>
-                            </li>
-                            <li>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsOpen(!isOpen)}
-                                    className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                    aria-controls="dropdown-example"
-                                    data-collapse-toggle="dropdown-example"
-                                >
-                                    <span>
-                                        <FaUsersLine className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                                        Müşteri İşlemleri
-                                    </span>
-                                    <span>
-                                        <RiArrowDropDownLine className="flex-shrink-0 w-5 h-5  text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                </button>
-                                <ul
-                                    id="dropdown-example"
-                                    className={`py-2 space-y-2 ${
-                                        isOpen ? '' : 'hidden'
-                                    }`}
-                                >
-                                    <li>
-                                        <a
-                                            href="#"
-                                            onClick={() =>
-                                                handleOptionClick('list-customers')
-                                            }
-                                            className={`flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 ${selectedOption === 'list-customers' ? 'bg-gray-300' : ''}`}
-                                        >
-                                            Müşteri Listele
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="#"
-                                            onClick={() =>
-                                                handleOptionClick('add-customer')
-                                            }
-                                            className={`flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 ${selectedOption === 'add-customer' ? 'bg-gray-300' : ''}`}
-                                        >
-                                            Müşteri Ekle
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    onClick={() =>
-                                        handleOptionClick('list-demands')
-                                    }
-                                    className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedOption === 'list-demands' ? 'bg-gray-300' : ''}`}
-                                >
-                                    <span>
-                                        <VscGitPullRequestGoToChanges className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="flex-1 ms-3 whitespace-nowrap">
-                                        Kullanıcı Talepleri
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    onClick={() =>
-                                        handleOptionClick('list-positions')
-                                    }
-                                    className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedOption === 'list-positions' ? 'bg-gray-300' : ''}`}
-                                >
-                                    <span>
-                                        <MdMoveToInbox className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="flex-1 ms-3 whitespace-nowrap">
-                                        Pozisyon Talepleri
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    onClick={() => handleOptionClick('parameters')}
-                                    className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedOption === 'parameters' ? 'bg-gray-300' : ''}`}
-                                >
-                                    <span>
-                                        <MdMoveToInbox className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="flex-1 ms-3 whitespace-nowrap">
-                                        Parametreler
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#"
-                                    onClick={LogOut}
-                                    className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                                >
-                                    <span>
-                                        <BiLogOut className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                                    </span>
-                                    <span className="flex-1 ms-3 whitespace-nowrap">
-                                        Log Out
-                                    </span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </aside>
+  return (
+    <>
+      <div className="header">
+        <div className="navbar">
+          <div className="logo">
+            <img src={hrhub} alt="Resim" className="" />
+          </div>
+          <div className="majormenu">
+            <div className="rectangleContainer">
+              <div className="rectangleSubtract"></div>
+              <div className="rectangleLeft"></div>
+              <div className="rectangleCenter">
+                <label className="text-gray-700 flex items-center justify-center h-full text-sm font-weight-800">
+                  Müşteri İlişkileri Yönetimi
+                </label>
+              </div>
+              <div className="rectangleRight"></div>
             </div>
-            <div className="ml-64 flex-grow flex justify-center">{renderComponent}</div>
+          </div>
+          <div className="avatar-container">
+            <div className="labels">
+              <label className="nameLabel">{user.email}</label>
+              <label className="roleLabel">
+                {user.role
+                  ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                  : ""}
+              </label>
+            </div>
+            <div className="avatar-icon">
+              <img src={avatar} onClick={handleLogout} alt="Resim " />
+            </div>
+          </div>
         </div>
-    );
+        <ul class="menu">
+          <li class="menu-item">
+            <a
+              href="#"
+              onClick={() => handleOptionClick("dashboard")}
+              class="menu-link"
+            >
+              Dashboard
+            </a>
+          </li>
+          <li className="menu-item">
+            <a
+              href="#"
+              className="menu-link"
+              onMouseEnter={() => setIsOpen(true)}
+              onMouseLeave={() => setIsOpen(false)}
+              onClick={() => handleOptionClick("list-costumers")}
+            >
+              <label className="text-14">Müşteri İşlemleri</label>
+              <span className="icon-container">
+                {isOpen ? (
+                  <CaretUpOutlined className="icon" />
+                ) : (
+                  <CaretDownOutlined className="icon" />
+                )}
+              </span>
+            </a>
+            <ul
+              className="submenu"
+              onMouseEnter={() => setIsOpen(true)}
+              onMouseLeave={() => setIsOpen(false)}
+            >
+              <li className="submenu-item">
+                <a
+                  href="#"
+                  onClick={() => handleOptionClick("add-customer")}
+                  className="submenu-link"
+                >
+                  Müşteri Ekle
+                </a>
+              </li>
+              <li className="submenu-item">
+                <a
+                  href="#"
+                  onClick={() => handleOptionClick("list-customers")}
+                  className="submenu-link"
+                >
+                  Müşteri Listele
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="menu-item">
+            <a
+              href="#"
+              class="menu-link"
+              onClick={() => handleOptionClick("list-demands")}
+            >
+              Kullanıcı Talepleri
+            </a>
+          </li>
+
+          <li class="menu-item hidden-sm">
+            <a
+              href="#"
+              class="menu-link"
+              onClick={() => handleOptionClick("list-positions")}
+            >
+              Pozisyon Talepleri
+            </a>
+          </li>
+          <li class="menu-item hidden-sm">
+            <a
+              href="#"
+              class="menu-link"
+              onClick={() => handleOptionClick("parameters")}
+            >
+              Parametreler
+            </a>
+          </li>
+          <li class="menu-item hidden-sm-dropdown">
+            <a href="#" class="menu-link" onClick={toggleDropdown}>
+              ...
+            </a>
+            <ul className={isDropdownOpen ? "submenu2 open" : "submenu2"}>
+              <li class="menu-item">
+                <a
+                  href="#"
+                  class="menu-link"
+                  onClick={() => handleOptionClick("list-positions")}
+                >
+                  Pozisyon Talepleri
+                </a>
+              </li>
+              <li class="menu-item">
+                <a
+                  href="#"
+                  class="menu-link"
+                  onClick={() => handleOptionClick("parameters")}
+                >
+                  Parametreler
+                </a>
+              </li>
+              <li class="menu-item">
+                <a
+                  href="#"
+                  class="menu-link"
+                  onClick={() => handleOptionClick("list")}
+                >
+                  List
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div className="body">{renderComponent}</div>
+    </>
+  );
 }

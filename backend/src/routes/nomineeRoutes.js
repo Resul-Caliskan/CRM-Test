@@ -1,15 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const nomineeController = require('../controllers/nomineeController');
+const nomineeController = require("../controllers/nomineeController");
 
-router.post('/nominee/add', nomineeController.addNominee);
+router.post("/nominee/add", nomineeController.addNominee);
 
-router.post('/nominee/aday-admin', nomineeController.getNomineeByCompanyIdAdmin);
+router.post("/nominee/get-nominees", nomineeController.getNomineeByCompanyId);
 
-router.post('/nominee/pozisyon-admin', nomineeController.getNomineeByPositionIdAdmin); 
-
-router.post('/nominee/aday-user', nomineeController.getNomineeByCompanyIdUser);
-
-router.post('/nominee/pozisyon-user', nomineeController.getNomineeByPositionIdUser); 
+router.post(
+  "/nominee/get-position-nominees",
+  nomineeController.getNomineeByPositionId
+);
 
 module.exports = router;

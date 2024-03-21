@@ -67,7 +67,7 @@ const DemandForm = () => {
                     companyname: companies[formData.companyName].companyname,
                     companyId: companies[formData.companyName]._id,
                 });
-            Notification(true, "Talebiniz alınmıştır. Onaylandığında size bildirim gönderilecektir. ");
+            Notification("success", "Talep Oluşturuldu.","Talebiniz alınmıştır. Onaylandığında size bildirim gönderilecektir. ");
             setTimeout(() => {
                 navigate('/');
             }, 1000);

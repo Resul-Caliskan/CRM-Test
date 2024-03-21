@@ -2,10 +2,10 @@ const User = require("../models/user");
 
 const express = require("express");
 
-// controllers/customerController.js
+
 const Customer = require("../models/customer");
 
-// Müşteri ekleme işlemi
+
 exports.addCustomer = async (req, res) => {
   try {
     console.log("BODYYYY" + req.body);
@@ -21,7 +21,7 @@ exports.addCustomer = async (req, res) => {
       contactmail: req.body.contactmail,
       contactnumber: req.body.contactnumber,
       companycounty: req.body.companycounty,
-      // Diğer müşteri bilgileri...
+      
     });
     await newCustomer.save();
     console.log("Başarılı");
@@ -32,7 +32,7 @@ exports.addCustomer = async (req, res) => {
   }
 };
 
-//
+
 exports.userAddToCustomer = async (req, res) => {
   try {
     console.log("GELDİİİİİ" + req.body.email);
@@ -66,9 +66,10 @@ exports.userAddToCustomer = async (req, res) => {
   }
 };
 
-// Müşteri güncelleme işlemi
+
 exports.updateCustomer = async (req, res) => {
   try {
+    console.log("girdi");
     const updatedCustomer = await Customer.findByIdAndUpdate(
       req.params.id,
       {
@@ -87,12 +88,13 @@ exports.updateCustomer = async (req, res) => {
       { new: true }
     );
     res.status(200).json(updatedCustomer);
+    console.log(updatedCustomer);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Müşteri silme işlemi
+
 exports.deleteCustomer = async (req, res) => {
   try {
     const id = req.params.id;
@@ -103,7 +105,7 @@ exports.deleteCustomer = async (req, res) => {
   }
 };
 
-// Tüm müşterileri çekme işlemi
+
 exports.getAllCustomers = async (req, res) => {
   try {
     console.log("SİRKETLER GELDİ.");
@@ -114,7 +116,7 @@ exports.getAllCustomers = async (req, res) => {
   }
 };
 
-// Müşteri ID'sine göre müşteriyi getirme işlemi
+
 exports.getCustomerById = async (req, res) => {
   try {
     const customerId = req.params.id;

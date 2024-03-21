@@ -1,45 +1,116 @@
 const Nominee = require("../models/nominee");
-const position = require("../models/position");
 const Position = require("../models/position");
 const express = require("express");
+const { findMatches } = require("../utils/matchingCv");
 
-exports.getNomineeByCompanyIdAdmin = async (req, res) => {
+exports.getNomineeByCompanyId = async (req, res) => {
   try {
+    const isAdmin = req.body.isAdmin;
     const companyId = req.body.companyId;
     const positions = await Position.find({ companyId: companyId });
-    let paylasilanAdaylar = [];
+    let sharedNomineesFromPosition = [];
     let title = [];
 
     positions.forEach((position) => {
       title.push(position.jobtitle);
-      position.paylasilanAdaylar.forEach((aday) => {
-        paylasilanAdaylar.push(aday);
+      position.sharedNominees.forEach((aday) => {
+        sharedNomineesFromPosition.push(aday);
       });
     });
     let sharedNominees = [];
     await Promise.all(
-      paylasilanAdaylar.map(async (aday) => {
+      sharedNomineesFromPosition.map(async (aday) => {
         const nominee = await Nominee.findById(aday);
         sharedNominees.push(nominee);
       })
     );
-    
-    //buradaki $nin fonksiyonu sharedNominees içinde olan verilerin allCv'ye gelmemesini sağlıyor..
-    let allCv = await Nominee.find({
-      title: { $in: title },
-      _id: { $nin: sharedNominees.map((aday) => aday._id) },
-    });
-    //console.log(allCv);
-    res.status(200).json({ sharedNominees: sharedNominees, allCv: allCv });
+    let allCvs = [];
+    if (isAdmin) {
+      //buradaki $nin fonksiyonu sharedNominees içinde olan verilerin allCv'ye gelmemesini sağlıyor..
+      allCvs = await Nominee.find({
+        title: { $in: title },
+        _id: { $nin: sharedNominees.map((aday) => aday._id) },
+      });
+    } else {
+      allCvs = await Nominee.find(
+        {
+          title: { $in: title },
+          _id: { $nin: sharedNominees.map((aday) => aday._id) },
+        },
+
+        {
+          name: 0,
+          contact: 0,
+        }
+      );
+    }
+    console.log(sharedNominees,allCvs);
+    res.status(200).json({ sharedNominees: sharedNominees, allCvs: allCvs });
   } catch (error) {
-   
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getNomineeByPositionId = async (req, res) => {
+  try {
+    const positionId = req.body.positionId;
+    const isAdmin = req.body.isAdmin;
+    const positions = await Position.findById(positionId);
+    let sharedNomineesFromPosition = [];
+    let skills = [];
+    let title = positions.jobtitle;
+
+    positions.skills.forEach((skill) => {
+      skills.push(skill);
+    });
+    positions.sharedNominees.forEach((aday) => {
+      sharedNomineesFromPosition.push(aday);
+    });
+
+    let sharedNominees = [];
+
+    await Promise.all(
+      sharedNomineesFromPosition.map(async (aday) => {
+        const nominee = await Nominee.findById(aday);
+        sharedNominees.push(nominee);
+      })
+    );
+
+    let sharedNomineesRate = findMatches(skills, sharedNominees);
+
+    let allCvs = [];
+
+    if (isAdmin) {
+      allCvs = await Nominee.find({
+        _id: { $nin: sharedNominees.map((aday) => aday._id) },
+      });
+    } else {
+      allCvs = await Nominee.find(
+        {
+          title: { $in: title },
+          _id: { $nin: sharedNominees.map((aday) => aday._id) },
+        },
+
+        {
+          name: 0,
+          contact: 0,
+        }
+      );
+    }
+
+    let suggestedAllCvs = findMatches(skills, allCvs);
+    console.log("nomienne:", suggestedAllCvs);
+    res.status(200).json({
+      sharedNominees: sharedNomineesRate,
+      suggestedAllCvs: suggestedAllCvs,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error });
   }
 };
 
 exports.addNominee = async (req, res) => {
   try {
-    
-
     const newNominee = new Nominee({
       name: req.body.name,
       title: req.body.title,
@@ -53,114 +124,4 @@ exports.addNominee = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
-
-exports.getNomineeByPositionIdAdmin = async (req, res) => {
-  try {
-    const positionId = req.body.positionId;
-    
-    const positions = await Position.findById(positionId);
-    let paylasilanAdaylar = [];
-    let title = positions.jobtitle;
-
-    positions.paylasilanAdaylar.forEach((aday) => {
-     
-
-      paylasilanAdaylar.push(aday);
-    
-    });
-    let sharedNominees = [];
-    await Promise.all(
-      paylasilanAdaylar.map(async (aday) => {
-        const nominee = await Nominee.findById(aday);
-        sharedNominees.push(nominee);
-      })
-    );
-  
-    
-    let allCv = await Nominee.find({
-      title: { $in: title },
-      _id: { $nin: sharedNominees.map((aday) => aday._id) },
-    });
-   
-    res.status(200).json({ sharedNominees: sharedNominees, allCv: allCv });
-  } catch (error) {
-   
-  }
-};
-
-exports.getNomineeByCompanyIdUser = async (req, res) => {
-  try {
-    const companyId = req.body.companyId;
-    const positions = await Position.find({ companyId: companyId });
-    let paylasilanAdaylar = [];
-    let title = [];
-
-    positions.forEach((position) => {
-      title.push(position.jobtitle);
-      position.paylasilanAdaylar.forEach((aday) => {
-        paylasilanAdaylar.push(aday);
-      });
-    });
-    let sharedNominees = [];
-    await Promise.all(
-      paylasilanAdaylar.map(async (aday) => {
-        const nominee = await Nominee.findById(aday);
-        sharedNominees.push(nominee);
-      })
-    );
-
-   
-    let allCv = await Nominee.find(
-      {
-        title: { $in: title },
-        _id: { $nin: sharedNominees.map((aday) => aday._id) },
-      },
-      
-      {
-        name: 0,
-        contact: 0,
-      }
-    );
-    
-
-    res.status(200).json({ sharedNominees: sharedNominees, allCv: allCv });
-  } catch (error) {
-    
-  }
-};
-
-exports.getNomineeByPositionIdUser = async (req, res) => {
-  try {
-    const positionId = req.body.positionId;
-    const positions = await Position.findById(positionId);
-    let paylasilanAdaylar = [];
-    let title = positions.jobtitle;
-
-    positions.paylasilanAdaylar.forEach((aday) => {
-      paylasilanAdaylar.push(aday);
-    });
-    let sharedNominees = [];
-    await Promise.all(
-      paylasilanAdaylar.map(async (aday) => {
-        const nominee = await Nominee.findById(aday);
-        sharedNominees.push(nominee);
-      })
-    );
-
-    let allCv = await Nominee.find(
-      {
-        title: { $in: title },
-        _id: { $nin: sharedNominees.map((aday) => aday._id) },
-      },
-
-      {
-        name: 0,
-        contact: 0,
-      }
-    );
-    console.log("TİTLEEEEE " + title);
-
-    res.status(200).json({ sharedNominees: sharedNominees, allCv: allCv });
-  } catch (error) {}
 };

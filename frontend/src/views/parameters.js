@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Input } from "antd";
 
 const Parameters = () => {
   const [parameters, setParameters] = useState([]);
@@ -9,6 +9,7 @@ const Parameters = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setEdit] = useState(false);
   const [editedValues, setEditedValues] = useState([]);
+  const [newParameter, setNewParameter] = useState({ title: "", value: "" });
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
@@ -30,9 +31,14 @@ const Parameters = () => {
     setEditedValues(parameter.values);
   };
 
-  const handleSaveClick = () => {
-    console.log("Parametre kaydedildi:", editedValues);
-    // Burada editedValues'i API'ye göndererek kaydedebilirsiniz
+  const handleSaveClick = async () => {
+    try {
+      await axios.post(`${apiUrl}/api/parameters`, { editedValues });
+      await fetchPositions();
+      console.log("Parametre kaydedildi:", editedValues);
+    } catch (error) {
+      console.error("Parametre kaydetme hatası:", error);
+    }
     setEditingParameter(null);
     setModalOpen(false);
   };
@@ -46,14 +52,13 @@ const Parameters = () => {
   const handleAdd = () => {
     setEditedValues([...editedValues, ""]);
     setEdit(true);
-
-    // Scroll to the newly added item
     setTimeout(() => {
       const list = document.getElementById("editedValuesList");
       const lastItem = list.lastElementChild;
       lastItem.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, 100); // Adjust timeout if needed
+    }, 100);
   };
+
   const handleEdit = () => {
     setEdit(!isEdit);
   };
@@ -63,16 +68,45 @@ const Parameters = () => {
     newValues[index] = value;
     setEditedValues(newValues);
   };
-  const cancel = () => {
-   
+
+  const handleNewParameterChange = (e) => {
+    const { name, value } = e.target;
+    setNewParameter((prevParameter) => ({
+      ...prevParameter,
+      [name]: value,
+    }));
+  };
+
+  const handleAddNewParameter = () => {
+    setParameters([...parameters, newParameter]);
+    setNewParameter({ title: "", value: "" });
   };
 
   return (
     <div>
-      <h1 className="text-center my-5 font-semibold ">API Parametreleri</h1>
+      <h1 className="text-center my-5 font-semibold">API Parametreleri</h1>
       <div>
-        <ul className="grid grid-cols-4 gap-4 ">
-          {parameters.map((param) => (
+        <div className="flex justify-between mb-4">
+          <div>
+            <Input
+              name="title"
+              value={newParameter.title}
+              onChange={handleNewParameterChange}
+              placeholder="Parametre Adı"
+              className="mr-2"
+            />
+            <Input
+              name="value"
+              value={newParameter.value}
+              onChange={handleNewParameterChange}
+              placeholder="Parametre Değeri"
+              className="mr-2"
+            />
+            <Button onClick={handleAddNewParameter}>Ekle</Button>
+          </div>
+        </div>
+        <ul className="grid grid-cols-4 gap-4">
+          {parameters && parameters.map((param) => (
             <div
               key={param.title}
               className="bg-white p-4 rounded border shadow"
@@ -118,8 +152,6 @@ const Parameters = () => {
               </button>
             </div>
             <div className="overflow-auto max-h-[300px] bg-gray-200 rounded-md p-2">
-              {" "}
-              {/* Added style for scrollbar */}
               <ul id="editedValuesList">
                 {editedValues.map((value, index) => (
                   <li
@@ -130,7 +162,9 @@ const Parameters = () => {
                       type="text"
                       value={value}
                       disabled={!isEdit}
-                      onChange={(e) => handleInputChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(index, e.target.value)
+                      }
                       className="border rounded py-1 px-2 mr-2"
                       style={
                         isEdit
@@ -141,13 +175,14 @@ const Parameters = () => {
                     <Popconfirm
                       title="Değer Sil"
                       description="Değeri silmek istediğinize emin misiniz?"
-                      onConfirm={()=>handleDelete(index)}
-                      onCancel={cancel}
+                      onConfirm={() => handleDelete(index)}
                       okText="Evet"
                       okType="danger"
                       cancelText="Hayır"
                     >
-                      <Button  className="bg-red-400 text-white py-1 px-2 rounded ml-2" >Sil</Button>
+                      <Button className="bg-red-400 text-white py-1 px-2 rounded ml-2">
+                        Sil
+                      </Button>
                     </Popconfirm>
                   </li>
                 ))}

@@ -15,6 +15,7 @@ const parameterRoutes= require('./src/routes/parameterRoutes');
 const path = require('path');
 const userRoutes =require('./src/routes/userRoutes');
 const nomineeRoutes =require('./src/routes/nomineeRoutes');
+const aiRoutes=require("./src/routes/aiRoutes");
 
 
 const app = express();
@@ -40,6 +41,7 @@ app.use('/api',cvRoutes);
 app.use('/api',parameterRoutes);
 app.use('/api',nomineeRoutes);
 app.use('/api',userRoutes);
+app.use('/api',aiRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 

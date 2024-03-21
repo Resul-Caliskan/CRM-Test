@@ -45,10 +45,11 @@ function App() {
         <Route path='/forbidden' element={<Forbidden />} />;
         <Route path='/demand' element={< DemandForm/>} />;
         <Route path='/reset-password' element={< ResetPassword/>} />;
-        <Route path='/set-password/:id' element={< SetPassword/>} />;
+        <Route path='/sent-password' element={< SentPassword/>} />;
+        {/*  id Yi ekeleyeceğiz */}
+        <Route path='/set-password' element={< SetPassword/>} />;
         <Route path="/position-detail/:id"  element={<PrivateRoute Component={PositionDetail} />} />
         <Route path="/admin-position-detail/:id"  element={<PrivateRoute Component={AdminPositionDetail} />} />
-        <Route path='/sent-password' element={< SentPassword/>} />;
       </Routes>
 
     </Router>

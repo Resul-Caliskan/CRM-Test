@@ -3,7 +3,7 @@ const Role = require("../models/demand")
 
 const express = require('express');
 
-// Talep ekleme işlemi
+
 exports.addDemand = async (req, res) => {
     try {
         console.log("AAAAAAAABBBBBB"+req.body.companyId);
@@ -27,7 +27,7 @@ exports.addDemand = async (req, res) => {
 };
 
 
-// Tüm rolleri çekme işlemi
+
 exports.getAllDemands = async (req, res) => {
     try {
         const demands = await Demand.find();

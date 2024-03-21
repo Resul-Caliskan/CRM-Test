@@ -31,5 +31,5 @@ const Notification = (type, message, description) => {
         });
     }
 };
- 
+
 export default Notification;

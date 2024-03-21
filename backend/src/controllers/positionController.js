@@ -11,6 +11,7 @@ exports.addPosition = async (req, res) => {
       experienceperiod: req.body.experienceperiod,
       modeofoperation: req.body.modeofoperation,
       description: req.body.description,
+      skills: req.body.skills,
       worktype: req.body.worktype,
       companyId: req.body.companyId,
       companyName: req.body.companyName,
@@ -70,10 +71,11 @@ exports.updatePosition = async (req, res) => {
       req.params.id,
       {
         department: req.body.department,
-        jobtitle: req.body.positionlevel,
+        jobtitle: req.body.jobtitle,
         experienceperiod: req.body.experienceperiod,
         modeofoperation: req.body.modeofoperation,
         description: req.body.description,
+        skills: req.body.skills,
         worktype: req.body.worktype,
         companyId: req.body.companyId,
         companyName: req.body.companyName,
@@ -94,7 +96,7 @@ exports.addNomineeIdToPosition = async (req, res) => {
     const updatedPosition = await Position.findByIdAndUpdate(
       id,
       {
-        $push: { paylasilanAdaylar: [nominee] },
+        $push: { sharedNominees: [nominee] },
       },
       { new: true }
     );
@@ -106,15 +108,37 @@ exports.addNomineeIdToPosition = async (req, res) => {
 
 exports.getPositionByCompanyId = async (req, res) => {
   try {
-    console.log("Şirket ID'sine göre pozisyonları getirme işlemine girdi " + req.params.id);
+    console.log(
+      "Şirket ID'sine göre pozisyonları getirme işlemine girdi " + req.params.id
+    );
     const companyId = req.params.id;
     const positions = await Position.find({ companyId: companyId });
 
     if (!positions || positions.length === 0) {
-      return res.status(404).json({ message: "Şirkete ait pozisyonlar bulunamadı." });
+      return res
+        .status(404)
+        .json({ message: "Şirkete ait pozisyonlar bulunamadı." });
     }
 
     res.status(200).json(positions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteNomineeIdFromPosition = async (req, res) => {
+  try {
+    console.log("GELDİİİİİ" + req.params.id);
+    const nominee = req.body.nomineeId;
+    const id = req.params.id;
+    const updatedPosition = await Position.findByIdAndUpdate(
+      id,
+      {
+        $pull: { sharedNominees: nominee },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedPosition);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
