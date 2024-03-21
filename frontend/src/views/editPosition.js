@@ -133,7 +133,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İş Unvanı") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -155,7 +155,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "Departman") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -178,7 +178,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "Deneyim Süresi") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -202,7 +202,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İşyeri Politikası") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -224,7 +224,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İş Türü") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -249,7 +249,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "skills") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
+                      <Option key={${parameter._id}-${idx}} value={value}>
                         {value}
                       </Option>
                     ));
@@ -258,13 +258,7 @@ const EditPosition = () => {
                 })}
               </Select>
             </Form.Item>
-            <Form.Item
-              label="İş Tanımı"
-              name="description"
-              rules={[{ required: true, message: "İş Tanımını Giriniz!" }]}
-            >
-              <Input.TextArea placeholder="İş Tanımı" />
-            </Form.Item>
+            
             <Form.Item
               label="İş Tanımı"
               name="description"
