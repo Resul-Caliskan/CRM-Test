@@ -148,10 +148,10 @@ export default function Login() {
         <img src={logoIcon} alt="Logo" className="logoIcon" />
         <img src={logoText} alt="Logo" className="logoText" />
       </div>
-      <div className="flex flex-col justify-center items-center h-screen bg-white form-div">
+      <div className="flex flex-col justify-center items-center h-screen bg-white form-div mx-auto">
         <form
           onSubmit={handleSubmit}
-          className={`max-w-[458px] w-full mx-auto form`}
+          className={`max-w-[458px] w-full mx-auto py-5 form`}
         >
           <p className="text-3xl  text-left font-semibold">
             İnsan Kaynaklarında Dijital Adımınız!
