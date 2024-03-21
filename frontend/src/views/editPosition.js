@@ -3,9 +3,9 @@ import { Form, Input, Button, Select, Spin } from "antd";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Notification from "../utils/notification";
-
+ 
 const { Option } = Select;
-
+ 
 const EditPosition = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -14,7 +14,7 @@ const EditPosition = () => {
   const [positionData, setPositionData] = useState(null);
   const [parameters, setParameters] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
-
+ 
   useEffect(() => {
     const fetchPosition = async () => {
       try {
@@ -28,7 +28,7 @@ const EditPosition = () => {
     fetchPosition();
     fetchParameters();
   }, [id]);
-
+ 
   const fetchPositionDetails = async (id) => {
     try {
       const response = await axios.get(`${apiUrl}/api/positions/${id}`);
@@ -40,7 +40,7 @@ const EditPosition = () => {
       return null;
     }
   };
-
+ 
   const fetchParameters = async () => {
     await axios
       .get(`${apiUrl}/api/parameters`)
@@ -53,7 +53,7 @@ const EditPosition = () => {
         console.error("Roles fetching failed:", error);
       });
   };
-
+ 
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
@@ -73,7 +73,7 @@ const EditPosition = () => {
         "Başarıyla güncellendi.",
         "Pozisyon Talebiniz Başarıyla Güncellenmiştir"
       );
-
+ 
       setTimeout(() => {
         navigate("/home");
       }, 2000);
@@ -87,7 +87,7 @@ const EditPosition = () => {
       setLoading(false);
     }
   };
-
+ 
   return (
     <div className="flex justify-center items-center">
       <div className="w-full max-w-lg mt-12">
@@ -133,7 +133,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İş Unvanı") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -155,7 +155,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "Departman") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -164,7 +164,7 @@ const EditPosition = () => {
                 })}
               </Select>
             </Form.Item>
-
+ 
             <Form.Item
               label="Deneyim Süresi"
               name="experienceperiod"
@@ -178,7 +178,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "Deneyim Süresi") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -202,7 +202,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İşyeri Politikası") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -224,7 +224,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "İş Türü") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -249,7 +249,7 @@ const EditPosition = () => {
                 {parameters.map((parameter, index) => {
                   if (parameter.title === "skills") {
                     return parameter.values.map((value, idx) => (
-                      <Option key={${parameter._id}-${idx}} value={value}>
+                      <Option key={`${parameter._id}-${idx}`} value={value}>
                         {value}
                       </Option>
                     ));
@@ -258,7 +258,7 @@ const EditPosition = () => {
                 })}
               </Select>
             </Form.Item>
-            
+           
             <Form.Item
               label="İş Tanımı"
               name="description"
@@ -283,5 +283,5 @@ const EditPosition = () => {
     </div>
   );
 };
-
+ 
 export default EditPosition;
