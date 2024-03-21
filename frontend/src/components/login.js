@@ -29,8 +29,8 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
