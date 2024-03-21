@@ -7,15 +7,12 @@ import { IoAddCircleSharp } from "react-icons/io5";
 import AreUSure from "../components/areUSure";
 import { getIdFromToken } from "../utils/getIdFromToken";
 
-
 const ListPosition = () => {
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const companyId = getIdFromToken(localStorage.getItem("token"));
-
-
 
   useEffect(() => {
     fetchPositions();
@@ -27,7 +24,9 @@ const ListPosition = () => {
 
   const fetchPositions = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
+      const response = await axios.get(
+        `${apiUrl}/api/positions/get/${companyId}`
+      );
       setPositions(response.data);
     } catch (error) {
       console.error("Customers fetching failed:", error);
@@ -38,7 +37,7 @@ const ListPosition = () => {
     console.log("Talep silindi:", positionId);
     try {
       await axios.delete(`${apiUrl}/api/positions/${positionId}`);
-      Notification(true,"Başarıyla silindi");
+      Notification(true, "Başarıyla silindi");
       fetchPositions();
     } catch (error) {
       console.error("Pozisyon silinirken bir hata oluştu:", error);
@@ -57,19 +56,19 @@ const ListPosition = () => {
   };
 
   const handleEditPosition = (positionId) => {
-    navigate(`/edit-position/${positionId}`);
+    navigate(/edit-position/${positionId});
   };
 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
-      navigate(`/position-detail/${positionId}`);
+      navigate(/position-detail/${positionId});
     } else {
       console.error(
         "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
       );
     }
   };
-  
+
   return (
     <div className="flex-col mx-auto px-4 py-8 flex justify-center">
       <h2 className="text-center font-semibold text-xl mb-6">
@@ -95,7 +94,7 @@ const ListPosition = () => {
               <h3 className="font-semibold text-xl text-center mb-2 border-b border-gray-300 pb-2">
                 {position.jobtitle}
               </h3>
-              <div class="flex flex-col text-lg text-gray-600">
+              <div className="flex flex-col text-lg text-gray-600 overflow-y-auto">
                 <p>
                   <strong>Departman:</strong> {position.department}
                 </p>
@@ -108,9 +107,11 @@ const ListPosition = () => {
                 <p>
                   <strong>İş Türü:</strong> {position.worktype}
                 </p>
-                <p>
-                  <strong>İş Tanımı:</strong> {position.description}
-                </p>
+                <div style={{ maxHeight: "100px" }}>
+                  <p>
+                    <strong>İş Tanımı:</strong> {position.description}
+                  </p>
+                </div>
               </div>
               <div class="mt-4 flex justify-between items-center">
                 <button
