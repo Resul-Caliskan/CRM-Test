@@ -56,12 +56,12 @@ const ListPosition = () => {
   };
 
   const handleEditPosition = (positionId) => {
-    navigate(/edit-position/${positionId});
+    navigate(`/edit-position/${positionId}`);
   };
 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
-      navigate(/position-detail/${positionId});
+      navigate(`/position-detail/${positionId}`);
     } else {
       console.error(
         "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
@@ -107,7 +107,7 @@ const ListPosition = () => {
                 <p>
                   <strong>İş Türü:</strong> {position.worktype}
                 </p>
-                <div style={{ maxHeight: "100px" }}>
+                <div style={{ maxHeight: "30px" }}>
                   <p>
                     <strong>İş Tanımı:</strong> {position.description}
                   </p>
