@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import "./style.css";
+
 
 
 const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name }) => {
@@ -49,7 +51,7 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
   };
 
   return (
-    <div className="body bg-red-500">
+    <div className="body">
       <div className="searchFilterButton">
         <div className="search">
           <div className="searchButtonContainer">
