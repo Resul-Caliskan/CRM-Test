@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import "./style.css"
 
 
 const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name }) => {
@@ -49,10 +50,10 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
   };
 
   return (
-    <div className="body">
-      <div className="searchFilterButton">
-        <div className="search">
-          <div className="searchButtonContainer">
+    <div class="body">
+      <div class="searchFilterButton">
+        <div class="search">
+          <div class="searchButtonContainer">
             <Input
               placeholder="Search"
               className="searchButton"
@@ -60,11 +61,11 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
               suffix={<SearchOutlined />}
             ></Input>
           </div>
-          <div className="filterSearch">
+          <div class="filterSearch">
             {dropdowns}
           </div>
         </div>
-        <div className="crudButtons">
+        <div class="crudButtons">
           {/* <Button
             size="large"
             onClick={() => handleOptionClick(handleUpdate)}
@@ -83,15 +84,15 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
           </Button>}
         </div>
       </div>
-      <div className="listContent">
-        <div className="title">
-          <h4 className="titleLabel">{name}</h4>
-          <p className="titleContent">
+      <div class="listContent">
+        <div class="title">
+          <h4 class="titleLabel">{name}</h4>
+          <p class="titleContent">
             Total {data.length} result are displayed
           </p>
         </div>
-        <div className="listData">
-          <div className="onlyData">
+        <div class="listData">
+          <div class="onlyData">
 
             <Table
               rowKey="key"
@@ -166,7 +167,7 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
           </div>
         </div>
       </div>
-      <div className="footer"></div>
+      <div class="footer"></div>
     </div>
   );
 };
