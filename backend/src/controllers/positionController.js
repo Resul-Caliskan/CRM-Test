@@ -1,8 +1,5 @@
 const Position = require("../models/position");
 
-const express = require("express");
-
-// Pozisyon ekleme işlemi
 exports.addPosition = async (req, res) => {
   try {
     const newPosition = new Position({
@@ -26,7 +23,7 @@ exports.addPosition = async (req, res) => {
   }
 };
 
-// Tüm pozisyonları çekme işlemi
+
 exports.getAllPositions = async (req, res) => {
   try {
     const positions = await Position.find();
@@ -36,7 +33,7 @@ exports.getAllPositions = async (req, res) => {
   }
 };
 
-//Id ye göre çekme işlemi
+
 exports.getPositionById = async (req, res) => {
   try {
     console.log("idye göre .ekmeye girdi " + req.params.id);
@@ -53,7 +50,7 @@ exports.getPositionById = async (req, res) => {
   }
 };
 
-//Pozisyon silme işlemi
+
 exports.deletePosition = async (req, res) => {
   try {
     const id = req.params.id;
@@ -64,7 +61,6 @@ exports.deletePosition = async (req, res) => {
   }
 };
 
-//Pozisyon güncelleme işlemi
 exports.updatePosition = async (req, res) => {
   try {
     const updatedPosition = await Position.findByIdAndUpdate(

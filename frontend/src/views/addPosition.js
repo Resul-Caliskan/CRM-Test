@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Select } from "antd";
-
+import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import axios from "axios";
-
 import Notification from "../utils/notification";
 import { getIdFromToken } from "../utils/getIdFromToken";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import EditableContent from "../components/htmlEditor";
 
 const { Option } = Select;
 
@@ -14,12 +15,20 @@ const AddPosition = () => {
   const [loading, setLoading] = useState(false);
   const [loadingAi, setLoadingAi] = useState(false);
   const [parameters, setParameters] = useState([]);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [aiResponse, setAiResponse] = useState(" ");
+  const [contentValue, setcontentValue] = useState(" ");
   useEffect(() => {
-    fetchParameters();
-    form.setFieldsValue({ description: aiResponse });
-  }, [aiResponse, form]);
+    if (!parameters.length) {
+      fetchParameters();
+    }
+    form.setFieldsValue({ description: contentValue });
+    
+  }, [contentValue, form]);
+
+  // useEffect(() => {
+  //   form.setFieldsValue({ description: aiResponse });
+  // }, [aiResponse, form]);
 
   const fetchParameters = async () => {
     await axios
@@ -36,7 +45,7 @@ const AddPosition = () => {
 
   const handleAskAi = async () => {
     try {
-      const values = form.getFieldsValue(); // Formdaki tüm değerleri al (doğrulama yapmadan)
+      const values = form.getFieldsValue();
       setLoadingAi(true);
       const parameter =
         values.jobtitle +
@@ -55,6 +64,7 @@ const AddPosition = () => {
         }
       );
       setAiResponse(response.data.message);
+
       console.log("ai res:" + aiResponse + " mesaj");
 
       Notification("success", "Yapay Zeka Mutlu.");
@@ -104,7 +114,7 @@ const AddPosition = () => {
         "Pozisyo Başarıyla Eklendi"
       );
       setTimeout(() => {
-        navigate("/home");
+        dispatch(setUserSelectedOption("position"));
       }, 1000);
       console.log("Form gönderildi:", values);
       setLoading(false);
@@ -122,13 +132,15 @@ const AddPosition = () => {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="w-full max-w-lg mt-12">
-        <h2 className="text-center text-2xl mb-6">Pozisyon Ekle</h2>
+      <div className="w-full px-16 mt-4">
+        <h2 className="text-center font-semibold  text-2xl mb-6">
+          Pozisyon Ekle
+        </h2>
         <Form
           form={form}
           onFinish={handleSubmit}
           layout="vertical"
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          className="bg-white grid grid-cols-2 gap-4 shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
           <Form.Item
             label="İş Unvanı"
@@ -244,49 +256,55 @@ const AddPosition = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            label="Teknik Beceriler"
-            name="skills"
-            rules={[{ required: true, message: "Teknik Becerileri Giriniz!" }]}
-          >
-            <Select
-              mode="tags"
-              showSearch
-              optionFilterProp="children"
-              placeholder="Departman Seç"
+                label="Teknik Beceriler"
+                name="skills"
+                rules={[
+                  { required: true, message: "Teknik Becerileri Giriniz!" },
+                ]}
+              >
+                <Select
+                  mode="tags"
+                  showSearch
+                  optionFilterProp="children"
+                  placeholder="Departman Seç"
+                >
+                  {parameters.map((parameter, index) => {
+                    if (parameter.title === "skills") {
+                      return parameter.values.map((value, idx) => (
+                        <Option key={`${parameter._id}-${idx}`} value={value}>
+                          {value}
+                        </Option>
+                      ));
+                    }
+                    return null;
+                  })}
+                </Select>
+              </Form.Item>
+          <Form.Item className="text-center col-start-1 col-end-3">
+            <Button
+              type="button"
+              onClick={handleAskAi}
+              loading={loadingAi}
+              className="text-white  sm:w-1/2  h-10  mb-4  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  text-center "
             >
-              {parameters.map((parameter, index) => {
-                if (parameter.title === "skills") {
-                  return parameter.values.map((value, idx) => (
-                    <Option key={`${parameter._id}-${idx}`} value={value}>
-                      {value}
-                    </Option>
-                  ));
-                }
-                return null;
-              })}
-            </Select>
+              Yapay Zeka İle İş Tanımı Oluştur
+            </Button>
           </Form.Item>
-          <Button
-            type="button"
-            onClick={handleAskAi}
-            loading={loadingAi}
-            className="text-white w-full h-10  mb-4  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  text-center "
-          >
-            Yapay Zeka İle İş Tanımı Oluştur
-          </Button>
+
           <Form.Item
             label="İş Tanımı"
             name="description"
+            className="col-start-1 col-end-3"
             rules={[{ required: true, message: "İş Tanımını Giriniz!" }]}
           >
-            <Input.TextArea value={aiResponse} placeholder="İş Tanımı" />
+            <EditableContent key={aiResponse} content={aiResponse} setContent={setcontentValue} />
           </Form.Item>
-          <Form.Item>
+          <Form.Item className="col-start-1 col-end-3 text-center">
             <Button
               type="primary"
               htmlType="submit"
               loading={loading}
-              className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
+              className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Kaydet
             </Button>

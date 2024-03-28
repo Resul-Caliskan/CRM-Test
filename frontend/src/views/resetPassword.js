@@ -209,7 +209,7 @@ export default function ResetPassword() {
 
           <Button
             onClick={handleSubmit}
-            className="bg-[#0150C7] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
+            className="bg-[#0057D9] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
             disabled={!(email && emailError === false)}
           >
             {loading ? (

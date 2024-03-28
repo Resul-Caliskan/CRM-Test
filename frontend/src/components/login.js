@@ -344,7 +344,7 @@ export default function Login() {
                 </p>
               )}
             </div>
-            <div className="flex row justify-between mt-2 mb-2">
+            <div className="flex row justify-between mt-4 mb-2">
               <Checkbox className="text-[#133163] text-sm font-light">
                 Beni hatırla
               </Checkbox>
@@ -362,7 +362,7 @@ export default function Login() {
             passwordError === false ? (
             <button
               type="submit"
-              className="bg-black text-white w-full h-9 hover:bg-gray-700 rounded-lg flex items-center justify-center mt-5"
+              className="bg-[#0057D9] text-white w-full h-9  rounded-lg flex items-center justify-center mt-5"
               onClick={handleSubmit}
               disabled={loading}
             >

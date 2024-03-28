@@ -1,38 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import filterFunction from "../utils/globalSearchFunction";
 import Notification from "../utils/notification";
 import { FaTimes, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { IoAddCircleSharp } from "react-icons/io5";
 import AreUSure from "../components/areUSure";
 import { getIdFromToken } from "../utils/getIdFromToken";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
+import ListComponent from "../components/listComponent";
+import FilterComponent from "../components/filterComponent"
+import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 const ListPosition = () => {
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const companyId = getIdFromToken(localStorage.getItem("token"));
+  const [searchTerm, setSearchTerm] = useState("");
+  const [parameterOptions, setParameterOptions] = useState([]);
+  const userSelectedOption = useSelector(
+    (state) => state.userSelectedOption.userSelectedOption
+  );
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
+    fetchParameterOptions();
     fetchPositions();
   }, []);
 
   const handleAddPosition = () => {
-    navigate("/addposition");
+    dispatch(setUserSelectedOption("add-position"));
   };
+
 
   const fetchPositions = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/api/positions/get/${companyId}`
-      );
+      const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
       setPositions(response.data);
     } catch (error) {
       console.error("Customers fetching failed:", error);
     }
   };
-
+  const fetchParameterOptions = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/parameters`
+      );
+      const filteredOptions = response.data.filter(option => {
+        return option.title === "İş Unvanı" || option.title === "Departman" || option.title === "Deneyim Süresi" || option.title === "İş Türü" || option.title === "Yetenekler";
+      });
+      console.log(filteredOptions);
+      setParameterOptions(filteredOptions);
+    } catch (error) {
+      console.error("Parameter options fetching failed:", error);
+    }
+  };
   const handleDeletePosition = async (positionId) => {
     console.log("Talep silindi:", positionId);
     try {
@@ -69,83 +94,123 @@ const ListPosition = () => {
     }
   };
 
+  const [filters, setFilters] = useState({
+
+    jobtitle: [],
+    department: [],
+    experienceperiod: [],
+    modeofoperation: [],
+    worktype: [],
+    skills: [],
+  });
+  const columns = [
+    {
+      title: "İş Ünvanı",
+      dataIndex: "jobtitle",
+      key: "jobtitle",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: "Departman",
+      dataIndex: "department",
+      key: "department",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+
+    {
+      title: "Deneyim Süresi",
+      dataIndex: "experienceperiod",
+      key: "experienceperiod",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: "Çalışma Şekli",
+      dataIndex: "modeofoperation",
+      key: "modeofoperation",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: "Çalışma Türü",
+      dataIndex: "worktype",
+      key: "worktype",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: "Yetenekler",
+      dataIndex: "skills",
+      key: "skills",
+      render: (text) => {
+        if (Array.isArray(text)) {
+          return text.map((skill, index) => (
+            <span key={index}>
+              {highlightSearchTerm(skill, searchTerm)}
+              {index !== text.length - 1 && " , "}
+            </span>
+          ));
+        } else if (typeof text === "string") {
+          return highlightSearchTerm(text, searchTerm);
+        } else {
+          return text;
+        }
+      },
+    },
+
+  ];
+  const filteredPositions = positions.filter((position) => {
+    const searchFields = [
+      "jobtitle",
+      "department",
+      "experienceperiod",
+      "modeofoperation",
+      "worktype",
+      "skills",
+    ];
+
+    return (
+      (filters.jobtitle.length === 0 || filters.jobtitle.includes(position.jobtitle)) &&
+      (filters.department.length === 0 || filters.department.includes(position.department)) &&
+      (filters.experienceperiod.length === 0 || filters.experienceperiod.includes(position.experienceperiod)) &&
+      (filters.modeofoperation.length === 0 || filters.modeofoperation.includes(position.modeofoperation)) &&
+      (filters.worktype.length === 0 || filters.worktype.includes(position.worktype)) &&
+      (filters.skills.length === 0 || position.skills.some((skill) => filters.skills.includes(skill))) &&
+      (searchTerm === "" || filterFunction(searchFields, position, searchTerm.toLowerCase()))
+    );
+  });
+
+  const data = filteredPositions.map((position, index) => ({
+    key: index,
+    id: position._id,
+    department: position.department,
+    jobtitle: position.jobtitle,
+    experienceperiod: position.experienceperiod,
+    modeofoperation: position.modeofoperation,
+    description: position.description,
+    skills: position.skills,
+    worktype: position.worktype,
+    companyId: position.companyId,
+    companyName: position.companyName,
+  }));
+
+
   return (
-    <div className="flex-col mx-auto px-4 py-8 flex justify-center">
-      <h2 className="text-center font-semibold text-xl mb-6">
-        Talep Edilen Pozisyonlarım
-      </h2>
-      <button
-        className="bg-green-500 mx-10 mb-3 hover:bg-green-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline"
-        onClick={handleAddPosition}
-      >
-        Yeni Talep Oluştur{" "}
-        <IoAddCircleSharp
-          className="inline-block ml-3"
-          style={{ fontSize: "24px" }}
-        />
-      </button>
-      <div className="overflow-xauto px-10">
-        <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {positions.map((position) => (
-            <div
-              key={position.id}
-              className="bg-gray-100 p-4 hover:bg-gray-200 rounded border shadow"
-            >
-              <h3 className="font-semibold text-xl text-center mb-2 border-b border-gray-300 pb-2">
-                {position.jobtitle}
-              </h3>
-              <div className="flex flex-col text-lg text-gray-600 overflow-y-auto">
-                <p>
-                  <strong>Departman:</strong> {position.department}
-                </p>
-                <p>
-                  <strong>Deneyim Süresi:</strong> {position.experienceperiod}
-                </p>
-                <p>
-                  <strong>İşyeri Politikası:</strong> {position.modeofoperation}
-                </p>
-                <p>
-                  <strong>İş Türü:</strong> {position.worktype}
-                </p>
-                <div style={{ maxHeight: "30px" }}>
-                  <p>
-                    <strong>İş Tanımı:</strong> {position.description}
-                  </p>
-                </div>
-              </div>
-              <div class="mt-4 flex justify-between items-center">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
-                  onClick={() => handlePositionDetails(position._id)}
-                >
-                  Detaylar <FaInfoCircle className="inline-block ml-1" />
-                </button>
-                <button
-                  className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold  lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
-                  onClick={() => handleEditPosition(position._id)}
-                >
-                  Düzenle <FaEdit className="inline-block ml-1" />
-                </button>
-                <button
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold  lg:py-2 lg:px-3 md:py-1 md:px-2 min-[320px]:px-2 min-[320px]:py-1 rounded focus:outline-none focus:shadow-outline flex items-center"
-                  onClick={() => showDeleteConfirmationModal(position._id)}
-                >
-                  Sil <FaTimes className="inline-block ml-1" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <AreUSure
-        isOpen={deleteConfirmation !== null}
-        onClose={() => setDeleteConfirmation(null)}
-        onConfirm={() => handleDeletePosition(deleteConfirmation)}
-      >
-        <p>Pozisyonu Silmek İstediğinize Emin Misiniz? </p>
-      </AreUSure>
-    </div>
+    <ListComponent
+      handleAdd={handleAddPosition}
+      handleUpdate={false}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      dropdowns={<FilterComponent
+        setFilters={setFilters}
+        parameterOptions={parameterOptions}
+      />}
+      handleDelete={handleDeletePosition}
+      handleDetail={handlePositionDetails}
+      columns={columns}
+      data={data}
+      name={"Pozisyon Listesi"}
+    />
+
   );
 };
 
 export default ListPosition;
+

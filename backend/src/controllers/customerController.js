@@ -1,10 +1,5 @@
 const User = require("../models/user");
-
-const express = require("express");
-
-
 const Customer = require("../models/customer");
-
 
 exports.addCustomer = async (req, res) => {
   try {

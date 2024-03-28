@@ -1,7 +1,5 @@
 const Parameter = require("../models/parameter");
 
-const express = require("express");
-
 exports.addParameter = async (req, res) => {
   try {
     const filter = req.body.title;

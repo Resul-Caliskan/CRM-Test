@@ -1,7 +1,5 @@
 const Role = require("../models/role");
 
-const express = require("express");
-
 exports.addRole = async (req, res) => {
   try {
     const newRole = new Role({

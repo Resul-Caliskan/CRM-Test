@@ -1,6 +1,5 @@
 const Nominee = require("../models/nominee");
 const Position = require("../models/position");
-const express = require("express");
 const { findMatches } = require("../utils/matchingCv");
 
 exports.getNomineeByCompanyId = async (req, res) => {

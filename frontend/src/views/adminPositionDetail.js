@@ -10,6 +10,8 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import Notification from "../utils/notification";
 import "react-circular-progressbar/dist/styles.css";
+import NavBar from "../components/adminNavBar";
+import MarkdownEditor from "@uiw/react-markdown-editor";
 const AdminPositionDetail = () => {
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
@@ -132,7 +134,7 @@ const AdminPositionDetail = () => {
         );
         Notification("success", `${movedNominee.cv.name} Başarıyla Eklendi`);
         console.log("respponcse add nomiee to postion ", response);
-      } catch (error) {}
+      } catch (error) { }
     } else if (destination.droppableId === "suggestedNominees") {
       const movedNominee = nominees.find(
         (nominee) => nominee.cv._id === draggableId
@@ -156,12 +158,13 @@ const AdminPositionDetail = () => {
         );
         Notification("success", `${movedNominee.cv.name} Başarıyla Silindi`);
         console.log("respponcse add nomiee to postion ", response);
-      } catch (error) {}
+      } catch (error) { }
     }
   };
 
   return (
     <>
+      <NavBar />
       <div className="flex-col mx-auto px-4 py-8 ">
         <h2 className="text-center font-semibold text-xl mb-6 border-b border-gray-200 pb-2">
           {position && position.positionname} Detayı
@@ -207,11 +210,9 @@ const AdminPositionDetail = () => {
                     <strong>İşyeri Politikası:</strong>{" "}
                     {position.modeofoperation}
                   </p>
+
                   <p>
                     <strong>İş Türü:</strong> {position.worktype}
-                  </p>
-                  <p>
-                    <strong>İş Tanımı:</strong> {position.description}
                   </p>
                   <p>
                     <strong>Beceriler:</strong>
@@ -222,6 +223,22 @@ const AdminPositionDetail = () => {
                       ))}
                     </ul>
                   </p>
+                  <p>
+                    <strong>İş Tanımı:</strong>
+                    <MarkdownEditor.Markdown
+                      source={position.description}
+                      className="bg-gray-300"
+                      style={{
+                        backgroundColor: "#0000000F",
+                        color: "black",
+                        padding: 10,
+                        borderRadius: 10,
+                      }}
+                    />
+
+
+                  </p>
+                  
                 </div>
               </div>
             )}
@@ -274,27 +291,27 @@ const AdminPositionDetail = () => {
                                             nominee.score >= 90
                                               ? "#4bfc04"
                                               : nominee.score >= 80
-                                              ? "#63ff00"
-                                              : nominee.score >= 70
-                                              ? "#d6ff00"
-                                              : nominee.score >= 60
-                                              ? "#ffff00"
-                                              : nominee.score >= 50
-                                              ? "#ffc100"
-                                              : "#ff0000",
+                                                ? "#63ff00"
+                                                : nominee.score >= 70
+                                                  ? "#d6ff00"
+                                                  : nominee.score >= 60
+                                                    ? "#ffff00"
+                                                    : nominee.score >= 50
+                                                      ? "#ffc100"
+                                                      : "#ff0000",
 
                                           textColor:
                                             nominee.score >= 90
                                               ? "#4bfc04"
                                               : nominee.score >= 80
-                                              ? "#63ff00"
-                                              : nominee.score >= 70
-                                              ? "#d6ff00"
-                                              : nominee.score >= 60
-                                              ? "#ffff00"
-                                              : nominee.score >= 50
-                                              ? "#ffc100"
-                                              : "#ff0000",
+                                                ? "#63ff00"
+                                                : nominee.score >= 70
+                                                  ? "#d6ff00"
+                                                  : nominee.score >= 60
+                                                    ? "#ffff00"
+                                                    : nominee.score >= 50
+                                                      ? "#ffc100"
+                                                      : "#ff0000",
                                           trailColor: "#d6d6d6",
                                           backgroundColor: "#3e98c7",
                                         })}
@@ -320,7 +337,7 @@ const AdminPositionDetail = () => {
                                     ))}
                                   </ul>
                                   <button
-                                    className="absolute right-4 bottom-4  py-2 px-4 rounded flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                                    className="absolute right-4 bottom-4   flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
                                     onClick={() =>
                                       handleNomineeDetail(nominee.cv, true)
                                     }
@@ -379,27 +396,27 @@ const AdminPositionDetail = () => {
                                           nominee.score >= 90
                                             ? "#4bfc04"
                                             : nominee.score >= 80
-                                            ? "#63ff00"
-                                            : nominee.score >= 70
-                                            ? "#d6ff00"
-                                            : nominee.score >= 60
-                                            ? "#ffff00"
-                                            : nominee.score >= 50
-                                            ? "#ffc100"
-                                            : "#ff0000",
+                                              ? "#63ff00"
+                                              : nominee.score >= 70
+                                                ? "#d6ff00"
+                                                : nominee.score >= 60
+                                                  ? "#ffff00"
+                                                  : nominee.score >= 50
+                                                    ? "#ffc100"
+                                                    : "#ff0000",
 
                                         textColor:
                                           nominee.score >= 90
                                             ? "#4bfc04"
                                             : nominee.score >= 80
-                                            ? "#63ff00"
-                                            : nominee.score >= 70
-                                            ? "#d6ff00"
-                                            : nominee.score >= 60
-                                            ? "#ffff00"
-                                            : nominee.score >= 50
-                                            ? "#ffc100"
-                                            : "#ff0000",
+                                              ? "#63ff00"
+                                              : nominee.score >= 70
+                                                ? "#d6ff00"
+                                                : nominee.score >= 60
+                                                  ? "#ffff00"
+                                                  : nominee.score >= 50
+                                                    ? "#ffc100"
+                                                    : "#ff0000",
                                         trailColor: "#d6d6d6",
                                         backgroundColor: "#3e98c7",
                                       })}
@@ -426,7 +443,7 @@ const AdminPositionDetail = () => {
                                   ))}
                                 </ul>
                                 <button
-                                  className="absolute right-4 bottom-4  py-2 px-4 rounded flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                                  className="absolute right-4 bottom-4   flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
                                   onClick={() =>
                                     handleNomineeDetail(nominee.cv, false)
                                   }

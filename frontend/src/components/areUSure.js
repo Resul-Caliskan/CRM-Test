@@ -4,7 +4,7 @@ const AreUSure = ({ isOpen, onClose, onConfirm, children }) => {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black z-10 bg-opacity-50">
           <div className="bg-white p-8 rounded ">
             {children}
             <div className="flex justify-center mt-4">

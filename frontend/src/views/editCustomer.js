@@ -13,6 +13,7 @@ import { number } from 'prop-types';
 import { City, Country, State } from "country-state-city"
 
 import "react-country-state-city/dist/react-country-state-city.css";
+import NavBar from '../components/adminNavBar';
 
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
@@ -54,7 +55,7 @@ const EditCustomerForm = () => {
   }
 
   const handleCountyChange = (value) => {
-    console.log(value+" mahalle");
+    console.log(value + " mahalle");
     const selectedCountyInfo = countyData.find(county => county.name === value);
     console.log(selectedCountyInfo);
     setCounty(selectedCountyInfo);
@@ -140,9 +141,9 @@ const EditCustomerForm = () => {
         companytype: values.companytype,
         companysector: values.companysector,
         companyadress: values.companyadress,
-        companycountry: country ? country.name :values.companycountry,
-        companycity: state? state.name:values.companycity,
-        companycounty: county ? county.name:values.companycounty,
+        companycountry: country ? country.name : values.companycountry,
+        companycity: state ? state.name : values.companycity,
+        companycounty: county ? county.name : values.companycounty,
         companyweb: values.companyweb,
         contactname: values.contactname,
         contactmail: values.contactmail,
@@ -164,172 +165,175 @@ const EditCustomerForm = () => {
 
 
   return (
-    <div className="flex justify-center items-center v-screen">
-      <div className="w-full max-w-lg my-10">
-        <h2 className="text-center text-2xl mb-6">Müşteri Düzenle</h2>
-        {customerData && (
-          <Form
-            form={form}
-            initialValues={customerData}
-            onFinish={handleSubmit}
-            layout="vertical"
-            className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-          >
-            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
-              <Form.Item label="Firma Adı" name="companyname" rules={[{ required: true, message: 'Firma adını giriniz!' }]}>
-                <Input placeholder="Firma Adı" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-              </Form.Item>
-              <Form.Item label="Firma Türü" name="companytype" rules={[{ required: true, message: 'Firma türünü giriniz!' }]}>
-                <Select showSearch optionFilterProp="children" placeholder="Firma Türü Seç">
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Firma Türü") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
+    <>
+      <NavBar />
+      <div className="flex justify-center items-center v-screen">
+        <div className="w-full max-w-lg my-10">
+          <h2 className="text-center text-2xl mb-6">Müşteri Düzenle</h2>
+          {customerData && (
+            <Form
+              form={form}
+              initialValues={customerData}
+              onFinish={handleSubmit}
+              layout="vertical"
+              className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+            >
+              <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
+                <Form.Item label="Firma Adı" name="companyname" rules={[{ required: true, message: 'Firma adını giriniz!' }]}>
+                  <Input placeholder="Firma Adı" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                </Form.Item>
+                <Form.Item label="Firma Türü" name="companytype" rules={[{ required: true, message: 'Firma türünü giriniz!' }]}>
+                  <Select showSearch optionFilterProp="children" placeholder="Firma Türü Seç">
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Firma Türü") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                </Form.Item>
+              </div>
+              <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
+                <Form.Item label="Sektör" name="companysector" rules={[{ required: true, message: 'Sektör giriniz!' }]}>
+                  <Select showSearch optionFilterProp="children" placeholder="Sektör Seç">
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Sektör") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                </Form.Item>
+                <Form.Item label="Web Sitesi" name="companyweb" rules={[{ required: true, message: 'Web sitesi giriniz!' }]}>
+                  <Input placeholder="Web Sitesi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                </Form.Item>
+
+
+
+
+              </div>
+              <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <Form.Item label="İlgili Kişi" name="contactname" rules={[{ required: true, message: 'İlgili kişi giriniz!' }]}>
+                  <Input placeholder="İlgili Kişi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                </Form.Item>
+                <Form.Item label="İlgili Kişi Email" name="contactmail" rules={[{ required: true, message: 'Email giriniz!', type: 'email', message: 'Geçerli bir email adresi giriniz!' }]}>
+                  <Input placeholder="İlgili Kişi Email" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                </Form.Item>
+              </div>
+              <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <Form.Item label="İlgili Kişi Telefon numarası" name='contactnumber' rules={[{
+                  required: true, type: number, message: 'Geçerli bir telefon numarası giriniz.',
+                  validator: (_, value) => {
+                    if (value && !isPhoneValid(value)) {
+                      return Promise.reject('Geçerli bir telefon numarası giriniz!');
                     }
-                    return null;
-                  })}
-                </Select>
-              </Form.Item>
-            </div>
-            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
-              <Form.Item label="Sektör" name="companysector" rules={[{ required: true, message: 'Sektör giriniz!' }]}>
-                <Select showSearch optionFilterProp="children" placeholder="Sektör Seç">
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Sektör") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
+                    return Promise.resolve();
+                  }
+                }]}>
+                  <PhoneInput
+
+                    defaultCountry="tr"
+                    value={phone}
+                    onChange={(phone) => setPhone(phone)}
+                  />
+
+                </Form.Item>
+                <Form.Item label="Ülke" name="companycountry" rules={[{ required: true, message: 'Ülke giriniz!' }]}>
+                  <Select
+                    showSearch
+                    style={{ width: '100%' }}
+                    value={country ? country.isoCode : undefined}
+                    placeholder="Ülke seç"
+                    optionFilterProp="children"
+                    onChange={(value) => {
+                      handleCountryChange(value);
+                    }}
+                    filterOption={(input, option) =>
+                      option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
                     }
-                    return null;
-                  })}
-                </Select>
+                  >
+                    {Object.keys(countryData).map((countryCode, index) => (
+                      <Option key={index} value={countryCode}>
+                        {countryData[countryCode].name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+
+              <div className='grid sm:grid-cols-1 lg:grid-cols-2 gap-4'>
+
+
+
+                <Form.Item label="Şehir" name="companycity" rules={[{ required: true, message: 'Şehir seçiniz!' }]} >
+                  <Select
+
+                    showSearch
+                    style={{ width: '100%' }}
+                    value={state ? state.isoCode : undefined}
+                    placeholder="Şehir seç"
+                    optionFilterProp="children"
+                    onChange={(value) => {
+                      handleCityChange(value);
+                    }}
+                    filterOption={(input, option) =>
+                      option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
+                    }
+                  >
+                    {stateData && stateData.map((state, index) => (
+                      <Option key={index} value={state.isoCode}>
+                        {state.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item label="İlçe" name="companycounty" rules={[{ required: true, message: 'İlçe seçiniz!' }]}>
+                  <Select
+
+                    showSearch
+                    style={{ width: '100%' }}
+                    value={county ? county.name : undefined}
+                    placeholder="İlçe seç"
+                    optionFilterProp="children"
+                    onChange={(value) => {
+                      handleCountyChange(value);
+                    }}
+                    filterOption={(input, option) =>
+                      option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
+                    }
+                  >
+                    {countyData && countyData.map((county, index) => (
+                      <Option key={index} value={county.name}>
+                        {county.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+              <Form.Item label="Adres" name="companyadress" rules={[{ required: true, message: 'Adres giriniz!' }]}>
+                <Input.TextArea placeholder="Adres" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
               </Form.Item>
-              <Form.Item label="Web Sitesi" name="companyweb" rules={[{ required: true, message: 'Web sitesi giriniz!' }]}>
-                <Input placeholder="Web Sitesi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+              <Form.Item>
+                <Button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-2 rounded focus:outline-none focus:shadow-outline" type="primary" htmlType="submit" loading={loading}>
+                  Güncelle
+                </Button>
               </Form.Item>
+            </Form>
+          )}
 
-
-
-
-            </div>
-            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
-
-              <Form.Item label="İlgili Kişi" name="contactname" rules={[{ required: true, message: 'İlgili kişi giriniz!' }]}>
-                <Input placeholder="İlgili Kişi" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-              </Form.Item>
-              <Form.Item label="İlgili Kişi Email" name="contactmail" rules={[{ required: true, message: 'Email giriniz!', type: 'email', message: 'Geçerli bir email adresi giriniz!' }]}>
-                <Input placeholder="İlgili Kişi Email" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-              </Form.Item>
-            </div>
-            <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
-
-              <Form.Item label="İlgili Kişi Telefon numarası" name='contactnumber' rules={[{
-                required: true, type: number, message: 'Geçerli bir telefon numarası giriniz.',
-                validator: (_, value) => {
-                  if (value && !isPhoneValid(value)) {
-                    return Promise.reject('Geçerli bir telefon numarası giriniz!');
-                  }
-                  return Promise.resolve();
-                }
-              }]}>
-                <PhoneInput
-
-                  defaultCountry="tr"
-                  value={phone}
-                  onChange={(phone) => setPhone(phone)}
-                />
-
-              </Form.Item>
-              <Form.Item label="Ülke" name="companycountry" rules={[{ required: true, message: 'Ülke giriniz!' }]}>
-                <Select
-                  showSearch
-                  style={{ width: '100%' }}
-                  value={country ? country.isoCode : undefined}
-                  placeholder="Ülke seç"
-                  optionFilterProp="children"
-                  onChange={(value) => {
-                    handleCountryChange(value);
-                  }}
-                  filterOption={(input, option) =>
-                    option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
-                  }
-                >
-                  {Object.keys(countryData).map((countryCode, index) => (
-                    <Option key={index} value={countryCode}>
-                      {countryData[countryCode].name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-
-            <div className='grid sm:grid-cols-1 lg:grid-cols-2 gap-4'>
-
-
-
-              <Form.Item label="Şehir" name="companycity" rules={[{ required: true, message: 'Şehir seçiniz!' }]} >
-                <Select
-
-                  showSearch
-                  style={{ width: '100%' }}
-                  value={state ? state.isoCode : undefined}
-                  placeholder="Şehir seç"
-                  optionFilterProp="children"
-                  onChange={(value) => {
-                    handleCityChange(value);
-                  }}
-                  filterOption={(input, option) =>
-                    option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
-                  }
-                >
-                  {stateData && stateData.map((state, index) => (
-                    <Option key={index} value={state.isoCode}>
-                      {state.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item label="İlçe" name="companycounty" rules={[{ required: true, message: 'İlçe seçiniz!' }]}>
-                <Select
-
-                  showSearch
-                  style={{ width: '100%' }}
-                  value={county ? county.name:undefined }
-                  placeholder="İlçe seç"
-                  optionFilterProp="children"
-                  onChange={(value) => {
-                    handleCountyChange(value);
-                  }}
-                  filterOption={(input, option) =>
-                    option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
-                  }
-                >
-                  {countyData && countyData.map((county, index) => (
-                    <Option key={index} value={county.name}>
-                      {county.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-            <Form.Item label="Adres" name="companyadress" rules={[{ required: true, message: 'Adres giriniz!' }]}>
-              <Input.TextArea placeholder="Adres" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-            </Form.Item>
-            <Form.Item>
-              <Button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-2 rounded focus:outline-none focus:shadow-outline" type="primary" htmlType="submit" loading={loading}>
-                Güncelle
-              </Button>
-            </Form.Item>
-          </Form>
-        )}
-
+        </div>
       </div>
-    </div>
+    </>
   );
 };
  

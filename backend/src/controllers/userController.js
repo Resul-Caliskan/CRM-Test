@@ -1,8 +1,5 @@
 const User = require("../models/user");
 
-const express = require("express");
-
-// user ekleme işlemi
 exports.checkUserMail = async (req, res) => {
   const mail = req.body.email;
   try {

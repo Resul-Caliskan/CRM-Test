@@ -266,7 +266,7 @@ export default function SetPassword() {
                 <Button
                   type="submit"
                   onClick={handleSubmit}
-                  className="bg-[#0150C7] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
+                  className="bg-[#0057D9] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
                   disabled={loading}
                 >
                   {loading ? (

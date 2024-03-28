@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const Cv = require("../models/cv");
 
 exports.getPdfById = async (req, res) => {

@@ -5,7 +5,7 @@ import { Button, Popconfirm, Input } from "antd";
 
 const Parameters = () => {
   const [parameters, setParameters] = useState([]);
-  const [editingParameter, setEditingParameter] = useState(null);
+  const [ setEditingParameter] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setEdit] = useState(false);
   const [editedValues, setEditedValues] = useState([]);
@@ -13,10 +13,10 @@ const Parameters = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    fetchPositions();
-  }, []);
+    fetchParameters();
+  }, [parameters]);
 
-  const fetchPositions = async () => {
+  const fetchParameters = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/parameters`);
       setParameters(response.data);
@@ -34,7 +34,7 @@ const Parameters = () => {
   const handleSaveClick = async () => {
     try {
       await axios.post(`${apiUrl}/api/parameters`, { editedValues });
-      await fetchPositions();
+      await fetchParameters();
       console.log("Parametre kaydedildi:", editedValues);
     } catch (error) {
       console.error("Parametre kaydetme hatası:", error);

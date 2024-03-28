@@ -2,8 +2,7 @@ const filterFunction = (searchFields, object, searchItem) => {
   // if (!searchItem || typeof searchItem !== "string") {
   //   return true;
   // }
-console.log("girdi filter");
-  const searchTerm = searchItem.toLowerCase();
+  const searchTerm = searchItem.toLocaleLowerCase("tr");
 
   return searchFields.some((field) => {
     let fieldValue;

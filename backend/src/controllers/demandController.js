@@ -1,8 +1,4 @@
 const Demand = require("../models/demand");
-const Role = require("../models/demand")
-
-const express = require('express');
-
 
 exports.addDemand = async (req, res) => {
     try {
@@ -16,8 +12,6 @@ exports.addDemand = async (req, res) => {
             password: req.body.password,
             companyname: req.body.companyname,
             companyId: req.body.companyId,
-
-
         });
         await newDemand.save();
         res.status(201).json({ message: 'Talep başarıyla eklendi.' });

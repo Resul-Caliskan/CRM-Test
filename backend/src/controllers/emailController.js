@@ -2,27 +2,23 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 
-// E-posta gönderme işlemini gerçekleştiren fonksiyon
 const sendEmail = async (req, res) => {
   try {
-    // E-posta gönderim ayarları
     const transporter = nodemailer.createTransport({
-      service: "Gmail", // E-posta servisi (örneğin Gmail)
+      service: "Gmail",
       auth: {
         user: "resulcaliskansau@gmail.com", // buraya venhancer e-posta adresi gelecek
         pass: "boou obke qieo vnqe", // buraya venhancer  e-posta adresi için şifre oluşturulmalı
       },
     });
 
-    // E-posta içeriği
     const mailOptions = {
       from: req.body.senderEmail,
-      to: req.body.recipientEmail, // Alıcı e-posta adresi
+      to: req.body.recipientEmail,
       subject: "Venhancer CRM",
       text: "Kullanıcı Talebiniz Onaylanmıştır",
     };
 
-    // E-postayı gönder
     await transporter.sendMail(mailOptions);
 
     res.status(200).json({ message: "E-posta başarıyla gönderildi." });
@@ -35,10 +31,10 @@ const sendEmail = async (req, res) => {
 const sendChangePasswordMail = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: "Gmail", //e-mail service Gmail for example
+      service: "Gmail",
       auth: {
-        user: "resulcaliskansau@gmail.com", // buraya venhancer e-posta adresi gelecek
-        pass: "boou obke qieo vnqe", // buraya venhancer  e-posta adresi için şifre oluşturulmalı
+        user: "resulcaliskansau@gmail.com",
+        pass: "boou obke qieo vnqe",
       },
     });
 
@@ -46,7 +42,7 @@ const sendChangePasswordMail = async (req, res) => {
     const mailToken = jwt.sign({ id }, config.secretKey, {
       expiresIn: "1d",
     });
-    
+
     const mailOptions = {
       from: "resulcaliskansau@gmail.com",
       to: req.body.recipientEmail,
@@ -120,7 +116,6 @@ const sendChangePasswordMail = async (req, res) => {
       `,
     };
 
-    // send e-mail
     transporter.sendMail(mailOptions, function (err, info) {
       if (err) {
         console.error("E-posta gönderme hatası:", err);

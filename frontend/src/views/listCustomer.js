@@ -1,38 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import SearchInput from '../components/searchInput';
-import Highlighter from 'react-highlight-words';
-import { IoAddCircleSharp } from "react-icons/io5";
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setSelectedOption } from '../redux/selectedOptionSlice';
+import ListComponent from '../components/listComponent';
+import Notification from '../utils/notification';
+import { highlightSearchTerm } from '../utils/highLightSearchTerm';
+import FilterComponent from '../components/filterComponent';
+import filterFunction from '../utils/globalSearchFunction';
+
 
 const ListCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const selectedOption = useSelector(state => state.selectedOption.selectedOption);
+  const [parameterOptions, setParameterOptions] = useState([]);
+  const [isDelete, setIsDelete] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [filters, setFilters] = useState({
+    sector: [],
+    companytype: []
+  });
   useEffect(() => {
+    fetchParameterOptions();
+    console.log("x" + parameterOptions);
     fetchRolesFromDatabase();
-  }, []);
+    setIsDelete(false);
+  }, [isDelete]);
 
-  const fetchRolesFromDatabase = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
-      setCustomers(response.data);
-      console.log(response.data);
-    } catch (error) {
-      console.error('Roles fetching failed:', error);
-    }
-  };
-
-  const handleEditCustomer = (customerId) => {
-    navigate(`/edit-customer/${customerId}`);
-  };
-
-  const filteredCustomers = customers.filter((customer) => {
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'companyname',
+      key: 'companyname',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+      sorter: (a, b) => a.companyname.localeCompare(b.companyname),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'companytype',
+      key: 'companytype',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+      sorter: (a, b) => a.companytype.localeCompare(b.companytype),
+    },
+    {
+      title: 'Sector',
+      dataIndex: 'companysector',
+      key: 'companysector',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Address',
+      dataIndex: 'companyadress',
+      key: 'companyadress',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Country',
+      dataIndex: 'companycountry',
+      key: 'companycountry',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'City',
+      dataIndex: 'companycity',
+      key: 'companycity',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+      sorter: (a, b) => a.companycity.localeCompare(b.companycity),
+    },
+    {
+      title: 'County',
+      dataIndex: 'companycounty',
+      key: 'companycounty',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Website',
+      dataIndex: 'companyweb',
+      key: 'companyweb',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Contact Name',
+      dataIndex: 'contactname',
+      key: 'contactname',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Contact Mail',
+      dataIndex: 'contactmail',
+      key: 'contactmail',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Contact Number',
+      dataIndex: 'contactnumber',
+      key: 'contactnumber',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+  ];
+  const filteredCustomers = customers.filter((customer, index) => {
     const searchFields = [
       'companyname',
       'companytype',
@@ -47,13 +114,65 @@ const ListCustomers = () => {
       'contactnumber',
     ];
 
-    const searchTermLowerCase = searchTerm.toLowerCase();
+    const {
+      sector,
+      companytype
+    } = filters;
 
-    return searchFields.some(field => {
-      const fieldValue = customer[field] ? customer[field].toLowerCase() : ''; // Alan değerini küçük harfe dönüştür
-      return fieldValue.includes(searchTermLowerCase); // Küçük harfe dönüştürülmüş arama terimini içeriyorsa true döndür
-    });
+    return (
+      (sector.length === 0 ||
+        sector.includes(customer.companysector)) &&
+      (companytype.length === 0 || companytype.includes(customer.companytype)) &&
+
+      (searchTerm === "" ||
+        filterFunction(searchFields, customer, searchTerm.toLowerCase()))
+    );
   });
+  const data = filteredCustomers.map((customer, index) => ({
+    key: index,
+    id: customer._id,
+    companyname: customer.companyname,
+    companytype: customer.companytype,
+    companysector: customer.companysector,
+    companyadress: customer.companyadress,
+    companycity: customer.companycity,
+    companycountry: customer.companycountry,
+    companycounty: customer.companycounty,
+    companyweb: customer.companyweb,
+    contactname: customer.contactname,
+    contactmail: customer.contactmail,
+    contactnumber: customer.contactnumber,
+  }));
+  const fetchRolesFromDatabase = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
+      setCustomers(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Roles fetching failed:', error);
+    }
+  };
+  const fetchParameterOptions = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/parameters`
+      );
+      const filteredOptions = response.data.filter(option => {
+        return option.title === "Sektör" || option.title === "Firma Türü";
+      });
+      console.log(filteredOptions);
+      setParameterOptions(filteredOptions);
+    } catch (error) {
+      console.error("Parameter options fetching failed:", error);
+    }
+  };
+
+
+  const handleEditCustomer = (customerId) => {
+    navigate(`/edit-customer/${customerId}`);
+  };
+
+
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
@@ -61,150 +180,38 @@ const ListCustomers = () => {
   const handleAddCustomer = () => {
     dispatch(setSelectedOption('add-customer'));
   };
+  const handleDelete = async (customerId) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/customers/${customerId}`);
+      setCustomers(customers.filter(customer => customer.companyId !== customerId));
+      Notification("success", "Müşteri başarıyla silindi.", "");
+      setIsDelete(true);
+
+
+    } catch (error) {
+      Notification("error", "Müşteri silinirken bir hata oluştu.", "");
+    }
+  };
+
   return (
-    <div className="w-full h-100 mx-auto px-10 py-8">
-      <div className="mx-auto bg-white shadow-md rounded-lg overflow-hidden">
-        <h1 className="text-3xl font-semibold mb-4 text-center py-4 bg-gray-100">Müşteri Listesi</h1>
-        <div className="p-4">
-          <SearchInput searchTerm={searchTerm} onSearch={handleSearch} />
-
-          <button
-            className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-large rounded-lg text-sm px-4 py-2 text-center  ml-2 mb-5"
-            onClick={handleAddCustomer}
-          >
-            Müşteri Ekle{" "}
-            <IoAddCircleSharp
-              className="inline-block ml-3"
-              style={{ fontSize: "24px" }}
-            />
-          </button>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCustomers.map((customer, index) => (
-
-
-              <div key={index} className="bg-gray-200 p-4 rounded-md">
-                <h2 className="text-xl font-semibold mb-2">
-
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.companyname || ''}
-                  />
-                </h2>
-                <hr className="border-gray-300 my-2" />
-
-
-                <p>
-                  <span className="font-semibold">Firma Türü:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.companytype || ''}
-                  />
-                </p>
-
-                <p>
-                  <span className="font-semibold">Sektör:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.companysector || ''}
-                  />
-                </p>
-
-                <p>
-                  <span className="font-semibold">Web Sitesi:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.companyweb || ''}
-                  />
-                </p>
-
-                {/* <p>
-                <span className="font-semibold">Ülke:</span>{' '}
-                <Highlighter
-                  highlightClassName="highlighted"
-                  searchWords={[searchTerm]}
-                  autoEscape={true}
-                  textToHighlight={customer.companycountry ||''}
-                />
-              </p> */}
-
-                {/* <p>
-                <span className="font-semibold">Şehir:</span>{' '}
-                <Highlighter
-                  highlightClassName="highlighted"
-                  searchWords={[searchTerm]}
-                  autoEscape={true}
-                  textToHighlight={customer.companycity ||''}
-                />
-              </p>
-
-              <p>
-                <span className="font-semibold">İlçe:</span>{' '}
-                <Highlighter
-                  highlightClassName="highlighted"
-                  searchWords={[searchTerm]}
-                  autoEscape={true}
-                  textToHighlight={customer.companycounty ||''}
-                />
-              </p> */}
-
-                <p>
-                  <span className="font-semibold">Adres:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.companyadress || ''}
-                  />
-                </p>
-
-                <p>
-                  <span className="font-semibold">İlgili Kişi:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.contactname || ''}
-                  />
-                </p>
-
-                <p>
-                  <span className="font-semibold">İlgili Kişi Numarası:</span>{' '}
-                  <Highlighter
-                    highlightClassName="highlighted"
-                    searchWords={[searchTerm]}
-                    autoEscape={true}
-                    textToHighlight={customer.contactnumber || ''}
-                  />
-                </p>
-
-              <p>
-                <span className="font-semibold">İlgili Kişi Email:</span>{' '}
-                <Highlighter
-                  highlightClassName="highlighted"
-                  searchWords={[searchTerm]}
-                  autoEscape={true}
-                  textToHighlight={customer.contactmail ||''}
-                />
-              </p>
-              
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2" onClick={() => handleEditCustomer(customer._id)}>
-                Düzenle
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
+    <>
+      <ListComponent
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        dropdowns={
+          <FilterComponent
+            setFilters={setFilters}
+            parameterOptions={parameterOptions}
+          />}
+        handleAdd={handleAddCustomer}
+        handleUpdate={handleEditCustomer}
+        handleDelete={handleDelete}
+        columns={columns}
+        data={data}
+        name={"Müşteri Listesi"}
+      />
+    </>
+  );
 };
 
 export default ListCustomers;
