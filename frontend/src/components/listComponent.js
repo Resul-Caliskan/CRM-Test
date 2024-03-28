@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Space } from "antd";
-import  Table from 'antd/lib/table'
+import { Button, Input, Space,Table } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
