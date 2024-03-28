@@ -49,7 +49,7 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
   };
 
   return (
-    <div className="body">
+    <div className="body bg-red-500">
       <div className="searchFilterButton">
         <div className="search">
           <div className="searchButtonContainer">
