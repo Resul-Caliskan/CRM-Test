@@ -174,17 +174,7 @@
     gap: 32px;
 
 }
-:where(.css-dev-only-do-not-override-1drr2mu).ant-table-wrapper .ant-table-thead > tr > th,
-:where(.css-dev-only-do-not-override-1drr2mu).ant-table-wrapper .ant-table-thead > tr > td {
-    position: relative;
-    color: rgba(0, 0, 0, 0.88);
-    font-weight: 600;
-    text-align: start;
-    background: #fafafa;
-    content: "";
-    transition: background 0.2s ease;
-    background-color:#0000000A;
-}
+
 .footer{
     height: 200px;
     width: auto;
