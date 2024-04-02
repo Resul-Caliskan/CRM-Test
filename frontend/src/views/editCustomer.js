@@ -14,6 +14,7 @@ import { City, Country, State } from "country-state-city"
 
 import "react-country-state-city/dist/react-country-state-city.css";
 import NavBar from '../components/adminNavBar';
+import Loading from '../components/loadingComponent';
 
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
@@ -26,10 +27,10 @@ const isPhoneValid = (phone) => {
   }
 };
 const EditCustomerForm = () => {
+  const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const [parameters, setParameters] = useState([]);
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -121,8 +122,10 @@ const EditCustomerForm = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers/${id}`);
       setCustomerData(response.data);
       console.log("gelen ülke" + response.data.companycountry);
+      setLoading(false);
       return response.data;
     } catch (error) {
+      setLoading(false);
       console.error('Customers fetching failed:', error);
       return null;
     }
@@ -166,7 +169,10 @@ const EditCustomerForm = () => {
 
   return (
     <>
+    
       <NavBar />
+      {loading ? <Loading /> 
+       : (
       <div className="flex justify-center items-center v-screen">
         <div className="w-full max-w-lg my-10">
           <h2 className="text-center text-2xl mb-6">Müşteri Düzenle</h2>
@@ -333,6 +339,7 @@ const EditCustomerForm = () => {
 
         </div>
       </div>
+       )}
     </>
   );
 };

@@ -7,7 +7,7 @@ import SearchInput from '../components/searchInput';
 import { useNavigate, useParams } from "react-router-dom";
 import ListComponent from "../components/listComponent";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import Notification from "../utils/notification";
 import FilterComponent from "../components/filterComponent"
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
@@ -17,7 +17,9 @@ const AdminListPosition = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
-
+  const selectedOption = useSelector(
+    (state) => state.selectedOption.selectedOption
+  );
 
   const [filters, setFilters] = useState({
     companyName: [],
@@ -215,17 +217,23 @@ const AdminListPosition = () => {
       );
     }
   };
-
+  const handleAddPosition = () => {
+    dispatch(setSelectedOption("add-position"));
+  };
   const handleSearch = (value) => {
     setSearchTerm(value);
+  };
+
+  const handleEditPosition = (positionId) => {
+    navigate(`/edit-position/${positionId}`);
   };
   return (
     <>
     {loading ? <Loading /> 
        : (
     <ListComponent
-      handleAdd={false}
-      handleUpdate={false}
+      handleAdd={handleAddPosition}
+      handleUpdate={handleEditPosition}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
       dropdowns={<FilterComponent

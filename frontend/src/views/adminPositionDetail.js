@@ -12,6 +12,8 @@ import Notification from "../utils/notification";
 import "react-circular-progressbar/dist/styles.css";
 import NavBar from "../components/adminNavBar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
+import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import CircularBar from "../components/circularBar";
 const AdminPositionDetail = () => {
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
@@ -22,13 +24,19 @@ const AdminPositionDetail = () => {
   const [isKnown, setIsKnown] = useState(true);
   const [position, setPosition] = useState(null);
   const { id } = useParams();
-
+ 
+  const [isOpen, setIsOpen] = useState(false);
+ 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+ 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const openNomineeDetail = () => {
     setIsNomineeDetailOpen(true);
   };
-
+ 
   const closeNomineeDetail = () => {
     setIsNomineeDetailOpen(false);
   };
@@ -47,14 +55,14 @@ const AdminPositionDetail = () => {
           console.error(error);
         });
     }
-
+ 
     getPositionById(id);
     fetchNominees();
   }, []);
-
+ 
   const fetchNominees = async () => {
     setLoading(true);
-
+ 
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
@@ -65,7 +73,7 @@ const AdminPositionDetail = () => {
       console.log("data nominees", nomineesData);
       setNominees(nomineesData);
       setSuggestedNominees(suggestedData);
-
+ 
       setLoading(false);
     } catch (error) {
       setError(error.message);
@@ -95,21 +103,21 @@ const AdminPositionDetail = () => {
       );
     }
   };
-
+ 
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     console.log("girdi");
     if (!destination) {
       return;
     }
-
+ 
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
       return;
     }
-
+ 
     if (destination.droppableId === "nominees") {
       console.log("girdi");
       const movedNominee = suggestedNominees.find(
@@ -118,13 +126,13 @@ const AdminPositionDetail = () => {
       if (!movedNominee) {
         return;
       }
-
+ 
       const newNominees = Array.from(nominees);
       newNominees.splice(destination.index, 0, movedNominee);
       const newSuggestedNominees = suggestedNominees.filter(
         (nominee) => nominee.cv._id !== draggableId
       );
-
+ 
       setNominees(newNominees);
       setSuggestedNominees(newSuggestedNominees);
       try {
@@ -134,7 +142,7 @@ const AdminPositionDetail = () => {
         );
         Notification("success", `${movedNominee.cv.name} Başarıyla Eklendi`);
         console.log("respponcse add nomiee to postion ", response);
-      } catch (error) { }
+      } catch (error) {}
     } else if (destination.droppableId === "suggestedNominees") {
       const movedNominee = nominees.find(
         (nominee) => nominee.cv._id === draggableId
@@ -142,13 +150,13 @@ const AdminPositionDetail = () => {
       if (!movedNominee) {
         return;
       }
-
+ 
       const newSuggestedNominees = Array.from(suggestedNominees);
       newSuggestedNominees.splice(destination.index, 0, movedNominee);
       const newNominees = nominees.filter(
         (nominee) => nominee.cv._id !== draggableId
       );
-
+ 
       setSuggestedNominees(newSuggestedNominees);
       setNominees(newNominees);
       try {
@@ -158,10 +166,10 @@ const AdminPositionDetail = () => {
         );
         Notification("success", `${movedNominee.cv.name} Başarıyla Silindi`);
         console.log("respponcse add nomiee to postion ", response);
-      } catch (error) { }
+      } catch (error) {}
     }
   };
-
+ 
   return (
     <>
       <NavBar />
@@ -210,13 +218,13 @@ const AdminPositionDetail = () => {
                     <strong>İşyeri Politikası:</strong>{" "}
                     {position.modeofoperation}
                   </p>
-
+ 
                   <p>
                     <strong>İş Türü:</strong> {position.worktype}
                   </p>
                   <p>
                     <strong>Beceriler:</strong>
-
+ 
                     <ul className="list-disc ml-4 grid grid-cols-3">
                       {position.skills.map((skill, index) => (
                         <li key={index}>{skill}</li>
@@ -235,17 +243,14 @@ const AdminPositionDetail = () => {
                         borderRadius: 10,
                       }}
                     />
-
-
                   </p>
-                  
                 </div>
               </div>
             )}
           </div>
           {loading && <p>Veriler yükleniyor...</p>}
           {error && <p>Hata: {error}</p>}
-
+ 
           <div className="col-span-2 grid lg:grid-cols-2 md:-grid-cols-2 sm:grid-cols-2 gap-3">
             <DragDropContext onDragEnd={onDragEnd}>
               <div className="col-span-1">
@@ -255,7 +260,7 @@ const AdminPositionDetail = () => {
                   </h3>
                   {loading && <p>Veriler yükleniyor...</p>}
                   {error && <p>Hata: {error}</p>}
-
+ 
                   <Droppable droppableId="nominees">
                     {(provided) => (
                       <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -272,52 +277,8 @@ const AdminPositionDetail = () => {
                                 {...provided.dragHandleProps}
                               >
                                 <div className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative">
-                                  <div className="flex flex-row justify-between items-center mb-2 rounded py-2 px-2 bg-gray-500">
-                                    <h4 className="font-semibold text-white text-lg mb-2 ">
-                                      {nominee.cv.name}
-                                    </h4>
-                                    <div className="progress">
-                                      <CircularProgressbar
-                                        value={nominee.score}
-                                        text={`${nominee.score}%`}
-                                        styles={buildStyles({
-                                          rotation: 0,
-
-                                          textSize: "20px",
-
-                                          pathTransitionDuration: 0.5,
-
-                                          pathColor:
-                                            nominee.score >= 90
-                                              ? "#4bfc04"
-                                              : nominee.score >= 80
-                                                ? "#63ff00"
-                                                : nominee.score >= 70
-                                                  ? "#d6ff00"
-                                                  : nominee.score >= 60
-                                                    ? "#ffff00"
-                                                    : nominee.score >= 50
-                                                      ? "#ffc100"
-                                                      : "#ff0000",
-
-                                          textColor:
-                                            nominee.score >= 90
-                                              ? "#4bfc04"
-                                              : nominee.score >= 80
-                                                ? "#63ff00"
-                                                : nominee.score >= 70
-                                                  ? "#d6ff00"
-                                                  : nominee.score >= 60
-                                                    ? "#ffff00"
-                                                    : nominee.score >= 50
-                                                      ? "#ffc100"
-                                                      : "#ff0000",
-                                          trailColor: "#d6d6d6",
-                                          backgroundColor: "#3e98c7",
-                                        })}
-                                      />
-                                    </div>
-                                  </div>
+                                  <CircularBar nominee={nominee}></CircularBar>
+ 
                                   <p>
                                     <strong>Unvan:</strong> {nominee.cv.title}
                                   </p>
@@ -377,53 +338,8 @@ const AdminPositionDetail = () => {
                                 {...provided.dragHandleProps}
                                 className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
                               >
-                                <div className="flex flex-row justify-between items-center mb-2 rounded py-2 px-2 bg-gray-500">
-                                  <h4 className="font-semibold text-white text-lg mb-2 ">
-                                    {nominee.cv.name}
-                                  </h4>
-                                  <div className="progress">
-                                    <CircularProgressbar
-                                      value={nominee.score}
-                                      text={`${nominee.score}%`}
-                                      styles={buildStyles({
-                                        rotation: 0,
-
-                                        textSize: "20px",
-
-                                        pathTransitionDuration: 0.5,
-
-                                        pathColor:
-                                          nominee.score >= 90
-                                            ? "#4bfc04"
-                                            : nominee.score >= 80
-                                              ? "#63ff00"
-                                              : nominee.score >= 70
-                                                ? "#d6ff00"
-                                                : nominee.score >= 60
-                                                  ? "#ffff00"
-                                                  : nominee.score >= 50
-                                                    ? "#ffc100"
-                                                    : "#ff0000",
-
-                                        textColor:
-                                          nominee.score >= 90
-                                            ? "#4bfc04"
-                                            : nominee.score >= 80
-                                              ? "#63ff00"
-                                              : nominee.score >= 70
-                                                ? "#d6ff00"
-                                                : nominee.score >= 60
-                                                  ? "#ffff00"
-                                                  : nominee.score >= 50
-                                                    ? "#ffc100"
-                                                    : "#ff0000",
-                                        trailColor: "#d6d6d6",
-                                        backgroundColor: "#3e98c7",
-                                      })}
-                                    />
-                                  </div>
-                                </div>
-
+                                <CircularBar nominee={nominee}></CircularBar>
+ 
                                 <p>
                                   <strong>Unvan:</strong> {nominee.cv.title}
                                 </p>
@@ -475,5 +391,6 @@ const AdminPositionDetail = () => {
     </>
   );
 };
-
+ 
 export default AdminPositionDetail;
+ 

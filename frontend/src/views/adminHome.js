@@ -9,7 +9,9 @@ import ListDemand from "../views/listDemand";
 import ListPosition from "../views/listPosition";
 import Parameters from "../views/parameters";
 import AdminListPosition from "../views/adminListPositions";
+import AddPosition from "../views/addPosition";
 import NavBar from '../components/adminNavBar';
+
 const App = () => {
 
   const navigate = useNavigate();
@@ -49,6 +51,9 @@ const App = () => {
       break;
     case "list-positions":
       renderComponent = <AdminListPosition />;
+      break;
+      case "add-position":
+      renderComponent = <AddPosition />;
       break;
     case "parameters":
       renderComponent = <Parameters />;

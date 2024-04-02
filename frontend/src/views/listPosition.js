@@ -36,6 +36,7 @@ const ListPosition = () => {
   };
 
 
+
   const fetchPositions = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
@@ -205,7 +206,7 @@ const ListPosition = () => {
       ) : (
     <ListComponent
       handleAdd={handleAddPosition}
-      handleUpdate={false}
+      handleUpdate={handleEditPosition}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
       dropdowns={<FilterComponent

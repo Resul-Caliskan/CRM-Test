@@ -7,7 +7,10 @@ import { FaInfoCircle } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
 import UserNavbar from "../components/userNavbar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
-
+import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import CircularBar from "../components/circularBar";
+ 
 const PositionDetail = () => {
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
@@ -19,12 +22,18 @@ const PositionDetail = () => {
   const [position, setPosition] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
-
+ 
+  const [isOpen, setIsOpen] = useState(false);
+ 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+ 
   useEffect(() => {
     fetchNominees();
     getPositionById(id);
   }, [id]);
-
+ 
   const fetchNominees = async () => {
     setLoading(true); // loading true olarak ayarlayın
     try {
@@ -42,7 +51,7 @@ const PositionDetail = () => {
     }
     setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
   };
-
+ 
   const handleNomineeDetail = (nominee, isKnown) => {
     if (nominee && nominee._id) {
       setIsKnown(isKnown);
@@ -54,7 +63,7 @@ const PositionDetail = () => {
       );
     }
   };
-
+ 
   const getPositionById = async (id) => {
     try {
       const response = await axios.get(`${apiUrl}/api/positions/${id}`);
@@ -65,15 +74,15 @@ const PositionDetail = () => {
       return null;
     }
   };
-
+ 
   const openNomineeDetail = () => {
     setIsNomineeDetailOpen(true);
   };
-
+ 
   const closeNomineeDetail = () => {
     setIsNomineeDetailOpen(false);
   };
-
+ 
   return (
     <>
       <UserNavbar />
@@ -84,7 +93,7 @@ const PositionDetail = () => {
             <Tab>Adaylar</Tab>
             <Tab>Önerilen Adaylar</Tab>
           </TabList>
-
+ 
           <TabPanel>
             {position && (
               <div className="bg-white p-4 rounded border shadow">
@@ -129,40 +138,40 @@ const PositionDetail = () => {
           <TabPanel>
             {loading && <p>Veriler yükleniyor...</p>}
             {error && <p>Hata: {error}</p>}
-            {nominees.map((nominee, index) => (
-              <div
-                key={index}
-                className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-              >
-                <h4 className="font-semibold text-lg mb-2 ">
-                  {nominee.cv.name}
-                </h4>
-                <p>
-                  <strong>Unvan:</strong> {nominee.cv.title}
-                </p>
-                {nominee.cv.education.map((edu, index) => (
-                  <ul key={index}>
-                    <li>
-                      <div>
-                        <strong>Degree:</strong> {edu.degree}
-                      </div>
-                    </li>
-                  </ul>
-                ))}
-                <strong>Skills:</strong>
-                <ul className="list-disc ml-4">
-                  {nominee.cv.skills.map((skill, index) => (
-                    <li key={index}>{skill}</li>
-                  ))}
-                </ul>
-                <button
-                  className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                  onClick={() => handleNomineeDetail(nominee.cv, true)}
+            <div className="grid grid-cols-3 gap-2">
+              {nominees.map((nominee, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
                 >
-                  Detaylar <FaInfoCircle className="ml-2 size-4" />
-                </button>
-              </div>
-            ))}
+                 <CircularBar nominee={nominee}></CircularBar>
+                  <p>
+                    <strong>Unvan:</strong> {nominee.cv.title}
+                  </p>
+                  {nominee.cv.education.map((edu, index) => (
+                    <ul key={index}>
+                      <li>
+                        <div>
+                          <strong>Degree:</strong> {edu.degree}
+                        </div>
+                      </li>
+                    </ul>
+                  ))}
+                  <strong>Skills:</strong>
+                  <ul className="list-disc ml-4">
+                    {nominee.cv.skills.map((skill, index) => (
+                      <li key={index}>{skill}</li>
+                    ))}
+                  </ul>
+                  <button
+                    className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                    onClick={() => handleNomineeDetail(nominee.cv, true)}
+                  >
+                    Detaylar <FaInfoCircle className="ml-2 size-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </TabPanel>
           <TabPanel>
             {loading && <p>Veriler yükleniyor...</p>}
@@ -212,5 +221,6 @@ const PositionDetail = () => {
     </>
   );
 };
-
+ 
 export default PositionDetail;
+ 

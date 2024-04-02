@@ -14,6 +14,7 @@ import { City, Country, State } from "country-state-city";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 
 import "react-country-state-city/dist/react-country-state-city.css";
+import Loading from "../components/loadingComponent";
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -28,7 +29,7 @@ const CompanyForm = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -105,8 +106,10 @@ const CompanyForm = () => {
         console.log(response);
         console.log("DATAA PARAMETER: " + response.data);
         setParameters(response.data);
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.error("Roles fetching failed:", error);
       });
   };
@@ -148,6 +151,9 @@ const CompanyForm = () => {
   };
 
   return (
+    <>
+    {loading ? <Loading /> 
+       : (
     <div className="flex justify-center items-center w-screen mt-5">
     
       <div className="w-full max-w-lg">
@@ -415,6 +421,9 @@ const CompanyForm = () => {
         </Form>
       </div>
     </div>
+       )
+    }
+    </>
   );
 };
 
