@@ -18,7 +18,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import VHlogo from "../assets/vhlogo.png";
 import Notification from "../utils/notification";
 import "./Login.css";
- 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,8 +33,14 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
- 
+  const [rememberMe, setRememberMe] = useState(false);
+
   useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
     const handleResize = () => {
       const windowWidth = window.innerWidth;
       if (windowWidth <= 576) {
@@ -46,7 +52,7 @@ export default function Login() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
- 
+
   const handleEmailChange = (e) => {
     const { value } = e.target;
     setEmail(value);
@@ -55,7 +61,7 @@ export default function Login() {
     setErrors(email);
     setEmailError(email);
   };
- 
+
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setPassword(value);
@@ -64,16 +70,16 @@ export default function Login() {
     setErrors(password);
     setPasswordError(password);
   };
- 
+
   const handleSubmit = async (e) => {
     console.log("aaaapi");
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    }, 1800);
+    });
     const errors = validateForm(email, password);
- 
+
     if (errors.email === false && errors.password === false) {
       try {
         const response = await axios.post(
@@ -87,17 +93,17 @@ export default function Login() {
         const token = response.data.accessToken;
         localStorage.setItem("token", token);
         setAuthToken(token);
- 
+
         const refreshToken = response.data.refreshToken;
         localStorage.setItem("refreshToken", refreshToken);
         setMessage(response.data.accessToken);
         console.log("token " + response.data.accessToken);
- 
+
         const responseMe = getMe();
         responseMe.then((data) => {
           console.log("cevap:", data);
           dispatch(login(data.user));
- 
+
           if (data.user.role === "admin") {
             setTimeout(() => {
               setLoading(false);
@@ -110,6 +116,15 @@ export default function Login() {
             }, 1500);
           }
         });
+        setRememberMe(e.target.checked);
+        if (e.target.checked) {
+          console.log("rememberme girmedi",rememberMe);
+          localStorage.removeItem("rememberedEmail");
+        } else {
+          console.log("remberme girdi",rememberMe);
+          // Eğer checkbox işaretlenmişse, e-posta bilgisini local storage'a kaydedin
+          localStorage.setItem("rememberedEmail", email);
+        }
       } catch (error) {
         setPassword("");
         setEmail("");
@@ -130,7 +145,7 @@ export default function Login() {
       console.log(errors);
     }
   };
- 
+
   return (
     <div className="flex container-div">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
@@ -164,15 +179,15 @@ export default function Login() {
                 components: {
                   Input: emailError
                     ? {
-                      colorPrimary: "#133163",
-                      hoverBorderColor: "red",
-                      activeBorderColor: "red",
-                    }
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "red",
+                        activeBorderColor: "red",
+                      }
                     : {
-                      colorPrimary: "#133163",
-                      hoverBorderColor: "#133163",
-                      activeBorderColor: "#133163",
-                    },
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "#133163",
+                        activeBorderColor: "#133163",
+                      },
                 },
               }}
             >
@@ -189,8 +204,9 @@ export default function Login() {
                       message: "Geçerli bir email adresi giriniz!",
                     },
                   ]}
-                  className={`focus:custom-blue text-sm border pl-3 p-2   ${emailError ? "border-custom-red" : email ? "" : ""
-                    } `}
+                  className={`focus:custom-blue text-sm border pl-3 p-2   ${
+                    emailError ? "border-custom-red" : email ? "" : ""
+                  } `}
                   onFocus={() => {
                     setEmailError();
                   }}
@@ -203,12 +219,13 @@ export default function Login() {
                   }}
                   prefix={
                     <MailOutlined
-                      className={`mr-2 ${emailError
-                        ? "text-red-500"
-                        : email && emailError === false
+                      className={`mr-2 ${
+                        emailError
+                          ? "text-red-500"
+                          : email && emailError === false
                           ? "text-green-500"
                           : "text-gray-500"
-                        }`}
+                      }`}
                     />
                   }
                   suffix={
@@ -251,15 +268,15 @@ export default function Login() {
                   components: {
                     Input: passwordError
                       ? {
-                        colorPrimary: "#133163",
-                        hoverBorderColor: "red",
-                        activeBorderColor: "red",
-                      }
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "red",
+                          activeBorderColor: "red",
+                        }
                       : {
-                        colorPrimary: "#133163",
-                        hoverBorderColor: "#133163",
-                        activeBorderColor: "#133163",
-                      },
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "#133163",
+                          activeBorderColor: "#133163",
+                        },
                   },
                 }}
               >
@@ -274,14 +291,15 @@ export default function Login() {
                         message: "Geçerli bir şifre giriniz!",
                       },
                     ]}
-                    className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${passwordError ? "border-custom-red" : password ? "" : ""
-                      }`}
+                    className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${
+                      passwordError ? "border-custom-red" : password ? "" : ""
+                    }`}
                     disabled={loading}
-                   /* onFocus={() => {
+                    /* onFocus={() => {
                       setPasswordError();
                     }}*/
                     // onBlur={(e) => {
- 
+
                     // }}
                     onChange={(e) => {
                       handlePasswordChange(e);
@@ -289,12 +307,13 @@ export default function Login() {
                     }}
                     prefix={
                       <LockOutlined
-                        className={`mr-2 ${passwordError
-                          ? "text-red-500"
-                          : password && passwordError === false
+                        className={`mr-2 ${
+                          passwordError
+                            ? "text-red-500"
+                            : password && passwordError === false
                             ? "text-green-500"
                             : "text-gray-500"
-                          }`}
+                        }`}
                       />
                     }
                     suffix={
@@ -342,7 +361,13 @@ export default function Login() {
               )}
             </div>
             <div className="flex row justify-between mt-4 mb-2">
-              <Checkbox className="text-[#133163] text-sm font-light">
+              <Checkbox
+                className="text-[#133163] text-sm font-light"
+                checked={rememberMe}
+                onChange={() => {
+                  setRememberMe(!rememberMe);
+                }}
+              >
                 Beni hatırla
               </Checkbox>
               <a href="/reset-password">
@@ -352,11 +377,11 @@ export default function Login() {
               </a>
             </div>
           </div>
- 
+
           {email &&
-            password &&
-            emailError === false &&
-            passwordError === false ? (
+          password &&
+          emailError === false &&
+          passwordError === false ? (
             <button
               type="submit"
               className="bg-[#0057D9] text-white w-full h-9  rounded-lg flex items-center justify-center mt-5"
@@ -373,7 +398,7 @@ export default function Login() {
               Giriş yap
             </Button>
           )}
- 
+
           <div className="mt-2">
             <p className="text-xs  text-center font-thin mt-6">
               Kullanıcı bilgileriniz her zaman güvende!
@@ -383,9 +408,7 @@ export default function Login() {
         <div class="fixed bottom-0 right-0 mb-6 mr-4 vh-logo">
           <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
         </div>
- 
       </div>
     </div>
   );
 }
- 

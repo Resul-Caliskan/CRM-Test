@@ -96,7 +96,7 @@ const Parameters = () => {
       <h1 className="text-center my-5 font-semibold">API Parametreleri</h1>
       <div>
         <div className="flex justify-between mb-4">
-          <div>
+          {/* <div>
             <Input
               name="title"
               value={newParameter.title}
@@ -112,7 +112,7 @@ const Parameters = () => {
               className="mr-2"
             />
             <Button onClick={handleSaveClick}>Ekle</Button>
-          </div>
+          </div> */}
         </div>
         <ul className="grid grid-cols-4 gap-4">
           {parameters && parameters.map((param) => (
