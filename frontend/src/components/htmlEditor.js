@@ -1,50 +1,143 @@
-import React, { useState, useEffect } from "react";
-import MarkdownEditor from "@uiw/react-markdown-editor";
-
-const EditableContent = ({ content, setContent }) => {
-  useEffect(() => {
-    
-  }, [content]);
-
-  const [markdownContent, setMarkdownContent] = useState(content);
-
-  const handleEditorChange = (value) => {
-    setMarkdownContent(value);
+import React, { useState, useEffect, useRef } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { marked } from "marked";
+import PropTypes from "prop-types";
+import { OpenAIOutlined } from "@ant-design/icons";
+import { Button, Space } from "antd";
+ 
+const CustomButton = ({isLoading}) => (
+  <div
+    style={{
+      display: "flex", 
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "antiquewhite",
+      width: "max-content",
+      height: 25,
+      marginBottom: 10,
+      borderRadius: 10,
+      padding: 10,
+    }}
+    className="text-white  sm:w-1/2  h-10  mb-4  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  text-center "
+  >
+    <OpenAIOutlined className="mr-1 mb-1" />
+    <p>Ai ile Oluştur</p>
+  </div>
+);
+ 
+const CustomToolbar = ({ handleAskAi, isLoading }) => (
+  <div id="toolbar">
+  {console.log("TT"+isLoading)}
+    <select
+      className="ql-header"
+      defaultValue={""}
+      onChange={(e) => e.persist()}
+    >
+      <option value="1"></option>
+      <option value="2"></option>
+      <option selected></option>
+    </select>
+ 
+    <button className="ql-bold"></button>
+    <select className="ql-color">
+      <option value="red"></option>
+      <option value="green"></option>
+      <option value="blue"></option>
+      <option value="orange"></option>
+      <option value="violet"></option>
+      <option value="#d0d1d2"></option>
+      <option selected></option>
+    </select>
+    <button className="ql-italic"></button>
+ 
+    <Button  disabled={isLoading} className="ql-insertStar mb-1"  onClick={handleAskAi}>
+      <CustomButton isLoading={isLoading}  />
+    </Button>
+  </div>
+);
+ 
+const Editor = ({ placeholder, setContent, initialContent, handleAskAi, isLoading }) => {
+  const [content, setContent2] = useState(initialContent || "");
+ 
+  const handleChange = (value) => {
     setContent(value);
+    setContent2(value);
   };
-
+ 
   return (
-    <div className="grid grid-cols-2 gap-6 min-h-[400px] border-2 p-3 text-indigo-500">
-      <MarkdownEditor
-        style={{ backgroundColor: "#0000000F" }}
-        width="100%"
-        value={markdownContent}
-        onChange={(source) => {
-          handleEditorChange(source);
-        }}
+    <div className="text-editor">
+      <CustomToolbar handleAskAi={handleAskAi}
+      isLoading={isLoading} 
       />
-      <div
-        style={{
-          backgroundColor: "#0000000F",
-          padding: "10px",
-          maxHeight: "100%",
-          overflowY: "auto",
-          borderRadius: 10,
-        }}
-      >
-        <MarkdownEditor.Markdown
-          source={markdownContent}
-          className="bg-gray-300"
-          style={{
-            backgroundColor: "#0000000F",
-            color: "black",
-            padding: 10,
-            borderRadius: 10,
-          }}
-        />
-      </div>
+      <ReactQuill
+        className="h-[400px]"
+        value={content}
+        onChange={handleChange}
+        placeholder={placeholder}
+        modules={Editor.modules}
+        
+      />
     </div>
   );
 };
-
+ 
+Editor.modules = {
+  toolbar: {
+    container: "#toolbar",
+   
+  },
+};
+ 
+Editor.formats = [
+  "header",
+  "font",
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "link",
+  "image",
+  "color",
+];
+ 
+Editor.propTypes = {
+  placeholder: PropTypes.string,
+  setContent: PropTypes.func.isRequired,
+  initialContent: PropTypes.string,
+};
+ 
+const EditableContent = ({ content, setContent, handleAskAi, isLoading }) => {
+  const [htmlContent, setHtmlContent] = useState(marked(content));
+ 
+  useEffect(() => {
+    setHtmlContent(marked(content));
+    console.log("XX:"+isLoading);
+  }, [content,isLoading]);
+ 
+  return (
+    <div>
+      <Editor
+        placeholder={"İş Tanımını Yazınız veya Yapay Zeka ile Oluşturun"}
+        setContent={setContent}
+        initialContent={htmlContent}
+        handleAskAi={handleAskAi}
+        isLoading={isLoading}
+      />
+    </div>
+  );
+};
+ 
+EditableContent.propTypes = {
+  content: PropTypes.string.isRequired,
+  setContent: PropTypes.func.isRequired,
+};
+ 
 export default EditableContent;
+ 

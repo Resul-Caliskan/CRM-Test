@@ -2,38 +2,48 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa";
 import { Button, Popconfirm, Input } from "antd";
-
+import Loading from '../components/loadingComponent';
 const Parameters = () => {
   const [parameters, setParameters] = useState([]);
-  const [ setEditingParameter] = useState(null);
+  const [editingParameter, setEditingParameter] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEdit, setEdit] = useState(false);
   const [editedValues, setEditedValues] = useState([]);
-  const [newParameter, setNewParameter] = useState({ title: "", value: "" });
+  const [newParameter, setNewParameter] = useState({ title: "", values:[]});
+  const [loading, setLoading] = useState(true);
   const apiUrl = process.env.REACT_APP_API_URL;
-
+ 
   useEffect(() => {
     fetchParameters();
-  }, [parameters]);
-
+  }, []);
+ 
   const fetchParameters = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/parameters`);
       setParameters(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Parameter fetching failed:", error);
     }
   };
-
+ 
   const handleEditClick = (parameter) => {
     setEditingParameter(parameter);
-    setModalOpen(true);
     setEditedValues(parameter.values);
+    setModalOpen(true);
   };
-
+ 
   const handleSaveClick = async () => {
     try {
-      await axios.post(`${apiUrl}/api/parameters`, { editedValues });
+      if (editingParameter) {
+        await axios.put(`${apiUrl}/api/parameters/${editingParameter._id}`, { values: editedValues});
+      } else {
+        console.log("YENİ PARAMETRE!!")
+        console.log("TİTLEE"+newParameter.title);
+        console.log("TİTLEE"+newParameter.values);
+        await axios.post(`${apiUrl}/api/parameters`, { title: newParameter.title, values: newParameter.values});
+ 
+      }
       await fetchParameters();
       console.log("Parametre kaydedildi:", editedValues);
     } catch (error) {
@@ -42,33 +52,28 @@ const Parameters = () => {
     setEditingParameter(null);
     setModalOpen(false);
   };
-
+ 
   const handleDelete = (index) => {
     const newValues = [...editedValues];
     newValues.splice(index, 1);
     setEditedValues(newValues);
   };
-
+ 
   const handleAdd = () => {
     setEditedValues([...editedValues, ""]);
     setEdit(true);
-    setTimeout(() => {
-      const list = document.getElementById("editedValuesList");
-      const lastItem = list.lastElementChild;
-      lastItem.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, 100);
   };
-
+ 
   const handleEdit = () => {
     setEdit(!isEdit);
   };
-
+ 
   const handleInputChange = (index, value) => {
     const newValues = [...editedValues];
     newValues[index] = value;
     setEditedValues(newValues);
   };
-
+ 
   const handleNewParameterChange = (e) => {
     const { name, value } = e.target;
     setNewParameter((prevParameter) => ({
@@ -76,13 +81,17 @@ const Parameters = () => {
       [name]: value,
     }));
   };
-
-  const handleAddNewParameter = () => {
-    setParameters([...parameters, newParameter]);
-    setNewParameter({ title: "", value: "" });
-  };
-
+ 
+ 
+ 
+ 
+ 
+ 
   return (
+    <>
+
+    {loading ? <Loading /> 
+       : (
     <div>
       <h1 className="text-center my-5 font-semibold">API Parametreleri</h1>
       <div>
@@ -96,19 +105,19 @@ const Parameters = () => {
               className="mr-2"
             />
             <Input
-              name="value"
-              value={newParameter.value}
+              name="values"
+              value={newParameter.values}
               onChange={handleNewParameterChange}
               placeholder="Parametre Değeri"
               className="mr-2"
             />
-            <Button onClick={handleAddNewParameter}>Ekle</Button>
+            <Button onClick={handleSaveClick}>Ekle</Button>
           </div>
         </div>
         <ul className="grid grid-cols-4 gap-4">
           {parameters && parameters.map((param) => (
             <div
-              key={param.title}
+              key={param._id}
               className="bg-white p-4 rounded border shadow"
             >
               <div className="flex justify-between border-b border-gray-400 mb-2">
@@ -213,8 +222,9 @@ const Parameters = () => {
           </div>
         </div>
       )}
-    </div>
+    </div>)}
+  </>
   );
 };
-
+ 
 export default Parameters;

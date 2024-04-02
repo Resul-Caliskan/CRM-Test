@@ -8,15 +8,17 @@ import Notification from '../utils/notification';
 import { highlightSearchTerm } from '../utils/highLightSearchTerm';
 import FilterComponent from '../components/filterComponent';
 import filterFunction from '../utils/globalSearchFunction';
-
+import Loading from '../components/loadingComponent';
 
 const ListCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [parameterOptions, setParameterOptions] = useState([]);
   const [isDelete, setIsDelete] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const [filters, setFilters] = useState({
     sector: [],
     companytype: []
@@ -26,52 +28,54 @@ const ListCustomers = () => {
     console.log("x" + parameterOptions);
     fetchRolesFromDatabase();
     setIsDelete(false);
+   
+
   }, [isDelete]);
 
   const columns = [
     {
-      title: 'Name',
+      title: 'Şirket Adı',
       dataIndex: 'companyname',
       key: 'companyname',
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
     },
     {
-      title: 'Type',
+      title: 'Türü',
       dataIndex: 'companytype',
       key: 'companytype',
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companytype.localeCompare(b.companytype),
     },
     {
-      title: 'Sector',
+      title: 'Sektör',
       dataIndex: 'companysector',
       key: 'companysector',
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Address',
-      dataIndex: 'companyadress',
-      key: 'companyadress',
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
-    {
-      title: 'Country',
+      title: 'Ülke',
       dataIndex: 'companycountry',
       key: 'companycountry',
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'City',
+      title: 'İl',
       dataIndex: 'companycity',
       key: 'companycity',
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companycity.localeCompare(b.companycity),
     },
     {
-      title: 'County',
+      title: 'İlçe',
       dataIndex: 'companycounty',
       key: 'companycounty',
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: 'Adres',
+      dataIndex: 'companyadress',
+      key: 'companyadress',
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
@@ -81,19 +85,19 @@ const ListCustomers = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Contact Name',
+      title: 'İlgili Kişi İsim',
       dataIndex: 'contactname',
       key: 'contactname',
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Contact Mail',
+      title: 'İlgili Kişi Mail',
       dataIndex: 'contactmail',
       key: 'contactmail',
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Contact Number',
+      title: 'İlgili Kişi Numara',
       dataIndex: 'contactnumber',
       key: 'contactnumber',
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -148,9 +152,12 @@ const ListCustomers = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
       setCustomers(response.data);
       console.log(response.data);
+        setLoading(false);
     } catch (error) {
       console.error('Roles fetching failed:', error);
+
     }
+
   };
   const fetchParameterOptions = async () => {
     try {
@@ -182,12 +189,12 @@ const ListCustomers = () => {
   };
   const handleDelete = async (customerId) => {
     try {
+      console.log(customerId);
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/customers/${customerId}`);
       setCustomers(customers.filter(customer => customer.companyId !== customerId));
       Notification("success", "Müşteri başarıyla silindi.", "");
       setIsDelete(true);
-
-
+      
     } catch (error) {
       Notification("error", "Müşteri silinirken bir hata oluştu.", "");
     }
@@ -195,6 +202,8 @@ const ListCustomers = () => {
 
   return (
     <>
+    {loading ? <Loading /> 
+       : (
       <ListComponent
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -209,7 +218,7 @@ const ListCustomers = () => {
         columns={columns}
         data={data}
         name={"Müşteri Listesi"}
-      />
+      />)}
     </>
   );
 };

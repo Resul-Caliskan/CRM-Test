@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import filterFunction from "../utils/globalSearchFunction";
 import Notification from "../utils/notification";
-import { FaTimes, FaInfoCircle, FaEdit } from "react-icons/fa";
-import { IoAddCircleSharp } from "react-icons/io5";
-import AreUSure from "../components/areUSure";
+
 import { getIdFromToken } from "../utils/getIdFromToken";
 import { useSelector, useDispatch } from "react-redux";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import ListComponent from "../components/listComponent";
 import FilterComponent from "../components/filterComponent"
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
+import Loading from '../components/loadingComponent';
 const ListPosition = () => {
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const companyId = getIdFromToken(localStorage.getItem("token"));
@@ -40,6 +40,7 @@ const ListPosition = () => {
     try {
       const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
       setPositions(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Customers fetching failed:", error);
     }
@@ -50,7 +51,12 @@ const ListPosition = () => {
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
       const filteredOptions = response.data.filter(option => {
-        return option.title === "İş Unvanı" || option.title === "Departman" || option.title === "Deneyim Süresi" || option.title === "İş Türü" || option.title === "Yetenekler";
+        return option.title === "İş Unvanı" || 
+        option.title === "Departman" || 
+        option.title === "Deneyim Süresi" || 
+        option.title === "İş Türü" || 
+        option.title === "Yetenekler" || 
+        option.title === "İşyeri Politikası";
       });
       console.log(filteredOptions);
       setParameterOptions(filteredOptions);
@@ -124,13 +130,13 @@ const ListPosition = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Çalışma Şekli",
+      title: "İşyeri Politikası",
       dataIndex: "modeofoperation",
       key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Çalışma Türü",
+      title: "İş Türü",
       dataIndex: "worktype",
       key: "worktype",
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -193,6 +199,10 @@ const ListPosition = () => {
 
 
   return (
+    <>
+    {loading ? (
+        <Loading />
+      ) : (
     <ListComponent
       handleAdd={handleAddPosition}
       handleUpdate={false}
@@ -208,6 +218,8 @@ const ListPosition = () => {
       data={data}
       name={"Pozisyon Listesi"}
     />
+      )}
+      </>
 
   );
 };

@@ -18,7 +18,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import VHlogo from "../assets/vhlogo.png";
 import Notification from "../utils/notification";
 import "./Login.css";
-
+ 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +33,7 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-
+ 
   useEffect(() => {
     const handleResize = () => {
       const windowWidth = window.innerWidth;
@@ -46,7 +46,7 @@ export default function Login() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+ 
   const handleEmailChange = (e) => {
     const { value } = e.target;
     setEmail(value);
@@ -55,7 +55,7 @@ export default function Login() {
     setErrors(email);
     setEmailError(email);
   };
-
+ 
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setPassword(value);
@@ -64,7 +64,7 @@ export default function Login() {
     setErrors(password);
     setPasswordError(password);
   };
-
+ 
   const handleSubmit = async (e) => {
     console.log("aaaapi");
     e.preventDefault();
@@ -73,7 +73,7 @@ export default function Login() {
       setLoading(false);
     }, 1800);
     const errors = validateForm(email, password);
-
+ 
     if (errors.email === false && errors.password === false) {
       try {
         const response = await axios.post(
@@ -87,17 +87,17 @@ export default function Login() {
         const token = response.data.accessToken;
         localStorage.setItem("token", token);
         setAuthToken(token);
-
+ 
         const refreshToken = response.data.refreshToken;
         localStorage.setItem("refreshToken", refreshToken);
         setMessage(response.data.accessToken);
         console.log("token " + response.data.accessToken);
-
+ 
         const responseMe = getMe();
         responseMe.then((data) => {
           console.log("cevap:", data);
           dispatch(login(data.user));
-
+ 
           if (data.user.role === "admin") {
             setTimeout(() => {
               setLoading(false);
@@ -130,14 +130,12 @@ export default function Login() {
       console.log(errors);
     }
   };
-
+ 
   return (
     <div className="flex container-div">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
         {isVisible && (
-
           <div className="loginFirst">
-
             <div className="loginSecond">
               <img src={logo} alt="Resim" className="h-screen" />
             </div>
@@ -272,7 +270,6 @@ export default function Login() {
                     rules={[
                       {
                         required: true,
-                        message: "Şifre giriniz!",
                         type: "password",
                         message: "Geçerli bir şifre giriniz!",
                       },
@@ -280,11 +277,11 @@ export default function Login() {
                     className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${passwordError ? "border-custom-red" : password ? "" : ""
                       }`}
                     disabled={loading}
-                    onFocus={() => {
+                   /* onFocus={() => {
                       setPasswordError();
-                    }}
+                    }}*/
                     // onBlur={(e) => {
-                     
+ 
                     // }}
                     onChange={(e) => {
                       handlePasswordChange(e);
@@ -322,7 +319,7 @@ export default function Login() {
                         )}
                         {passwordError && (
                           <IoCloseCircleSharp
-                            className="text-red-500 size-[16px] cursor-pointer ml-2"
+                            className="text-red-500 size-4 cursor-pointer"
                             onClick={() => {
                               setPassword("");
                               setPasswordError("");
@@ -355,7 +352,7 @@ export default function Login() {
               </a>
             </div>
           </div>
-
+ 
           {email &&
             password &&
             emailError === false &&
@@ -376,7 +373,7 @@ export default function Login() {
               Giriş yap
             </Button>
           )}
-
+ 
           <div className="mt-2">
             <p className="text-xs  text-center font-thin mt-6">
               Kullanıcı bilgileriniz her zaman güvende!
@@ -386,8 +383,9 @@ export default function Login() {
         <div class="fixed bottom-0 right-0 mb-6 mr-4 vh-logo">
           <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
         </div>
-
+ 
       </div>
     </div>
   );
 }
+ 

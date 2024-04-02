@@ -1,25 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getIdFromToken } from "../utils/getIdFromToken";
-import filterCandidates from "../utils/searchCv";
 import { FaInfoCircle } from "react-icons/fa";
-import { FaTimes } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
-import SearchInput from "../components/searchInput"; // Dikkat edin: Büyük harfle başlamalı
+import SearchInput from "../components/searchInput"; 
 import Highlighter from "react-highlight-words";
-
+import Loading from '../components/loadingComponent';
 const CVList = () => {
   const [sharedItems, setSharedItems] = useState([]);
   const [cvs, setCvs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCV, setSelectedCV] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Başlangıç değeri belirlendi
+  const [searchTerm, setSearchTerm] = useState(""); 
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const [isNomineeDetailOpen, setIsNomineeDetailOpen] = useState(false);
   const [nomineeDetail, setNomineeDetail] = useState();
   const [isKnown, setIsKnown] = useState(true);
-  const [inputValue, setInputValue] = useState(searchTerm);
 
   const openNomineeDetail = () => {
     setIsNomineeDetailOpen(true);
@@ -51,14 +47,10 @@ const CVList = () => {
   const filterCvs = (cvs, isNormal, searchTerm) => {
     return cvs.filter((candidate) => {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
-      // Check title
       if (candidate.title.toLowerCase().includes(lowerCaseSearchTerm)) {
         console.log("title: " + lowerCaseSearchTerm);
         return true;
       }
-
-      // Check skills
       if (
         candidate.skills.some((skill) =>
           skill.toLowerCase().includes(lowerCaseSearchTerm)
@@ -67,8 +59,6 @@ const CVList = () => {
         console.log("Skills: " + lowerCaseSearchTerm);
         return true;
       }
-
-      // Check experience
       if (
         candidate.experience.some(
           (exp) =>
@@ -81,8 +71,6 @@ const CVList = () => {
         console.log("Experience: " + lowerCaseSearchTerm);
         return true;
       }
-
-      // Check education
       if (
         candidate.education.some(
           (edu) =>
@@ -94,7 +82,6 @@ const CVList = () => {
         console.log("Education: " + lowerCaseSearchTerm);
         return true;
       }
-
       return false;
     });
   };
@@ -116,6 +103,7 @@ const CVList = () => {
       console.log("AAAAAAA" + cvPool);
       setSharedItems(shared);
       setCvs(cvPool);
+      setLoading(false);
     } catch (error) {
       setError(error.message);
     }
@@ -139,6 +127,10 @@ const CVList = () => {
   };
 
   return (
+    <>
+    {loading ? (
+        <Loading />
+      ) : (
     <div>
       <div>
         <SearchInput
@@ -282,6 +274,8 @@ const CVList = () => {
         )}
       </div>
     </div>
+       )}
+       </>
   );
 };
 

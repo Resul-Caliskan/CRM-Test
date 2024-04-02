@@ -44,6 +44,7 @@ const AddPosition = () => {
   };
 
   const handleAskAi = async () => {
+    
     try {
       const values = form.getFieldsValue();
       setLoadingAi(true);
@@ -67,9 +68,9 @@ const AddPosition = () => {
 
       console.log("ai res:" + aiResponse + " mesaj");
 
-      Notification("success", "Yapay Zeka Mutlu.");
+      Notification("success", "İş Tanımı Başarıyla Oluşturuldu.");
     } catch (error) {
-      Notification("error", "Yapay Zeka Üzgün.");
+      Notification("error", "İş Tanımı Oluşturulurken Hata Oluştu.");
       console.error("Form gönderilirken bir hata oluştu:", error);
     } finally {
       setLoadingAi(false);
@@ -280,16 +281,7 @@ const AddPosition = () => {
                   })}
                 </Select>
               </Form.Item>
-          <Form.Item className="text-center col-start-1 col-end-3">
-            <Button
-              type="button"
-              onClick={handleAskAi}
-              loading={loadingAi}
-              className="text-white  sm:w-1/2  h-10  mb-4  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  text-center "
-            >
-              Yapay Zeka İle İş Tanımı Oluştur
-            </Button>
-          </Form.Item>
+       
 
           <Form.Item
             label="İş Tanımı"
@@ -297,7 +289,13 @@ const AddPosition = () => {
             className="col-start-1 col-end-3"
             rules={[{ required: true, message: "İş Tanımını Giriniz!" }]}
           >
-            <EditableContent key={aiResponse} content={aiResponse} setContent={setcontentValue} />
+             <EditableContent
+              key={aiResponse}
+              content={aiResponse}
+              setContent={setcontentValue}
+              handleAskAi={handleAskAi}
+              isLoading={loadingAi}
+            />
           </Form.Item>
           <Form.Item className="col-start-1 col-end-3 text-center">
             <Button

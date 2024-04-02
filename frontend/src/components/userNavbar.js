@@ -60,7 +60,7 @@ export default function UserNavbar() {
         <ul class="menu">
           <li className={`menu-item ${userSelectedOption === "dashboard" ? "selected" : ""}`}>
             <a href="#" onClick={() => handleOptionClick("dashboard")} className="menu-link">
-              Dashboard
+              Anasayfa
             </a>
           </li>
           <li className={`menu-item ${ userSelectedOption === "candidates" ? "selected" : ""}`}>

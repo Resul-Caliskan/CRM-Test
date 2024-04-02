@@ -11,9 +11,11 @@ import { useDispatch } from 'react-redux';
 import Notification from "../utils/notification";
 import FilterComponent from "../components/filterComponent"
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
+import Loading from '../components/loadingComponent';
 const AdminListPosition = () => {
   const [positions, setPositions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
 
@@ -40,7 +42,7 @@ const AdminListPosition = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "İş Başlığı",
+      title: "İş Ünvanı",
       dataIndex: "jobtitle",
       key: "jobtitle",
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -52,12 +54,17 @@ const AdminListPosition = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Operasyon Modu",
+      title: "İşyeri Politikası",
       dataIndex: "modeofoperation",
       key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
- 
+    {
+      title: "İş Türü",
+      dataIndex: "worktype",
+      key: "worktype",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
     {
       title: "Yetenekler",
       dataIndex: "skills",
@@ -76,12 +83,6 @@ const AdminListPosition = () => {
           return text;
         }
       },
-    },
-    {
-      title: "Çalışma Türü",
-      dataIndex: "worktype",
-      key: "worktype",
-      render: (text) => highlightSearchTerm(text, searchTerm),
     },
   ];
   const filteredPositions = positions.filter((position) => {
@@ -169,9 +170,10 @@ const AdminListPosition = () => {
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
       const filteredOptions = response.data.filter(option => {
-        return option.title !== "Sektör" && option.title !== "Firma Türü";
+        return option.title === "Departman" ||  option.title === "İş Unvanı" || option.title === "Deneyim Süresi" || option.title === "İşyeri Politikası" || option.title === "Yetenekler";
       });
       setParameterOptions(filteredOptions);
+      setLoading(false);
     } catch (error) {
       console.error("Parameter options fetching failed:", error);
     }
@@ -201,7 +203,7 @@ const AdminListPosition = () => {
     }
   };
 
-  
+
 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
@@ -218,7 +220,9 @@ const AdminListPosition = () => {
     setSearchTerm(value);
   };
   return (
-
+    <>
+    {loading ? <Loading /> 
+       : (
     <ListComponent
       handleAdd={false}
       handleUpdate={false}
@@ -233,7 +237,8 @@ const AdminListPosition = () => {
       columns={columns}
       data={data}
       name={"Pozisyon Listesi"}
-    />
+    />)}
+    </>
   );
 };
 

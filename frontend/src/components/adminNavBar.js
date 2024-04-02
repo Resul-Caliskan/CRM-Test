@@ -61,9 +61,13 @@ export default function NavBar() {
             </div>
           </div>
           <div className="avatar-container">
-            <div className="labels">
-              <label className="nameLabel">Lorem Ipsum</label>
-              <label className="roleLabel">Admin</label>
+          <div className="labels">
+              <label className="nameLabel">{user?.email}</label>
+              <label className="roleLabel">
+                {user?.role
+                  ? user?.role.charAt(0).toUpperCase() + user?.role.slice(1)
+                  : ""}
+              </label>
             </div>
             <div className="avatar-icon">
               <img src={avatar} onClick={handleLogout} alt="Resim " />
@@ -72,8 +76,8 @@ export default function NavBar() {
         </div>
         <ul className="menu">
           <li className={`menu-item ${selectedOption === "dashboard" ? "selected" : ""}`}>
-            <a href="#" onClick={() => handleOptionClick("dashboard")} className="menu-link">
-              Dashboard
+            <a href="#" onClick={() => handleOptionClick("dashboard")} className="menu-link ">
+               Anasayfa
             </a>
           </li>
           <li className={`menu-item ${selectedOption === "list-costumers" ? "selected" : ""}`}>
@@ -91,11 +95,11 @@ export default function NavBar() {
               Pozisyon Talepleri
             </a>
           </li>
-          {/* <li className={`menu-item hidden-sm ${selectedOption === "parameters" ? "selected" : ""}`}>
+           <li className={`menu-item hidden-sm ${selectedOption === "parameters" ? "selected" : ""}`}>
             <a href="#" className="menu-link" onClick={() => handleOptionClick("parameters")}>
               Parametreler
             </a>
-          </li> */}
+          </li> 
           {/* <li className={`menu-item hidden-sm-dropdown ${selectedOption === "list-positions" || selectedOption === "parameters" ? "selected" : ""}`}>
             <a href="#" className="menu-link" onClick={toggleDropdown}>
               ...

@@ -14,6 +14,7 @@ import Notification from "../utils/notification";
 import Highlighter from "react-highlight-words";
 import { normalize } from "react-highlight-words";
 import ListComponent from "../components/listComponent";
+import Loading from '../components/loadingComponent';
 
 const ListDemand = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,7 @@ const ListDemand = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedDemandIndex, setSelectedDemandIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,6 +59,7 @@ const ListDemand = () => {
         `${process.env.REACT_APP_API_URL}/api/demand`
       );
       setDemands(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Talepler alınırken bir hata oluştu:", error);
     }
@@ -120,12 +123,12 @@ const ListDemand = () => {
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
     },
     {
-      title: 'Ad',
+      title: 'İsim',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Soyad',
+      title: 'Soyisim',
       dataIndex: 'surname',
       key: 'surname',
     },
@@ -135,7 +138,7 @@ const ListDemand = () => {
       key: 'number',
     },
     {
-      title: 'Email',
+      title: 'E-mail',
       dataIndex: 'email',
       key: 'email',
     },
@@ -163,6 +166,9 @@ const ListDemand = () => {
   };
 
   return (
+    <>
+    {loading ? <Loading /> 
+    : (
     <ListComponent
       handleAdd={false}
       handleUpdate={false}
@@ -172,9 +178,9 @@ const ListDemand = () => {
       columns={columns}
       data={data}
       name={"Talep Listesi"}
-    />
+    />)}
 
-
+</>
   );
 };
 

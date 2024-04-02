@@ -1,20 +1,36 @@
 import React, { useState } from "react";
-import { Button, Input, Space, Table } from "antd";
+import { Button, Input, Popconfirm, Space, Table } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import ConfirmPopUp from "./areUSure";
 
 
-const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name }) => {
+const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name }) => {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const [selectionType, setSelectionType] = useState("checkbox");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+  const showPopconfirm = () => {
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    setConfirmLoading(true);
+
+    setTimeout(() => {
+      setOpen(false);
+      setConfirmLoading(false);
+    }, 2000);
+  };
+
+  const handleCancel = () => {
+    console.log('Clicked cancel button');
+    setOpen(false);
   };
   const handleSearch = (event) => {
     const { value } = event.target;
@@ -62,6 +78,7 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
           </div>
           <div className="filterSearch">
             {dropdowns}
+            
           </div>
         </div>
         <div className="crudButtons">
@@ -87,18 +104,14 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
         <div className="title">
           <h4 className="titleLabel">{name}</h4>
           <p className="titleContent">
-            Total {data.length} result are displayed
+            Toplam {data.length} sonuç listelendi
           </p>
         </div>
         <div className="listData">
           <div className="onlyData">
 
             <Table
-              rowKey="key"
-              rowSelection={{
-                type: selectionType,
-                ...rowSelection,
-              }}
+
               columns={[
                 ...columns,
                 {
@@ -114,8 +127,6 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
                           handleUpdate(record.id);
 
                         }}
-
-                        disabled={!selectedRowKeys.includes(record.key)}
                       >
                       </Button>}
                       {handleApprove && <Button
@@ -125,30 +136,17 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
                           console.log("Clicked on id: - companyId", record.id, record.companyId);
                           handleApprove(record);
                         }}
-
-                        disabled={!selectedRowKeys.includes(record.key)}
                       >
                       </Button>}
                       {handleDelete && (
-                        <Button
-                          type="link"
-                          icon={<DeleteOutlined />}
-                          onClick={() => {
-                            
-                            handleDelete(record.id);
-                            setSelectedRowKeys([-1]);
-                          }}
-                          disabled={!selectedRowKeys.includes(record.key)}
-                        >
-                        </Button>
-                      )}
 
+                       <ConfirmPopUp handleDelete={handleDelete} id={record.id}/>
+
+                      )}
                       {handleDetail && <Button
                         type="link"
                         icon={<InfoCircleOutlined />}
                         onClick={() => handleDetail(record.id)}
-                        set
-                        disabled={!selectedRowKeys.includes(record.key)}
                       >
                       </Button>}
                     </Space>
@@ -161,6 +159,7 @@ const ListComponent = ({ dropdowns,searchTerm,setSearchTerm,handleAdd, handleUpd
                 pageSizeOptions: [],
                 showQuickJumper: true,
                 total: data.length,
+                
               }}
             />
           </div>
