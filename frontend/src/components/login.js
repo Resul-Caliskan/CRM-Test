@@ -146,7 +146,9 @@ export default function Login() {
 
   return (
     <div className="flex container-div">
+    <div className="loginNone">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
+    
         {isVisible && (
           <div className="loginFirst">
             <div className="loginSecond">
@@ -159,6 +161,7 @@ export default function Login() {
         <img src={logoIcon} alt="Logo" className="logoIcon" />
         <img src={logoText} alt="Logo" className="logoText" />
       </div>
+        </div>
       <div className="flex flex-col justify-center items-center h-screen bg-white form-div mx-auto p-5">
         <form
           onSubmit={handleSubmit}
