@@ -114,7 +114,6 @@ const AddPosition = () => {
       });
   };
   const handleSubmit = async (values) => {
-    setLoading(true);
     try {
       if (user.role === "admin") {
         const response = await axios.post(
