@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import showNotification from "../utils/showNotification";
@@ -14,7 +13,7 @@ import Notification from "../utils/notification";
 import Highlighter from "react-highlight-words";
 import { normalize } from "react-highlight-words";
 import ListComponent from "../components/listComponent";
-import Loading from '../components/loadingComponent';
+import Loading from "../components/loadingComponent";
 
 const ListDemand = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,13 +64,11 @@ const ListDemand = () => {
     }
   };
 
-
-
   const handleConfirmApprove = async (demand) => {
     setSelectedDemandIndex(demand);
     setConfirmModalOpen(true);
 
-    console.log("Talep onaylandı:",demand.companyId);
+    console.log("Talep onaylandı:", demand.companyId);
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/customers/add/${demand.companyId}`,
@@ -92,13 +89,21 @@ const ListDemand = () => {
         } catch (error) {
           console.log("errrror silinmedi kamil" + error);
         }
+        try {
+          const response = await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/sendemail`,
+            {
+              recipientEmail: demand.aemail,
+            }
+          );
+        } catch (error) {}
       }
+      Notification("success", "Talep başarılı bir şekilde onaylandı.");
     } catch (error) {
+      Notification("error", "Talep onaylanırken bir hata oluştu.");
       console.error("Talep onaylanırken bir hata oluştu:", error);
     }
   };
-
-  
 
   const handleDeleteDemand = async (demandId) => {
     console.log("Talep silindi:", demandId);
@@ -106,10 +111,11 @@ const ListDemand = () => {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/demands/${demandId}`
       );
-      Notification(true, "Talep başarılı bir şekilde silinmiştir.");
-      setTimeout(() => { }, 2000);
+      Notification("success", "Talep başarılı bir şekilde silinmiştir.");
+      setTimeout(() => {}, 2000);
       fetchDemands();
     } catch (error) {
+      Notification("error", "Talep silinirken bir hata oluştu.");
       console.error("Talep silinirken bir hata oluştu:", error);
     } finally {
       setDeleteConfirmation(null);
@@ -117,32 +123,31 @@ const ListDemand = () => {
   };
   const columns = [
     {
-      title: 'Şirket Adı',
-      dataIndex: 'companyname',
-      key: 'companyname',
+      title: "Şirket Adı",
+      dataIndex: "companyname",
+      key: "companyname",
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
     },
     {
-      title: 'İsim',
-      dataIndex: 'name',
-      key: 'name',
+      title: "İsim",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'Soyisim',
-      dataIndex: 'surname',
-      key: 'surname',
+      title: "Soyisim",
+      dataIndex: "surname",
+      key: "surname",
     },
     {
-      title: 'Telefon',
-      dataIndex: 'number',
-      key: 'number',
+      title: "Telefon",
+      dataIndex: "number",
+      key: "number",
     },
     {
-      title: 'E-mail',
-      dataIndex: 'email',
-      key: 'email',
+      title: "E-mail",
+      dataIndex: "email",
+      key: "email",
     },
-
   ];
 
   const data = demands.map((customer, index) => ({
@@ -167,20 +172,21 @@ const ListDemand = () => {
 
   return (
     <>
-    {loading ? <Loading /> 
-    : (
-    <ListComponent
-      handleAdd={false}
-      handleUpdate={false}
-      handleApprove={handleConfirmApprove}
-      handleDelete={handleDeleteDemand}
-      handleDetail={false}
-      columns={columns}
-      data={data}
-      name={"Talep Listesi"}
-    />)}
-
-</>
+      {loading ? (
+        <Loading />
+      ) : (
+        <ListComponent
+          handleAdd={false}
+          handleUpdate={false}
+          handleApprove={handleConfirmApprove}
+          handleDelete={handleDeleteDemand}
+          handleDetail={false}
+          columns={columns}
+          data={data}
+          name={"Talep Listesi"}
+        />
+      )}
+    </>
   );
 };
 

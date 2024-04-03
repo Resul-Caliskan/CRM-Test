@@ -83,20 +83,21 @@ const MailConfirmModal = ({ email, onClose, onConfirm }) => {
         <span style={closeButtonStyle} onClick={onClose}>
           &times;
         </span>
-        <div style={{ textAlign: "center",  }}>
+        <div style={{ textAlign: "center" }}>
           <MdOutlineMail style={{ fontSize: "64px", color: "limegreen" }} />
         </div>
         <p style={{ textAlign: "center", marginBottom: "20px" }}>
-          Talebi onayladığınıza dair mail göndermek için gönder butonuna tıklayınız.
+          Talebi onayladığınıza dair mail göndermek için gönder butonuna
+          tıklayınız.
         </p>
         <button
           style={Object.assign({}, sendButtonStyle, sendButtonHoverStyle)}
           onClick={handleApprove}
           disabled={isLoading} // İşlem sırasında butonu devre dışı bırakmak için
         >
-          {isLoading ? "Gönderiliyor..." : "Gönder"} {/* Buton metnini işlem durumuna göre ayarlıyoruz */}
+          {isLoading ? "Gönderiliyor..." : "Gönder"}{" "}
+          {/* Buton metnini işlem durumuna göre ayarlıyoruz */}
         </button>
-        
       </div>
     </div>
   );

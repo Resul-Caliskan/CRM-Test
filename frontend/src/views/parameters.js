@@ -149,7 +149,7 @@ const Parameters = () => {
         </ul>
       </div>
       {modalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center z-50 justify-center ">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center ">
           <div className="bg-white p-8 rounded shadow" style={{ width: 350 }}>
             <div className="flex justify-around">
               <h2 className="text-lg font-semibold mb-4">Edit Parameters</h2>
