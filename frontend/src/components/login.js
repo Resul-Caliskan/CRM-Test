@@ -75,9 +75,7 @@ export default function Login() {
     console.log("aaaapi");
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    });
+
     const errors = validateForm(email, password);
 
     if (errors.email === false && errors.password === false) {
@@ -89,7 +87,6 @@ export default function Login() {
             password,
           }
         );
-        setLoading(true);
         const token = response.data.accessToken;
         localStorage.setItem("token", token);
         setAuthToken(token);
@@ -118,10 +115,10 @@ export default function Login() {
         });
         setRememberMe(e.target.checked);
         if (e.target.checked) {
-          console.log("rememberme girmedi",rememberMe);
+          console.log("rememberme girmedi", rememberMe);
           localStorage.removeItem("rememberedEmail");
         } else {
-          console.log("remberme girdi",rememberMe);
+          console.log("remberme girdi", rememberMe);
           // Eğer checkbox işaretlenmişse, e-posta bilgisini local storage'a kaydedin
           localStorage.setItem("rememberedEmail", email);
         }
@@ -133,6 +130,7 @@ export default function Login() {
           "Geçersiz Kullanıcı Bilgileri",
           "E-posta veya Şifreniz yanlış Lütfen Tekrar Giriniz"
         );
+        setLoading(false);
         console.error(error.response.data.message);
         setErrors({ login: error.response.data.message });
         console.log("girdiiii");
