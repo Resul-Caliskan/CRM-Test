@@ -100,7 +100,7 @@ const PositionDetail = () => {
                 <div className="font-semibold text-lg text-center mb-2 border-b border-gray-200 pb-2">
                   Pozisyon Detayı
                 </div>
-                <div className="flex flex-col">
+                <div className="grid grid-cols-3">
                   <p>
                     <strong>Departman:</strong> {position.department}
                   </p>
@@ -117,10 +117,7 @@ const PositionDetail = () => {
                   <p>
                     <strong>İş Türü:</strong> {position.worktype}
                   </p>
-                  <p>
-                    <strong>İş Tanımı:</strong>
-                  </p>
-                  <div className=" p-5">
+                  <div className="col-span-3 p-5">
                     <MarkdownEditor.Markdown
                       style={{
                         backgroundColor: "#0000000F",
