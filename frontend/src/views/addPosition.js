@@ -18,6 +18,7 @@ const AddPosition = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [loadingAi, setLoadingAi] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [parameters, setParameters] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [selectedItem, setSelectedItem] = useState("");
@@ -114,6 +115,7 @@ const AddPosition = () => {
       });
   };
   const handleSubmit = async (values) => {
+    setSubmitLoading(true);
     try {
       if (user.role === "admin") {
         const response = await axios.post(
@@ -161,7 +163,6 @@ const AddPosition = () => {
       }
 
       console.log("Form gönderildi:", values);
-      setLoading(false);
       Notification(
         "success",
         "Başarıyla oluşturuldu.",
@@ -169,8 +170,10 @@ const AddPosition = () => {
       );
       setTimeout(() => {
         if (user.role === "admin") {
+          setSubmitLoading(false);
           dispatch(setSelectedOption("list-positions"));
         } else {
+          setSubmitLoading(false);
           dispatch(setUserSelectedOption("position"));
         }
       }, 1000);
@@ -181,7 +184,7 @@ const AddPosition = () => {
         "Bir hata oluştu.",
         "Pozisyon talebiniz oluşturulurken bir hata oluştu."
       );
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
   const handleCompanyChange = (value) => {
@@ -384,7 +387,7 @@ const AddPosition = () => {
                 <Button
                   type="primary"
                   htmlType="submit"
-                  loading={loading}
+                  loading={submitLoading}
                   className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                 >
                   Kaydet
