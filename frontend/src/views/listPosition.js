@@ -43,6 +43,7 @@ const ListPosition = () => {
       setPositions(response.data);
       setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Customers fetching failed:", error);
     }
   };
