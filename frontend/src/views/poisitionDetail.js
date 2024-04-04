@@ -11,6 +11,7 @@ import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
+import { Empty } from "antd";
 
 const PositionDetail = () => {
   const [nominees, setNominees] = useState([]);
@@ -141,6 +142,11 @@ const PositionDetail = () => {
               {loading && <p>Veriler yükleniyor...</p>}
               {error && <p>Hata: {error}</p>}
               <div className="grid grid-cols-3 gap-2">
+                {!nominees.length && (
+                  <div className="flex w-screen  justify-center items-center">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  </div>
+                )}
                 {nominees.map((nominee, index) => (
                   <div
                     key={index}
@@ -154,12 +160,12 @@ const PositionDetail = () => {
                       <ul key={index}>
                         <li>
                           <div>
-                            <strong>Degree:</strong> {edu.degree}
+                            <strong>Eğitim:</strong> {edu.degree}
                           </div>
                         </li>
                       </ul>
                     ))}
-                    <strong>Skills:</strong>
+                    <strong>Beceriler:</strong>
                     <ul className="list-disc ml-4">
                       {nominee.cv.skills.map((skill, index) => (
                         <li key={index}>{skill}</li>
@@ -178,6 +184,11 @@ const PositionDetail = () => {
             <TabPanel>
               {loading && <p>Veriler yükleniyor...</p>}
               {error && <p>Hata: {error}</p>}
+              {!suggestedNominees.length && (
+                <div className="flex w-screen  justify-center items-center">
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                </div>
+              )}
               {suggestedNominees.map((nominee, index) => (
                 <div
                   key={index}
@@ -191,12 +202,12 @@ const PositionDetail = () => {
                     <ul key={index}>
                       <li>
                         <div>
-                          <strong>Degree:</strong> {edu.degree}
+                          <strong>Eğitim:</strong> {edu.degree}
                         </div>
                       </li>
                     </ul>
                   ))}
-                  <strong>Skills:</strong>
+                  <strong>Beceriler:</strong>
                   <ul className="list-disc ml-4">
                     {nominee.cv.skills.map((skill, index) => (
                       <li key={index}>{skill}</li>
