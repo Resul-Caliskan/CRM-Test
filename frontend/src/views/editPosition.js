@@ -340,7 +340,7 @@ const EditPosition = () => {
                       placeholder="Departman Seç"
                     >
                       {parameters.map((parameter, index) => {
-                        if (parameter.title === "skills") {
+                        if (parameter.title === "Yetenekler") {
                           return parameter.values.map((value, idx) => (
                             <Option key={`${parameter._id}-${idx}`} value={value}>
                               {value}

@@ -122,6 +122,11 @@ export default function Login() {
           // Eğer checkbox işaretlenmişse, e-posta bilgisini local storage'a kaydedin
           localStorage.setItem("rememberedEmail", email);
         }
+        Notification(
+          "success",
+          "HRHUB'a Hoş Geldiniz",
+          "Giriş işlemi başarılı"
+        );
       } catch (error) {
         setPassword("");
         setEmail("");
