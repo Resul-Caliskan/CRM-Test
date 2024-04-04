@@ -5,6 +5,7 @@ import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ConfirmPopUp from "./areUSure";
+import "./style.css";
 
 
 const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name }) => {
@@ -78,7 +79,7 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
           </div>
           <div className="filterSearch">
             {dropdowns}
-            
+
           </div>
         </div>
         <div className="crudButtons">
@@ -129,19 +130,13 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                         }}
                       >
                       </Button>}
-                      {handleApprove && <Button
-                        type="link"
-                        icon={<CheckCircleOutlined />}
-                        onClick={() => {
-                          console.log("Clicked on id: - companyId", record.id, record.companyId);
-                          handleApprove(record);
-                        }}
-                      >
-                      </Button>}
+
+                      {handleApprove && 
+                        <ConfirmPopUp handleConfirm={handleApprove} record={record} isConfirm={true} />
+                      
+                      }
                       {handleDelete && (
-
-                       <ConfirmPopUp handleDelete={handleDelete} id={record.id}/>
-
+                        <ConfirmPopUp handleDelete={handleDelete} id={record.id} isConfirm={false} />
                       )}
                       {handleDetail && <Button
                         type="link"
@@ -155,11 +150,12 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
               ]}
               dataSource={data}
               scroll={{ y: 600 }}
+              mobileBreakPoint={768}
               pagination={{
                 pageSizeOptions: [],
                 showQuickJumper: true,
                 total: data.length,
-                
+
               }}
             />
           </div>

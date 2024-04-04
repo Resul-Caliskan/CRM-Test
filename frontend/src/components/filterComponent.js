@@ -125,21 +125,21 @@ const FilterComponent = ({ parameterOptions, setFilters }) => {
 
   return (
     <div className="flex flex-row gap-10 items-center justify-center ">
-      {parameterOptions.map((parameter) => (
-        <DropdownFilter
-          key={parameter.title}
-          keyValue={parameter.key}
-          title={parameter.title}
-          options={parameter.values}
-          onSelect={handleSelect}
-          isClear={isClear}
-          setIsClear={setIsClear}
-        />
-      ))}
-      <Button type="link" className="clearFilter" block onClick={handleClearAll}>
-        Tümünü Temizle
-      </Button>
-    </div>
+    {parameterOptions.map((parameter) => (
+      <DropdownFilter
+        key={parameter.title}
+        keyValue={parameter.key}
+        title={parameter.title}
+        options={parameter.values}
+        onSelect={handleSelect}
+        isClear={isClear}
+        setIsClear={setIsClear}
+      />
+    ))}
+    <Button type="link" className="clearFilter" block onClick={handleClearAll}>
+      Tümünü Temizle
+    </Button>
+  </div>
   );
 };
 

@@ -69,24 +69,15 @@ const ListPosition = () => {
     console.log("Talep silindi:", positionId);
     try {
       await axios.delete(`${apiUrl}/api/positions/${positionId}`);
-      Notification(true, "Başarıyla silindi");
+      Notification("success", "Pozisyon başarıyla silindi.", "");
       fetchPositions();
     } catch (error) {
       console.error("Pozisyon silinirken bir hata oluştu:", error);
-      Notification(false, "Pozisyon silinirken bir hata oluştu!");
+      Notification("error", "Pozisyon silinirken bir hata oluştu.", "");
     } finally {
       setDeleteConfirmation(null);
     }
   };
-
-  const showDeleteConfirmationModal = (positionId) => {
-    setDeleteConfirmation(positionId);
-  };
-
-  const hideDeleteConfirmationModal = () => {
-    setDeleteConfirmation(null);
-  };
-
   const handleEditPosition = (positionId) => {
     navigate(`/edit-position/${positionId}`);
   };

@@ -4,43 +4,34 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import "./style.css";
 import hrhub from "../assets/hrhub.png";
-import avatar from "../assets/avatar.png";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 
 export default function NavBar() {
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
+  const [letter,setLetter] = useState("");
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   let renderComponent;
-
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      navigate("/");
-    
-    }
-  }, [selectedOption]);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
+    if (!localStorage.getItem("token")) navigate("/");
+    if (user) firstLetter();
+  }, [user]);
   const handleOptionClick = (option) => {
     navigate("/adminhome");
     dispatch(setSelectedOption(option));
   };
-
   const handleLogout = () => {
       dispatch(setSelectedOption("dashboard"));
     localStorage.clear();
     return navigate("/");
-  
   };
-
+  const firstLetter = () => {
+    let firstLetterOfName = user ? user.email[0].toUpperCase():'';
+    setLetter(firstLetterOfName);
+    console.log("asdasd"+firstLetterOfName);
+};
   return (
     <>
       <div className="header">
@@ -69,8 +60,8 @@ export default function NavBar() {
                   : ""}
               </label>
             </div>
-            <div className="avatar-icon">
-              <img src={avatar} onClick={handleLogout} alt="Resim " />
+            <div className="avatar-icon" onClick={handleLogout}>
+              <p className="letter">{letter}</p>
             </div>
           </div>
         </div>
