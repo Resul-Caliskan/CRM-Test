@@ -55,12 +55,12 @@ const AdminListPosition = () => {
       key: "experienceperiod",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
-    {
-      title: "İşyeri Politikası",
-      dataIndex: "modeofoperation",
-      key: "modeofoperation",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
+    // {
+    //   title: "İşyeri Politikası",
+    //   dataIndex: "modeofoperation",
+    //   key: "modeofoperation",
+    //   render: (text) => highlightSearchTerm(text, searchTerm),
+    // },
     {
       title: "İş Türü",
       dataIndex: "worktype",

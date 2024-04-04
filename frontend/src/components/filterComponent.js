@@ -124,7 +124,7 @@ const FilterComponent = ({ parameterOptions, setFilters }) => {
   };
 
   return (
-    <div className="flex flex-row gap-10 items-center justify-center ">
+    <div className="flex flex-row gap-10 items-center justify-center mt-3">
     {parameterOptions.map((parameter) => (
       <DropdownFilter
         key={parameter.title}
