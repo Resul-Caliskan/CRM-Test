@@ -1,35 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import "./style.css";
 import hrhub from "../assets/hrhub.png";
+import avatar from "../assets/avatar.png";
 export default function UserNavbar() {
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
-  const [letter,setLetter] = useState("");
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  useEffect(() => {
 
-    if (!localStorage.getItem("token")) navigate("/");
-    if (user) firstLetter(); 
-  }, [user]);
+
   const handleOptionClick = (option) => {
     navigate("/home");
     dispatch(setUserSelectedOption(option));
   };
-
+ 
   const handleLogout = () => {
     localStorage.clear();
     return navigate("/");
   };
-  const firstLetter = () => {
-    let firstLetterOfName = user ? user.email[0].toUpperCase():'';
-    setLetter(firstLetterOfName);
-};
   return (
     <>
       <div className="header">
@@ -58,8 +52,8 @@ export default function UserNavbar() {
                   : ""}
               </label>
             </div>
-            <div className="avatar-icon" onClick={handleLogout}>
-              <p className="letter">{letter}</p>
+            <div className="avatar-icon">
+              <img src={avatar} onClick={handleLogout} alt="Resim " />
             </div>
           </div>
         </div>

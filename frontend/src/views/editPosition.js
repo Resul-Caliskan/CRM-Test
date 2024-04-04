@@ -19,7 +19,6 @@ const EditPosition = () => {
   const { id } = useParams();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [submitLoading,setSubmitLoading] = useState(false);
   const [positionData, setPositionData] = useState(null);
   const [parameters, setParameters] = useState([]);
   const [aiResponse, setAiResponse] = useState(" ");
@@ -127,7 +126,7 @@ const EditPosition = () => {
   };
 
   const handleSubmit = async (values) => {
-    setSubmitLoading(true);
+    setLoading(true);
     try {
       const response = await axios.put(`${apiUrl}/api/positions/${id}`, {
         department: values.department,
@@ -139,6 +138,7 @@ const EditPosition = () => {
         worktype: values.worktingType,
       });
       console.log("FORRRRRRM gönderildi:", values.description);
+      setLoading(false);
       Notification(
         "success",
         "Başarıyla güncellendi.",
@@ -146,15 +146,9 @@ const EditPosition = () => {
       );
 
       setTimeout(() => {
-        if (user.role === "admin"){
-          setSubmitLoading(false);
-          navigate("/adminhome");
-        } 
-        else{
-          setSubmitLoading(false);
-          navigate("/home");
-        } 
-      }, 500);
+        if (user.role === "admin") navigate("/adminhome");
+        else navigate("/home");
+      }, 2000);
     } catch (error) {
       console.error("Form gönderilirken bir hata oluştu:", error);
       Notification(
@@ -163,7 +157,6 @@ const EditPosition = () => {
         "Pozisyon Talebiniz Güncellenirken Bir Hata Oluştu."
       );
       setLoading(false);
-      setSubmitLoading(false);
     }
   };
 
@@ -371,10 +364,10 @@ const EditPosition = () => {
                     <Button
                       type="primary"
                       htmlType="submit"
-                      loading={submitLoading}
+                      loading={loading}
                       className="px-20 bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                     >
-                      {submitLoading ? <Spin /> : "Güncelle"}{" "}
+                      {loading ? <Spin /> : "Güncelle"}{" "}
                     </Button>
                   </Form.Item>
                 </Form>

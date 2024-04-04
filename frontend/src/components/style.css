@@ -213,7 +213,14 @@
     margin-bottom: 18px;
 }
  
-
+.filterSearch {
+    height: 54px;
+    display: flex;
+    position: relative;
+    align-items: center;
+    gap: 32px;
+ 
+}
 .clearFilter{
     color:black;
 position: relative;
@@ -489,16 +496,7 @@ border-start-start-radius: 0px;
     background: var(--colorPrimaryBase, #0057D9);
  
 }
-.letter {
-    color: var(--colorTextLightSolid, #FFF);
-    font-family: "SF Pro Text", sans-serif;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 600;
-    text-align: center; 
-    padding-top: 5px;
-}
-
+ 
 .labels {
     display: flex;
     flex-direction: column;
@@ -683,17 +681,15 @@ border-start-start-radius: 0px;
     .hidden-sm {
         display: none;
     }
-    
+ 
     .hidden-sm-dropdown {
         display: contents;
     }
-    .filterSearch{
-        display: none;
-     }
+ 
     .hidden-sm-dropdown.open .submenu {
         display: block;
     }
-    
+ 
     .logo {
         position: relative;
         margin-right: auto;
@@ -894,7 +890,7 @@ border-start-start-radius: 0px;
     .navbar-item {
         margin: 6px 0;
     }
-    
+ 
     .rectangleContainer {
  
  
@@ -902,7 +898,7 @@ border-start-start-radius: 0px;
         background-color: #E6F4FF;
         width: 268px;
         height: 60px;
-        top: 10px;
+        top: 0px;
         left: 0;
         margin-left: 50px;
         border-bottom-right-radius: 10px;

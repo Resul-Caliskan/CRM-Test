@@ -89,6 +89,7 @@ export default function SetPassword() {
   };
   return (
     <div className="flex container-div">
+    <div className="loginNone">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
         {isVisible && (
           <div className="loginFirst">
@@ -101,6 +102,7 @@ export default function SetPassword() {
       <div className="loginLogo">
         <img src={logoIcon} alt="Logo" className="logoIcon" />
         <img src={logoText} alt="Logo" className="logoText" />
+      </div>
       </div>
       <div className="flex flex-col justify-center items-center h-screen bg-white form-div p-5 mx-auto">
         <Form onSubmit={handleSubmit} className=" w-full mx-auto form ">

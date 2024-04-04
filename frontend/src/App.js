@@ -47,7 +47,7 @@ function App() {
         <Route path='/reset-password' element={< ResetPassword/>} />;
         <Route path='/sent-password' element={< SentPassword/>} />;
         {/*  id Yi ekeleyeceğiz */}
-        <Route path='/set-password/:id' element={< SetPassword/>} />;
+        <Route path='/set-password' element={< SetPassword/>} />;
         <Route path="/position-detail/:id"  element={<PrivateRoute Component={PositionDetail} />} />
         <Route path="/admin-position-detail/:id"  element={<PrivateRoute Component={AdminPositionDetail} />} />
       </Routes>
