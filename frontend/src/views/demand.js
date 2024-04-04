@@ -6,6 +6,9 @@ import { PhoneNumberUtil } from 'google-libphonenumber';
 import { PhoneInput } from 'react-international-phone';
 import { number } from 'prop-types';
 import Notification from '../utils/notification';
+import { setSelectedOption } from '../redux/selectedOptionSlice';
+import { setUserSelectedOption } from '../redux/userSelectedOptionSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
@@ -22,9 +25,11 @@ const DemandForm = () => {
     const [companies, setCompanies] = useState([]);
     const [phone, setPhone] = useState('');
     const navigate = useNavigate();
-
-
-
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
+    const selectedOption = useSelector(
+      (state) => state.selectedOption.selectedOption
+    );
     useEffect(() => {
         console.log("GİRDİİİİİİAAASDASFSA");
         fetchCompanies();
@@ -51,8 +56,6 @@ const DemandForm = () => {
                 lastName: values.lastName,
                 email: values.email,
                 phone: values.phone,
-                password: values.password,
-                confirmPassword: values.confirmPassword
 
             };
 
@@ -63,7 +66,6 @@ const DemandForm = () => {
                     surname: formData.lastName,
                     number: formData.phone,
                     email: formData.email,
-                    password: formData.confirmPassword,
                     companyname: companies[formData.companyName].companyname,
                     companyId: companies[formData.companyName]._id,
                 });
@@ -85,6 +87,33 @@ const DemandForm = () => {
         <div className="flex justify-center items-center">
             <div className="w-full max-w-md mt-12">
                 <h2 className="text-center text-2xl mb-6">Talep Oluştur</h2>
+                <button
+                className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
+                onClick={() => {
+                  if (user.role === "admin") {
+                    dispatch(setSelectedOption("list-demands"));
+                  } else {
+                    dispatch(setUserSelectedOption("position"));
+                  }
+                }}
+
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Geri Dön
+              </button>
                 <Form
                     form={form}
                     onFinish={handleFormSubmit}
@@ -142,55 +171,7 @@ const DemandForm = () => {
                         />
 
                     </Form.Item>
-                    <Form.Item
-                        label="Şifre"
-                        name="password"
-                        rules={[
-                            { required: true, message: 'Lütfen şifrenizi giriniz!' },
-                            { min: 8, message: 'Şifreniz en az 8 karakter olmalıdır!' },
-                            {
-                                validator: (_, value) => {
-                                    const regex = /^(?=.*[a-zçğıöşü])(?=.*[A-ZÇĞİÖŞÜ])(?=.*\d)(?=.*[@#$%^&+=!()_.\-?*\\{}[\]\/'"<>,;|`½])[A-Za-zçğıöşüÇĞİÖŞÜ\d@#$%^&+=!()_.\-?*\\{}[\]\/'"<>,;|`½]{8,}$/;
-
-
-
-
-
-
-                                    if (!regex.test(value)) {
-                                        return Promise.reject('Şifreniz en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir!');
-                                    }
-                                    return Promise.resolve();
-                                }
-
-
-                                ,
-                            },
-                        ]}
-
-                    >
-                        <Input.Password placeholder="Şifre" />
-                    </Form.Item>
-
-
-                    <Form.Item
-                        label="Şifre Tekrarı"
-                        name="confirmPassword"
-                        dependencies={['password']}
-                        rules={[
-                            { required: true, message: 'Lütfen şifrenizi tekrar giriniz!' },
-                            ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                    if (!value || getFieldValue('password') === value) {
-                                        return Promise.resolve();
-                                    }
-                                    return Promise.reject(new Error('Girdiğiniz şifreler eşleşmiyor!'));
-                                },
-                            }),
-                        ]}
-                    >
-                        <Input.Password placeholder="Şifre Tekrarı" />
-                    </Form.Item>
+                    
                     <Form.Item>
                         <Button
                             type="primary"

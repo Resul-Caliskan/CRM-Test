@@ -1,15 +1,15 @@
 const Demand = require("../models/demand");
-
+ 
 exports.addDemand = async (req, res) => {
     try {
         console.log("AAAAAAAABBBBBB"+req.body.companyId);
-        
+       
         const newDemand = new Demand({
             name: req.body.name,
             surname: req.body.surname,
             number: req.body.number,
             email: req.body.email,
-            password: req.body.password,
+            password: "venhancersifre",
             companyname: req.body.companyname,
             companyId: req.body.companyId,
         });
@@ -19,9 +19,9 @@ exports.addDemand = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-
-
+ 
+ 
+ 
 exports.getAllDemands = async (req, res) => {
     try {
         const demands = await Demand.find();
@@ -30,8 +30,8 @@ exports.getAllDemands = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-
+ 
+ 
 exports.deleteDemand = async (req, res) => {
     try {
         const id=req.params.id;

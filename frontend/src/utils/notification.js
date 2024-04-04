@@ -28,8 +28,21 @@ const Notification = (type, message, description) => {
                 backgroundColor: '#fff1f0',
                 color: '#f5222d'
             }
+           
+        });
+    }
+ 
+    else if (type === "warning") {
+        notification.warning({
+            ...config,
+            style: {
+                ...config.style,
+                backgroundColor: '#FFE58F',
+                color: '#f5222d'
+            }
+           
         });
     }
 };
-
+ 
 export default Notification;

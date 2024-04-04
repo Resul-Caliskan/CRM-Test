@@ -14,6 +14,8 @@ import Highlighter from "react-highlight-words";
 import { normalize } from "react-highlight-words";
 import ListComponent from "../components/listComponent";
 import Loading from "../components/loadingComponent";
+import { highlightSearchTerm } from "../utils/highLightSearchTerm";
+import { setSelectedOption } from "../redux/selectedOptionSlice";
 
 const ListDemand = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,6 +29,9 @@ const ListDemand = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalEmail, setModalEmail] = useState("");
   const { user } = useSelector((state) => state.auth);
+  const selectedOption = useSelector(
+    (state) => state.selectedOption.selectedOption
+  );
 
   useEffect(() => {
     if (!user || user.role === null) {
@@ -79,8 +84,8 @@ const ListDemand = () => {
         }
       );
       if (response.status === 200) {
-        setTimeout(() => {}, 2000);
         setConfirmModalOpen(false);
+        Notification("success", "Talep başarılı bir şekilde onaylandı.");
         try {
           await axios.delete(
             `${process.env.REACT_APP_API_URL}/api/demands/${demand.id}`
@@ -93,12 +98,12 @@ const ListDemand = () => {
           const response = await axios.post(
             `${process.env.REACT_APP_API_URL}/api/sendemail`,
             {
-              recipientEmail: demand.aemail,
+              recipientEmail: demand.email,
             }
           );
         } catch (error) {}
       }
-      Notification("success", "Talep başarılı bir şekilde onaylandı.");
+
     } catch (error) {
       Notification("error", "Talep onaylanırken bir hata oluştu.");
       console.error("Talep onaylanırken bir hata oluştu:", error);
@@ -111,8 +116,10 @@ const ListDemand = () => {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/demands/${demandId}`
       );
-      Notification("success", "Talep başarılı bir şekilde silinmiştir.");
-      setTimeout(() => {}, 2000);
+     
+      setTimeout(() => {
+        Notification("success", "Talep başarılı bir şekilde silinmiştir.");
+      }, 500);
       fetchDemands();
     } catch (error) {
       Notification("error", "Talep silinirken bir hata oluştu.");
@@ -127,29 +134,63 @@ const ListDemand = () => {
       dataIndex: "companyname",
       key: "companyname",
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: "İsim",
       dataIndex: "name",
       key: "name",
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: "Soyisim",
       dataIndex: "surname",
       key: "surname",
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: "Telefon",
       dataIndex: "number",
       key: "number",
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: "E-mail",
       dataIndex: "email",
       key: "email",
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
   ];
-
+  const filterDemands = (demands) => {
+    if (!searchTerm) return demands;
+    console.log("buraya geçti");
+    return demands.filter((demand) => {
+      const {
+        name,
+        surname,
+        number,
+        email,
+        password,
+        companyId,
+        companyname,
+      } = demand;
+ 
+      if (!name || !surname || !number || !email  || !companyId || !companyname) return false;
+      console.log("filtreledi");
+ 
+     
+ 
+      return (
+        console.log("filtreledi"),
+        name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        password.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        companyname.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  };
   const data = demands.map((customer, index) => ({
     key: index,
     id: customer._id,
@@ -169,7 +210,9 @@ const ListDemand = () => {
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
-
+  const handleAddDemad = () => {
+    dispatch(setSelectedOption("add-demand"));
+  };
   return (
     <>
       {loading ? (
@@ -182,7 +225,9 @@ const ListDemand = () => {
           handleDelete={handleDeleteDemand}
           handleDetail={false}
           columns={columns}
-          data={data}
+          data={filterDemands(data)}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
           name={"Talep Listesi"}
         />
       )}

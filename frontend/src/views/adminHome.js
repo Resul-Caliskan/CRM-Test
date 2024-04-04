@@ -11,6 +11,7 @@ import Parameters from "../views/parameters";
 import AdminListPosition from "../views/adminListPositions";
 import AddPosition from "../views/addPosition";
 import NavBar from '../components/adminNavBar';
+import DemandForm from './demand';
 
 const App = () => {
 
@@ -42,6 +43,9 @@ const App = () => {
   switch (selectedOption) {
     case "add-customer":
       renderComponent = <CompanyForm />;
+      break;
+      case "add-demand":
+      renderComponent = <DemandForm />;
       break;
     case "list-demands":
       renderComponent = <ListDemand />;

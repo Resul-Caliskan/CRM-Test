@@ -140,7 +140,7 @@ const CompanyForm = () => {
       Notification("success", "Müşteri başarıyla eklendi.");
       setTimeout(() => {
         dispatch(setSelectedOption("candidates"));
-      }, 1500);
+      }, 500);
       setLoading(false);
       form.resetFields();
     } catch (error) {
@@ -292,7 +292,7 @@ const CompanyForm = () => {
                   type: number,
                   message: "Geçerli bir telefon numarası giriniz.",
                   validator: (_, value) => {
-                    if (value && !isPhoneValid(value)) {
+                    if (value && !isPhoneValid(value) && value.length>3) {
                       return Promise.reject(
                         "Geçerli bir telefon numarası giriniz!"
                       );

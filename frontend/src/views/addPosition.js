@@ -28,7 +28,12 @@ const AddPosition = () => {
   const [contentValue, setcontentValue] = useState(" ");
   const [selectedCompany, setSelectedCompany] = useState(null);
   const { user } = useSelector((state) => state.auth);
-
+  const selectedOption = useSelector(
+    (state) => state.selectedOption.selectedOption
+  );
+  const userSelectedOption = useSelector(
+    (state) => state.userSelectedOption.userSelectedOption
+  );
   const navigate = useNavigate();
   useEffect(() => {
     if (!user || user.role === null) {
@@ -176,7 +181,7 @@ const AddPosition = () => {
           setSubmitLoading(false);
           dispatch(setUserSelectedOption("position"));
         }
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("Form gönderilirken bir hata oluştu:", error);
       Notification(
@@ -202,6 +207,33 @@ const AddPosition = () => {
             <h2 className="text-center font-semibold  text-2xl mb-6">
               Pozisyon Ekle
             </h2>
+            <button
+                className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
+                onClick={() => {
+                  if (user.role === "admin") {
+                    dispatch(setSelectedOption("list-positions"));
+                  } else {
+                    dispatch(setUserSelectedOption("position"));
+                  }
+                }}
+
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Geri Dön
+              </button>
             <Form
               form={form}
               onFinish={handleSubmit}
