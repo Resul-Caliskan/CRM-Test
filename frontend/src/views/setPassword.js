@@ -69,10 +69,10 @@ export default function SetPassword() {
           password: password,
         }
       );
-
+     
       setTimeout(() => {
         setLoading(false);
-        navigate("/", { replace: true });
+        navigate("/",{replace:true});
         Notification(
           "success",
           "Şifreniz başarıyla oluşturuldu!",
@@ -90,20 +90,20 @@ export default function SetPassword() {
   };
   return (
     <div className="flex container-div">
-      <div className="loginNone">
-        <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
-          {isVisible && (
-            <div className="loginFirst">
-              <div className="loginSecond">
-                <img src={logo} alt="Resim" className="h-screen" />
-              </div>
+    <div className="loginNone">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
+        {isVisible && (
+          <div className="loginFirst">
+            <div className="loginSecond">
+              <img src={logo} alt="Resim" className="h-screen" />
             </div>
-          )}
-        </div>
-        <div className="loginLogo">
-          <img src={logoIcon} alt="Logo" className="logoIcon" />
-          <img src={logoText} alt="Logo" className="logoText" />
-        </div>
+          </div>
+        )}
+      </div>
+      <div className="loginLogo">
+        <img src={logoIcon} alt="Logo" className="logoIcon" />
+        <img src={logoText} alt="Logo" className="logoText" />
+      </div>
       </div>
       <div className="flex flex-col justify-center items-center h-screen bg-white form-div p-5 mx-auto">
         <Form onSubmit={handleSubmit} className=" w-full mx-auto form ">
@@ -113,40 +113,33 @@ export default function SetPassword() {
           </p>
           <div className="flex flex-col">
             <label className="text-gray-600 text-sm mb-1">Şifre</label>
-            <Form.Item
-              name="password"
-              rules={[password.length >= 8]}
-              hasFeedback={{
-                validateStatus: password.length < 8 ? "error" : "",
-                help:
-                  password.length < 8
-                    ? "Şifre en az 8 karakter uzunluğunda olmalıdır."
-                    : "",
-              }}
-            >
+            <Form.Item name="password" rules={[password.length >= 8]} hasFeedback={{
+              validateStatus: password.length < 8 ? 'error' : '',
+              help: password.length < 8 ? 'Şifre en az 8 karakter uzunluğunda olmalıdır.' : ''
+            }}>
               <ConfigProvider
                 theme={{
                   components: {
-                    Input:
-                      (password.length < 8 ||
-                        !/[a-zA-Z]/.test(password) ||
-                        !/\d/.test(password)) &&
-                      password.length > 0
-                        ? {
-                            colorPrimary: "red",
-                            hoverBorderColor: "red",
-                            activeBorderColor: "red",
-                            activeShadow: "pink",
-                            colorBorder: "red",
-                          }
-                        : {
-                            colorPrimary: "#133163",
-                            hoverBorderColor: "#133163",
-                            activeBorderColor: "#133163",
-                          },
+                    Input: (password.length < 8 || !(/[a-zA-Z]/.test(password)) ||
+                      !(/\d/.test(password))) && password.length > 0
+                      ? {
+                        colorPrimary: "red",
+                        hoverBorderColor: "red",
+                        activeBorderColor: "red",
+                        activeShadow: "pink",
+                        colorBorder: "red"
+
+                      }
+                      : {
+                        colorPrimary: "#133163",
+                        hoverBorderColor: "#133163",
+                        activeBorderColor: "#133163",
+
+                      },
                   },
-                }}
-              >
+                }}>
+
+
                 <Space className={"block"}>
                   <Input
                     onBlur={handlePasswordChange}
@@ -154,22 +147,19 @@ export default function SetPassword() {
                     disabled={loading}
                     className="h-[40px]"
                     suffix={
-                      (password.length < 8 ||
-                        !/[a-zA-Z]/.test(password) ||
-                        !/\d/.test(password)) &&
-                      password.length > 0 ? (
-                        <div>
-                          <IoCloseCircleSharp className="text-red-500 size-4 " />
-                        </div>
-                      ) : (
-                        password.length > 0 && (
-                          <CheckCircleFilled className="text-green-500 size-4" />
-                        )
-                      )
+                      (password.length < 8 || !(/[a-zA-Z]/.test(password)) ||
+                        !(/\d/.test(password))) && password.length > 0
+                        ? (<div >
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-4 "
+                          />
+                        </div>)
+                        : password.length>0&&<CheckCircleFilled className="text-green-500 size-4" />
                     }
                   />
                 </Space>
               </ConfigProvider>
+
             </Form.Item>
           </div>
           <div className="flex flex-col ">
@@ -199,20 +189,19 @@ export default function SetPassword() {
                 <ConfigProvider
                   theme={{
                     components: {
-                      Input:
-                        confirm !== password && confirm.length > 0
-                          ? {
-                              colorPrimary: "red",
-                              hoverBorderColor: "red",
-                              activeBorderColor: "red",
-                              activeShadow: "pink",
-                              colorBorder: "red",
-                            }
-                          : {
-                              colorPrimary: "#133163",
-                              hoverBorderColor: "#133163",
-                              activeBorderColor: "#133163",
-                            },
+                      Input: confirm !== password && confirm.length > 0
+                        ? {
+                          colorPrimary: "red",
+                          hoverBorderColor: "red",
+                          activeBorderColor: "red",
+                          activeShadow: "pink",
+                          colorBorder: "red"
+                        }
+                        : {
+                          colorPrimary: "#133163",
+                          hoverBorderColor: "#133163",
+                          activeBorderColor: "#133163",
+                        },
                     },
                   }}
                 >
@@ -223,39 +212,30 @@ export default function SetPassword() {
                       placeholder="Şifrenizi tekrar yazınız"
                       disabled={loading}
                       suffix={
-                        (confirm.length < 8 ||
-                          !/[a-zA-Z]/.test(confirm) ||
-                          confirm !== password ||
-                          !/\d/.test(confirm)) &&
-                        confirm.length > 0 ? (
-                          <div>
-                            <IoCloseCircleSharp className="text-red-500 size-4 " />
-                          </div>
-                        ) : (
-                          confirm.length > 0 && (
-                            <CheckCircleFilled className="text-green-500 size-4" />
-                          )
-                        )
-                      }
+                      (confirm.length < 8 || !(/[a-zA-Z]/.test(confirm)) ||confirm!==password||
+                        !(/\d/.test(confirm))) && confirm.length > 0 
+                        ? (<div >
+                          <IoCloseCircleSharp
+                            className="text-red-500 size-4 "
+                          />
+                        </div>)
+                        : confirm.length>0&&<CheckCircleFilled className="text-green-500 size-4" />
+                    }
                     />
                   </Space>
+
                 </ConfigProvider>
+
               </Form.Item>
               <Alert
                 message="Şifre Kuralları"
-                className={`${
-                  password.length >= 8 &&
+                className={`${password.length >= 8 &&
                   /[a-zA-Z]/.test(password) &&
-                  /\d/.test(password) &&
-                  confirm === password
-                    ? "hidden"
-                    : ""
-                }  `}
+                  /\d/.test(password) && confirm === password ? "hidden" : ""}  `}
                 description={
                   password.length >= 8 &&
-                  /[a-zA-Z]/.test(password) &&
-                  /\d/.test(password) &&
-                  confirm !== password ? (
+                    /[a-zA-Z]/.test(password) &&
+                    /\d/.test(password) && confirm !== password ? (
                     <p>Lütfen belirlediğiniz şifreyi tekrar yazınız.</p>
                   ) : (
                     <>
@@ -273,8 +253,8 @@ export default function SetPassword() {
                 }
                 type={
                   password.length >= 8 &&
-                  /[a-zA-Z]/.test(password) &&
-                  /\d/.test(password)
+                    /[a-zA-Z]/.test(password) &&
+                    /\d/.test(password)
                     ? "success"
                     : "warning"
                 }
@@ -283,14 +263,15 @@ export default function SetPassword() {
             </div>
             <div className="flex row justify-between mt-2 mb-2">
               {password === confirm &&
-              password.length >= 8 &&
-              /[a-zA-Z]/.test(password) &&
-              /\d/.test(password) ? (
+                password.length >= 8 &&
+                /[a-zA-Z]/.test(password) &&
+                /\d/.test(password) ? (
                 <Button
                   disabled={loading}
                   type="submit"
-                  onClick={() => setLoading(true).then(() => handleSubmit())}
+                  onClick={handleSubmit}
                   className="bg-[#0057D9] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
+                 
                 >
                   {loading ? (
                     <LoadingOutlined style={{ marginRight: "5px" }} spin />
