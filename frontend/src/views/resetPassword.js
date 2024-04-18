@@ -210,9 +210,10 @@ export default function ResetPassword() {
           </div>
 
           <Button
+          
             onClick={handleSubmit}
             className="bg-[#0057D9] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
-            disabled={!(email && emailError === false)}
+            disabled={(!(email && emailError === false)|| loading)}
           >
             {loading ? (
               <LoadingOutlined style={{ marginRight: "5px" }} spin />
