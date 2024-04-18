@@ -277,10 +277,10 @@ const EditPosition = () => {
               onClick={() => {
                 if (user?.role === "admin") {
                   navigate("/adminhome");
-                  dispatch(setSelectedOption("/list-position"));
+                  dispatch(setSelectedOption("list-positions"));
                 } else {
                   navigate("/home");
-                  dispatch(setUserSelectedOption("/list-position"));
+                  dispatch(setUserSelectedOption("position"));
                 }
               }}
             >
