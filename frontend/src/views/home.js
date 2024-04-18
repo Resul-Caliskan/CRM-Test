@@ -8,6 +8,7 @@ import DashBoard from "../views/dashboard";
 import CVList from "../views/listCv";
 import ListPosition from "../views/listPosition";
 import AddPosition from "../views/addPosition";
+import { useNavigate } from 'react-router-dom';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -15,11 +16,12 @@ const App = () => {
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
-
+  const navigate=useNavigate();
 
 
   useEffect(() => {
-
+    if(user?.role === "admin")
+      navigate("/forbidden")
     if (!user || user.role === null) {
       console.log("girdi");
       fetchData().then(data => {
@@ -30,7 +32,7 @@ const App = () => {
       });
     }
 
-  }, []);
+  }, [user]);
   let renderComponent;
   switch (userSelectedOption) {
     case "dashboard":

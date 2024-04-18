@@ -8,7 +8,6 @@ const filterFunction = (searchFields, object, searchItem) => {
     let fieldValue;
 
     fieldValue = object[field];
-
     return (
       fieldValue && fieldValue.toString().toLowerCase().includes(searchTerm)
     );

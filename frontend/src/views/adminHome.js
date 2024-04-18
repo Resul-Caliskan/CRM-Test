@@ -12,6 +12,7 @@ import AdminListPosition from "../views/adminListPositions";
 import AddPosition from "../views/addPosition";
 import NavBar from '../components/adminNavBar';
 import DemandForm from './demand';
+import UserForm from './addUser';
 
 const App = () => {
 
@@ -22,7 +23,10 @@ const App = () => {
     (state) => state.selectedOption.selectedOption
   );
   useEffect(() => {
-  
+    console.log("calisti");
+    if (user && user.role !== 'admin') {
+      navigate('/forbidden');
+    }
     if (!user || user.role === null) {
       console.log("girdi");
       fetchData().then(data => {
@@ -30,7 +34,6 @@ const App = () => {
         dispatch(login(data.user));
         if (data.user.role !== 'admin') {
           navigate('/forbidden');
-
         }
       }).catch(error => {
         console.error(error);
@@ -65,13 +68,16 @@ const App = () => {
     case "edit-customer":
       renderComponent = <ListPosition />;
       break;
+      case "add-user":
+        renderComponent = <UserForm />;
+        break;
     default:
       renderComponent = <ListCustomers />;
   }
   return (
     <>
       <NavBar/>
-      <div>{renderComponent }</div>
+      {user && <div>{renderComponent }</div>}
     </>
     
 

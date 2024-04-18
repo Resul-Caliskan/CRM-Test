@@ -13,14 +13,15 @@ exports.getNomineeByCompanyId = async (req, res) => {
     positions.forEach((position) => {
       title.push(position.jobtitle);
       position.sharedNominees.forEach((aday) => {
-        sharedNomineesFromPosition.push(aday);
+        sharedNomineesFromPosition.push({aday:aday,jobtitle:position.jobtitle});
       });
     });
     let sharedNominees = [];
     await Promise.all(
       sharedNomineesFromPosition.map(async (aday) => {
-        const nominee = await Nominee.findById(aday);
-        sharedNominees.push(nominee);
+        const nominee = await Nominee.findById(aday.aday);
+        sharedNominees.push({nomineeInfo:nominee,jobtitle:aday.jobtitle});
+
       })
     );
     let allCvs = [];

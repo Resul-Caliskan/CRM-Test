@@ -69,6 +69,9 @@ const ListDemand = () => {
     }
   };
 
+  const handleAdd = () => {
+    dispatch(setSelectedOption("add-user"));
+  };
   const handleConfirmApprove = async (demand) => {
     setSelectedDemandIndex(demand);
     setConfirmModalOpen(true);
@@ -101,9 +104,10 @@ const ListDemand = () => {
               recipientEmail: demand.email,
             }
           );
-        } catch (error) {}
+        } catch (error) {
+          console.log("errrror mail gönderilemedi" + error);
+        }
       }
-
     } catch (error) {
       Notification("error", "Talep onaylanırken bir hata oluştu.");
       console.error("Talep onaylanırken bir hata oluştu:", error);
@@ -116,7 +120,7 @@ const ListDemand = () => {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/demands/${demandId}`
       );
-     
+
       setTimeout(() => {
         Notification("success", "Talep başarılı bir şekilde silinmiştir.");
       }, 500);
@@ -165,29 +169,21 @@ const ListDemand = () => {
     if (!searchTerm) return demands;
     console.log("buraya geçti");
     return demands.filter((demand) => {
-      const {
-        name,
-        surname,
-        number,
-        email,
-        password,
-        companyId,
-        companyname,
-      } = demand;
- 
-      if (!name || !surname || !number || !email  || !companyId || !companyname) return false;
+      const { name, surname, number, email, password, companyId, companyname } =
+        demand;
+
+      if (!name || !surname || !number || !email || !companyId || !companyname)
+        return false;
       console.log("filtreledi");
- 
-     
- 
+
       return (
         console.log("filtreledi"),
         name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        password.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        companyname.toLowerCase().includes(searchTerm.toLowerCase())
+          surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          password.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          companyname.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
   };
@@ -219,7 +215,7 @@ const ListDemand = () => {
         <Loading />
       ) : (
         <ListComponent
-          handleAdd={false}
+          handleAdd={handleAdd}
           handleUpdate={false}
           handleApprove={handleConfirmApprove}
           handleDelete={handleDeleteDemand}

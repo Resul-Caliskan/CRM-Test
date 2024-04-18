@@ -12,6 +12,14 @@ exports.addPosition = async (req, res) => {
       worktype: req.body.worktype,
       companyId: req.body.companyId,
       companyName: req.body.companyName,
+      dateOfStart: req.body.dateOfStart,
+      bannedCompanies:req.body.bannedCompanies,
+      preferredCompanies:req.body.preferredCompanies,
+      industry:req.body.industry,
+      positionCity: req.body.positionCity,
+      positionAdress:req.body.positionAdress,
+      positionCounty: req.body.positionCounty,
+      positionCountry: req.body.positionCountry,
     });
 
     console.log("POZİSYON" + newPosition);
@@ -75,6 +83,14 @@ exports.updatePosition = async (req, res) => {
         worktype: req.body.worktype,
         companyId: req.body.companyId,
         companyName: req.body.companyName,
+        industry:req.body.industry,
+        dateOfStart: req.body.dateOfStart,
+        positionCity: req.body.positionCity,
+        bannedCompanies:req.body.bannedCompanies,
+        preferredCompanies:req.body.preferredCompanies,
+        positionAdress:req.body.positionAdress,
+        positionCounty: req.body.positionCounty,
+        positionCountry: req.body.positionCountry,
       },
       { new: true }
     );
@@ -139,3 +155,7 @@ exports.deleteNomineeIdFromPosition = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+

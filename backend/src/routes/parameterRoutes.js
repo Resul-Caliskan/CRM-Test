@@ -9,6 +9,8 @@ router.put("/parameters/:id", parameterController.updateParameter);
 
 router.delete("/parameters/:id", parameterController.deleteParameter);
 
+router.delete('/:parameterId/values/:valueId', parameterController.deleteParameterValue);
+
 router.get("/parameters", parameterController.getAllParameters);
 
 module.exports = router;

@@ -12,6 +12,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
 import { Empty } from "antd";
+import dayjs from "dayjs";
 
 const PositionDetail = () => {
   const [nominees, setNominees] = useState([]);
@@ -30,6 +31,10 @@ const PositionDetail = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  const formattedDate = position
+    ? dayjs(position.dateOfStart).format("YYYY-MM-DD")
+    : "";
 
   useEffect(() => {
     fetchNominees();
@@ -85,6 +90,8 @@ const PositionDetail = () => {
     setIsNomineeDetailOpen(false);
   };
 
+  console.log("POZİSYON BABA " + position);
+
   return (
     <>
       <UserNavbar />
@@ -110,7 +117,7 @@ const PositionDetail = () => {
                       <strong>Departman:</strong> {position.department}
                     </p>
                     <p>
-                      <strong>Pozisyon Seviyesi:</strong> {position.jobtitle}
+                      <strong>İş Unvanı:</strong> {position.jobtitle}
                     </p>
                     <p>
                       <strong>Deneyim Süresi:</strong>{" "}
@@ -122,6 +129,46 @@ const PositionDetail = () => {
                     </p>
                     <p>
                       <strong>İş Türü:</strong> {position.worktype}
+                    </p>
+                    <p>
+                      <strong>İşe Başlama Tarihi:</strong> {formattedDate}
+                    </p>
+                    <p>
+                      <strong className="mr-2">Tercih Edilen Sektörler:</strong>
+                      <div className="inline-flex flex-wrap">
+                        {position.industry &&
+                          position.industry.map((sector, index) => (
+                            <span key={index} className="mr-1">
+                              {sector},
+                            </span>
+                          ))}
+                      </div>
+                    </p>
+                    <p>
+                      <strong>Adres:</strong> {position.positionAdress}{" "}
+                      {position.positionCity}/{position.positionCounty}
+                    </p>
+                    <p>
+                      <strong className="mr-2">Yasaklı Şirketler:</strong>
+                      <div className="inline-flex flex-wrap">
+                        {position.bannedCompanies &&
+                          position.bannedCompanies.map((sector, index) => (
+                            <span key={index} className="mr-2">
+                              {sector}
+                            </span>
+                          ))}
+                      </div>
+                    </p>
+                    <p>
+                      <strong className="mr-2">Tercih Edilen Şirketler:</strong>
+                      <div className="inline-flex flex-wrap">
+                        {position.preferredCompanies &&
+                          position.preferredCompanies.map((sector, index) => (
+                            <span key={index} className="mr-2">
+                              {sector}
+                            </span>
+                          ))}
+                      </div>
                     </p>
                     <div className="col-span-3 p-5">
                       <MarkdownEditor.Markdown

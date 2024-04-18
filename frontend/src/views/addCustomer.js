@@ -99,6 +99,7 @@ const CompanyForm = () => {
   useEffect(() => {
     county && setCounty(countyData[0]);
   }, [countyData]);
+  
   const fetchParameters = async () => {
     await axios
       .get(`${process.env.REACT_APP_API_URL}/api/parameters`)

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedOption } from '../redux/selectedOptionSlice';
 import ListComponent from '../components/listComponent';
 import Notification from '../utils/notification';
@@ -9,6 +9,8 @@ import { highlightSearchTerm } from '../utils/highLightSearchTerm';
 import FilterComponent from '../components/filterComponent';
 import filterFunction from '../utils/globalSearchFunction';
 import Loading from '../components/loadingComponent';
+import { fetchData } from '../utils/fetchData';
+import { login } from '../redux/authSlice';
 
 const ListCustomers = () => {
   const [customers, setCustomers] = useState([]);
@@ -18,18 +20,31 @@ const ListCustomers = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+  const { user } = useSelector((state) => state.auth);
   const [filters, setFilters] = useState({
     sector: [],
     companytype: []
   });
   useEffect(() => {
-    fetchParameterOptions();
-    console.log("x" + parameterOptions);
-    fetchRolesFromDatabase();
-    setIsDelete(false);
-   
-
+    console.log("use firdi");
+    if (user?.role === "admin") {
+      console.log(user?.role);
+      fetchParameterOptions();
+      console.log("x" + parameterOptions);
+      fetchRolesFromDatabase();
+      setIsDelete(false);
+    }
+    // else {
+    //   fetchData().then(data => {
+    //     console.log("cevap:", data);
+    //     dispatch(login(data.user));
+    //     if (data.user.role !== 'admin') {
+    //       navigate('/forbidden');
+    //     }
+    //   }).catch(error => {
+    //     console.error(error);
+    //   });
+    // }
   }, [isDelete]);
 
   const columns = [
@@ -152,7 +167,7 @@ const ListCustomers = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
       setCustomers(response.data);
       console.log(response.data);
-        setLoading(false);
+      setLoading(false);
     } catch (error) {
       console.error('Roles fetching failed:', error);
 
@@ -194,7 +209,7 @@ const ListCustomers = () => {
       setCustomers(customers.filter(customer => customer.companyId !== customerId));
       Notification("success", "Müşteri başarıyla silindi.", "");
       setIsDelete(true);
-      
+
     } catch (error) {
       Notification("error", "Müşteri silinirken bir hata oluştu.", "");
     }
@@ -202,23 +217,23 @@ const ListCustomers = () => {
 
   return (
     <>
-    {loading ? <Loading /> 
-       : (
-      <ListComponent
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        dropdowns={
-          <FilterComponent
-            setFilters={setFilters}
-            parameterOptions={parameterOptions}
-          />}
-        handleAdd={handleAddCustomer}
-        handleUpdate={handleEditCustomer}
-        handleDelete={handleDelete}
-        columns={columns}
-        data={data}
-        name={"Müşteri Listesi"}
-      />)}
+      {loading ? <Loading />
+        : (
+          <ListComponent
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            dropdowns={
+              <FilterComponent
+                setFilters={setFilters}
+                parameterOptions={parameterOptions}
+              />}
+            handleAdd={handleAddCustomer}
+            handleUpdate={handleEditCustomer}
+            handleDelete={handleDelete}
+            columns={columns}
+            data={data}
+            name={"Müşteri Listesi"}
+          />)}
     </>
   );
 };

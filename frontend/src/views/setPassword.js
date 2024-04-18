@@ -60,6 +60,7 @@ export default function SetPassword() {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       const response = await axios.put(
@@ -68,10 +69,10 @@ export default function SetPassword() {
           password: password,
         }
       );
-      setLoading(true);
+     
       setTimeout(() => {
         setLoading(false);
-        navigate("/");
+        navigate("/",{replace:true});
         Notification(
           "success",
           "Şifreniz başarıyla oluşturuldu!",
@@ -266,10 +267,11 @@ export default function SetPassword() {
                 /[a-zA-Z]/.test(password) &&
                 /\d/.test(password) ? (
                 <Button
+                  disabled={loading}
                   type="submit"
                   onClick={handleSubmit}
                   className="bg-[#0057D9] text-white w-full h-[40px] rounded-lg flex items-center justify-center mb-5"
-                  disabled={loading}
+                 
                 >
                   {loading ? (
                     <LoadingOutlined style={{ marginRight: "5px" }} spin />

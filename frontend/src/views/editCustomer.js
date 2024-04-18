@@ -258,7 +258,7 @@ const EditCustomerForm = () => {
                   <Select
                     showSearch
                     style={{ width: '100%' }}
-                    value={country ? country.isoCode : undefined}
+                    value="sds"
                     placeholder="Ülke seç"
                     optionFilterProp="children"
                     onChange={(value) => {

@@ -1,9 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserSelectedOption } from '../redux/userSelectedOptionSlice';
-
-
-
+import { Button } from 'antd';
 export default function Dashboard() {
 
     useSelector(state => state.userSelectedOption.userSelectedOption);
@@ -15,13 +13,27 @@ export default function Dashboard() {
         dispatch(setUserSelectedOption('candidates'));
     }
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <button onClick={() => handleNewPosition()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-4">
-                Yeni Pozisyon Ekle
-            </button>
-            <button onClick={() => handleCVlist()} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                CV Havuzunu Görüntüle
-            </button>
+        <div className="body">
+            <div className="flex flex-col items-center justify-center h-screen m-auto">
+
+                <Button
+                    block
+                    onClick={handleNewPosition}
+                    className="rounded-md shadow-md"
+                  
+                >
+                    Yeni Pozisyon Ekle
+                </Button>
+                <Button
+                    block
+                    onClick={handleCVlist}
+                    className="rounded-md shadow-md mt-2"
+                    
+                >
+                    CV Havuzunu Görüntüle
+                </Button>
+
+            </div>
         </div>
     );
 }

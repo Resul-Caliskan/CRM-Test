@@ -120,6 +120,9 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                   key: 'action',
                   render: (text, record) => (
                     <Space size="small" className="flex justify-center items-center">
+                       {handleDelete && (
+                        <ConfirmPopUp handleDelete={handleDelete} id={record.id} isConfirm={false} />
+                      )}
                       {handleUpdate && <Button
                         type="link"
                         icon={<EditOutlined />}
@@ -130,14 +133,13 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                         }}
                       >
                       </Button>}
+                     
 
                       {handleApprove && 
                         <ConfirmPopUp handleConfirm={handleApprove} record={record} isConfirm={true} />
                       
                       }
-                      {handleDelete && (
-                        <ConfirmPopUp handleDelete={handleDelete} id={record.id} isConfirm={false} />
-                      )}
+                      
                       {handleDetail && <Button
                         type="link"
                         icon={<InfoCircleOutlined />}

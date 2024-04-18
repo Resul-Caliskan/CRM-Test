@@ -39,7 +39,6 @@ function App() {
         <Route path="/listdemand"  element={<PrivateRoute Component={ListDemand} />} />
         <Route path="/addposition"  element={<PrivateRoute Component={AddPosition} />} />
         <Route path="/listposition"  element={<PrivateRoute Component={ListPosition} />} />
-        <Route path="/list-customer"  element={<PrivateRoute Component={ListCustomers} />} />
         <Route path="/edit-position/:id"  element={<PrivateRoute Component={EditPosition} />} />
         <Route path="/viewpdf"  element={<PrivateRoute Component={PdfViewer} />} />
         <Route path='/forbidden' element={<Forbidden />} />;

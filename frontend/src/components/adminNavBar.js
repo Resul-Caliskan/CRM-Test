@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import "./style.css";
 import hrhub from "../assets/hrhub.png";
-
+import { Button } from 'antd';
+import { PoweroffOutlined,LogoutOutlined } from '@ant-design/icons';
 export default function NavBar() {
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
@@ -13,10 +14,24 @@ export default function NavBar() {
   const [letter,setLetter] = useState("");
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
   let renderComponent;
   useEffect(() => {
     if (!localStorage.getItem("token")) navigate("/");
     if (user) firstLetter();
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+
   }, [user]);
   const handleOptionClick = (option) => {
     navigate("/adminhome");
@@ -27,6 +42,10 @@ export default function NavBar() {
     localStorage.clear();
     return navigate("/");
   };
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   const firstLetter = () => {
     let firstLetterOfName = user ? user.email[0].toUpperCase():'';
     setLetter(firstLetterOfName);
@@ -52,17 +71,27 @@ export default function NavBar() {
             </div>
           </div>
           <div className="avatar-container">
-          <div className="labels">
+            <div className="labels">
+
               <label className="nameLabel">{user?.email}</label>
-              <label className="roleLabel">
+              <div className="roleLabel">
+
+
+
                 {user?.role
                   ? user?.role.charAt(0).toUpperCase() + user?.role.slice(1)
                   : ""}
-              </label>
+              </div>
             </div>
-            <div className="avatar-icon" onClick={handleLogout}>
+            <div className="avatar-icon" onClick={toggleDropdown}>
               <p className="letter">{letter}</p>
             </div>
+            {isOpen && (
+              <ul className="user-dropdown-menu " ref={dropdownRef}>
+                <li className="logout-button" onClick={handleLogout}>Çıkış  <LogoutOutlined /></li>
+              </ul>
+            )}
+
           </div>
         </div>
         <ul className="menu">
@@ -90,29 +119,7 @@ export default function NavBar() {
             <a href="#" className="menu-link" onClick={() => handleOptionClick("parameters")}>
               Parametreler
             </a>
-          </li> 
-          {/* <li className={`menu-item hidden-sm-dropdown ${selectedOption === "list-positions" || selectedOption === "parameters" ? "selected" : ""}`}>
-            <a href="#" className="menu-link" onClick={toggleDropdown}>
-              ...
-            </a>
-            <ul className={isDropdownOpen ? "submenu2 open" : "submenu2"}>
-              <li className={`menu-item ${selectedOption === "list-positions" ? "selected" : ""}`}>
-                <a href="#" className="menu-link" onClick={() => handleOptionClick("list-positions")}>
-                  Pozisyon Talepleri
-                </a>
-              </li>
-              <li className={`menu-item ${selectedOption === "parameters" ? "selected" : ""}`}>
-                <a href="#" className="menu-link" onClick={() => handleOptionClick("parameters")}>
-                  Parametreler
-                </a>
-              </li>
-              <li className={`menu-item ${selectedOption === "list" ? "selected" : ""}`}>
-                <a href="#" className="menu-link" onClick={() => handleOptionClick("list")}>
-                  List
-                </a>
-              </li>
-            </ul>
-          </li> */}
+          </li>
         </ul>
       </div>
       <div className="">{renderComponent}</div>

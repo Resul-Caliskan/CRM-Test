@@ -2,9 +2,11 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const User = require("../models/user");
- 
+
 const sendEmail = async (req, res) => {
   try {
+    const name = req.body.name;
+    const surname = req.body.surname;
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -15,9 +17,9 @@ const sendEmail = async (req, res) => {
     const users = await User.findOne({ email: req.body.recipientEmail });
     const id = users._id;
     const mailToken = jwt.sign({ id }, config.secretKey, {
-      expiresIn: "1d",
+      expiresIn: "10d",
     });
- 
+
     const mailOptions = {
       from: "resulcaliskansau@gmail.com",
       to: req.body.recipientEmail,
@@ -53,10 +55,10 @@ const sendEmail = async (req, res) => {
       line-height: 1.5;
      ">
         <h3 style="margin-bottom: 5px;">
-         HR HUB'a Hoşgeldin!
+         HR HUB'a Hoşgeldin ${name} ${surname}
         </h3>
         <p style="margin-bottom: 10px; padding-top: 10px; font-size: medium">
-         Kullanıcı Talebiniz Onaylanmıştır. HR HUB'a hoşgeldiniz. Web sitesini ziyaret etmek için aşağıdaki butona tıklayınız.
+          HR HUB'a hoşgeldiniz. Kullanıcı şifrenizi belirlemek için aşağıdaki butona tıklayınız ve CRM'i Keşfetmeye Başlayın.
         </p>
         <a
           style="
@@ -86,16 +88,16 @@ const sendEmail = async (req, res) => {
      
       `,
     };
- 
+
     await transporter.sendMail(mailOptions);
- 
+
     res.status(200).json({ message: "E-posta başarıyla gönderildi." });
   } catch (error) {
     console.error("E-posta gönderme hatası:", error);
     res.status(500).json({ error: "E-posta gönderme hatası." + error });
   }
 };
- 
+
 const sendChangePasswordMail = async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -105,12 +107,12 @@ const sendChangePasswordMail = async (req, res) => {
         pass: "boou obke qieo vnqe",
       },
     });
- 
+
     const id = req.body.id;
     const mailToken = jwt.sign({ id }, config.secretKey, {
       expiresIn: "1d",
     });
- 
+
     const mailOptions = {
       from: "resulcaliskansau@gmail.com",
       to: req.body.recipientEmail,
@@ -183,7 +185,7 @@ const sendChangePasswordMail = async (req, res) => {
      
       `,
     };
- 
+
     transporter.sendMail(mailOptions, function (err, info) {
       if (err) {
         console.error("E-posta gönderme hatası:", err);

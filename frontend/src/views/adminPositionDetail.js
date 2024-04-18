@@ -14,6 +14,7 @@ import NavBar from "../components/adminNavBar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import CircularBar from "../components/circularBar";
+import UserNavbar from "../components/userNavbar";
 const AdminPositionDetail = () => {
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
@@ -42,6 +43,10 @@ const AdminPositionDetail = () => {
   };
   const navigate = useNavigate();
   useEffect(() => {
+    console.log("grldik usseffecte")
+    if (user && user.role !== 'admin') {
+      navigate('/forbidden');
+    }
     if (!user || user.role === null) {
       fetchData()
         .then((data) => {
@@ -126,6 +131,20 @@ const AdminPositionDetail = () => {
       if (!movedNominee) {
         return;
       }
+      console.log("AAAABBBB"+movedNominee.cv);
+
+      if (
+        position &&
+        position.bannedCompanies &&
+        movedNominee.cv.experience.some((experienceItem) =>
+          position.bannedCompanies.includes(experienceItem.company)
+        )
+      ) {
+        console.log("YASAK ŞİRKET BABAA");
+        Notification("error", `${movedNominee.cv.name} adlı adayın şirketi yasaklı.`);
+        return;
+      }
+      
  
       const newNominees = Array.from(nominees);
       newNominees.splice(destination.index, 0, movedNominee);
@@ -172,10 +191,10 @@ const AdminPositionDetail = () => {
  
   return (
     <>
-      <NavBar />
+    <NavBar/>
       <div className="flex-col mx-auto px-4 py-8 ">
         <h2 className="text-center font-semibold text-xl mb-6 border-b border-gray-200 pb-2">
-          {position && position.positionname} Detayı
+          {position && position.positionname} Pozisyon Detayı
         </h2>
         <button
           className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
@@ -209,7 +228,7 @@ const AdminPositionDetail = () => {
                     <strong>Departman:</strong> {position.department}
                   </p>
                   <p>
-                    <strong>Pozisyon Seviyesi:</strong> {position.jobtitle}
+                    <strong>İş Unvanı:</strong> {position.jobtitle}
                   </p>
                   <p>
                     <strong>Deneyim Süresi:</strong> {position.experienceperiod}
@@ -222,7 +241,24 @@ const AdminPositionDetail = () => {
                   <p>
                     <strong>İş Türü:</strong> {position.worktype}
                   </p>
+
                   <p>
+                    <strong>Sektör:</strong> {position.industry.join(" ") }
+                  </p>
+                  <p>
+                      <strong>Yasaklı Şirketler:</strong>{" "}
+                      {position.bannedCompanies &&
+                        position.bannedCompanies.join(",")}
+                    </p>
+
+                    <p>
+                      <strong>Tercih Edilen Şirketler:</strong>{" "}
+                      {position.preferredCompanies &&
+                        position.preferredCompanies.join(",")}
+                    </p>
+                  <p>
+
+                    
                     <strong>Beceriler:</strong>
  
                     <ul className="list-disc ml-4 grid grid-cols-3">
