@@ -450,29 +450,7 @@ const EditPosition = () => {
               </Select>
             </Form.Item>
 
-                <Form.Item
-              label="Tercih Edilen Sektörler"
-              name="industry"
-              rules={[{message: "Sektör giriniz!" }]}
-            >
-              <Select
-                showSearch
-                optionFilterProp="children"
-                placeholder="Sektör Seç"
-                defaultValue={positionData.industry}
-              >
-                {parameters.map((parameter, index) => {
-                  if (parameter.title === "Sektör") {
-                    return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
-                        {value}
-                      </Option>
-                    ));
-                  }
-                  return null;
-                })}
-              </Select>
-            </Form.Item>
+             
 
                 
                 <Form.Item
