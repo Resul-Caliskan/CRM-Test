@@ -1,9 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import filterFunction from "../utils/globalSearchFunction";
-import Highlighter from "react-highlight-words";
-import SearchInput from '../components/searchInput';
 import { useNavigate, useParams } from "react-router-dom";
 import ListComponent from "../components/listComponent";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
@@ -14,13 +11,14 @@ import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import Loading from '../components/loadingComponent';
 const AdminListPosition = () => {
   const [positions, setPositions] = useState([]);
+  const [requestedNominees, setRequestedNominees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
-
+ 
   const [filters, setFilters] = useState({
     companyName: [],
     jobtitle: [],
@@ -63,8 +61,8 @@ const AdminListPosition = () => {
     // },
     {
       title: "Çalışma Şekli",
-      dataIndex: "worktype",
-      key: "worktype",
+      dataIndex: "modeofoperation",
+      key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
@@ -98,7 +96,7 @@ const AdminListPosition = () => {
       "companyName",
       "skills",
     ];
-
+ 
     const {
       companyName,
       jobtitle,
@@ -108,7 +106,7 @@ const AdminListPosition = () => {
       worktype,
       skills,
     } = filters;
-
+ 
     return (
       (companyName.length === 0 ||
         companyName.includes(position.companyName)) &&
@@ -137,25 +135,29 @@ const AdminListPosition = () => {
     worktype: job.worktype,
     companyId: job.companyId,
     companyName: job.companyName,
+    requestedNominees: job.requestedNominees,
   }));
   const [parameterOptions, setParameterOptions] = useState([]);
   const [companyNames, setCompanyNames] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
+    
     fetchPositions();
     fetchParameterOptions();
     fetchCompanyNames();
   }, []);
-
+ 
   const fetchPositions = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/positions`);
       setPositions(response.data);
+      setRequestedNominees(response.data.requestedNominees);
+      console.log("SAY",requestedNominees);
     } catch (error) {
       console.error("Positions fetching failed:", error);
     }
   };
-
+ 
   const fetchCompanyNames = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
@@ -164,7 +166,7 @@ const AdminListPosition = () => {
       console.error("Positions fetching failed:", error);
     }
   };
-
+ 
   const fetchParameterOptions = async () => {
     try {
       const response = await axios.get(
@@ -179,17 +181,7 @@ const AdminListPosition = () => {
       console.error("Parameter options fetching failed:", error);
     }
   };
-
-  const handleFilterChange = (field, value) => {
-    setFilters((prevFilters) => ({ ...prevFilters, [field]: value }));
-  };
-
-  const getParameterValues = (parameterTitle) => {
-    const parameter = parameterOptions.find(
-      (param) => param.title === parameterTitle
-    );
-    return parameter ? parameter.values : [];
-  };
+ 
   const handleDeletePosition = async (positionId) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/positions/${positionId}`);
@@ -198,14 +190,14 @@ const AdminListPosition = () => {
       fetchPositions();
       fetchParameterOptions();
       fetchCompanyNames();
-
+ 
     } catch (error) {
       Notification("error", "Pozisyon silinirken bir hata oluştu.", "");
     }
   };
-
-
-
+ 
+ 
+ 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
       navigate(`/admin-position-detail/${positionId}`);
@@ -218,16 +210,14 @@ const AdminListPosition = () => {
   const handleAddPosition = () => {
     dispatch(setSelectedOption("add-position"));
   };
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-  };
-
+ 
+ 
   const handleEditPosition = (positionId) => {
     navigate(`/edit-position/${positionId}`);
   };
   return (
     <>
-    {loading ? <Loading /> 
+    {loading ? <Loading />
        : (
     <ListComponent
       handleAdd={handleAddPosition}
@@ -243,9 +233,10 @@ const AdminListPosition = () => {
       columns={columns}
       data={data}
       name={"Pozisyon Listesi"}
+      notification={true}
     />)}
     </>
   );
 };
-
+ 
 export default AdminListPosition;
