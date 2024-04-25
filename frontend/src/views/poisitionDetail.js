@@ -415,7 +415,7 @@ const PositionDetail = () => {
                   </button>
                   <button
                     className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                    onClick={() => handleNomineeDetail(nominee, false)}
+                    onClick={() => handleNomineeDetail(nominee.cv, false)}
                   >
                     Detaylar <FaInfoCircle className="ml-2 size-4" />
                   </button>
