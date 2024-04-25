@@ -56,18 +56,16 @@ const ListPosition = () => {
         return option.title === "İş Unvanı" || 
         option.title === "Departman" || 
         option.title === "Deneyim Süresi" || 
-        option.title === "İş Türü" || 
+        option.title === "Sözleşme Tipi" || 
         option.title === "Yetenekler" || 
-        option.title === "İşyeri Politikası";
+        option.title === "Çalışma Şekli";
       });
-      console.log(filteredOptions);
       setParameterOptions(filteredOptions);
     } catch (error) {
       console.error("Parameter options fetching failed:", error);
     }
   };
   const handleDeletePosition = async (positionId) => {
-    console.log("Talep silindi:", positionId);
     try {
       await axios.delete(`${apiUrl}/api/positions/${positionId}`);
       Notification("success", "Pozisyon başarıyla silindi.", "");
@@ -123,13 +121,13 @@ const ListPosition = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "İşyeri Politikası",
+      title: "Çalışma Şekli",
       dataIndex: "modeofoperation",
       key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "İş Türü",
+      title: "Sözleşme Tipi",
       dataIndex: "worktype",
       key: "worktype",
       render: (text) => highlightSearchTerm(text, searchTerm),

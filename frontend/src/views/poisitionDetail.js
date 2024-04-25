@@ -7,18 +7,22 @@ import { FaInfoCircle } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
 import UserNavbar from "../components/userNavbar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
 import { Empty } from "antd";
-import dayjs from "dayjs";
+import Notification from '../utils/notification';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { fetchData } from "../utils/fetchData";
+import { login } from "../redux/authSlice";
 
 const PositionDetail = () => {
   const [nominees, setNominees] = useState([]);
+  const [requestedNominees, setRequestedNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
   const [isNomineeDetailOpen, setIsNomineeDetailOpen] = useState(false);
   const [nomineeDetail, setNomineeDetail] = useState();
   const [isKnown, setIsKnown] = useState(true);
@@ -32,14 +36,48 @@ const PositionDetail = () => {
     setIsOpen(!isOpen);
   };
 
-  const formattedDate = position
-    ? dayjs(position.dateOfStart).format("YYYY-MM-DD")
-    : "";
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const userSelectedOption = useSelector(
+    (state) => state.userSelectedOption.userSelectedOption
+  );
+  const navigate=useNavigate();
+
 
   useEffect(() => {
+    if (user?.role === "admin")
+      navigate("/forbidden")
+    if (!user || user.role === null) {
+      fetchData().then(data => {
+        dispatch(login(data.user));
+      }).catch(error => {
+        console.error(error);
+      });
+    }
     fetchNominees();
+    fetchRequestedNominees();
     getPositionById(id);
   }, [id]);
+
+  const fetchRequestedNominees = async () => {
+    setLoading(true); // loading true olarak ayarlayın
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
+        { positionId: id, isAdmin: false }
+      );
+      const nominees = response.data.sharedNominees;
+      const suggested = response.data.suggestedAllCvs;
+      const requested = response.data.requestedNominees;
+      setNominees(nominees);
+      setRequestedNominees(requested);
+      setSuggestedNominees(suggested);
+      console.log(nominees + " sdsds" + "sdds" + suggested);
+    } catch (error) {
+      setError(error.message);
+    }
+    setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
+  };
 
   const fetchNominees = async () => {
     setLoading(true); // loading true olarak ayarlayın
@@ -90,6 +128,58 @@ const PositionDetail = () => {
     setIsNomineeDetailOpen(false);
   };
 
+  const handleRequestedNominee = async (nomineeId) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/api/positions/request/${id}`,
+        { nomineeId: nomineeId }
+      );
+
+      setPosition(response.data);
+
+      // Talep edilen adayı talep edilen adaylar listesine ekle
+      setRequestedNominees((prevRequestedNominees) => [
+        ...prevRequestedNominees,
+        nominees.find((nominee) => nominee.cv._id === nomineeId),
+      ]);
+
+      setSuggestedNominees((prevSuggestedNominees) =>
+        prevSuggestedNominees.filter((item) => item._id !== nomineeId)
+      );
+
+      
+      fetchNominees();
+      fetchRequestedNominees();
+
+      Notification("success", "Aday Başarıyla Talep Edildi.");
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        Notification("error", "Bu Adayı Zaten Talep Ettiniz.");
+      } else {
+        Notification("error", "Bir hata oluştu. Lütfen tekrar deneyin.");
+
+        console.error("Aday talep edilirken bir hata oluştu:", error.message);
+      }
+    }
+  };
+
+  const handleCancelRequest = async (nomineeId) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/api/positions/delete-request/${id}`,
+        { nomineeId: nomineeId }
+      );
+      // Talep edilen adayı talep edilen adaylar listesinden kaldır
+      setRequestedNominees((prevRequestedNominees) =>
+        prevRequestedNominees.filter((item) => item._id !== nomineeId)
+      );
+
+      Notification("success", "Talep Başarıyla Silindi.");
+    } catch (error) {
+      console.error("Talep silinirken bir hata oluştu:", error);
+    }
+  };
+
   console.log("POZİSYON BABA " + position);
 
   return (
@@ -98,12 +188,16 @@ const PositionDetail = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex-col mx-auto px-4 py-8 ">
-          <Tabs>
+        <div className="body">
+          <Tabs
+            selectedIndex={activeTab}
+            onSelect={(index) => setActiveTab(index)}
+          >
             <TabList>
               <Tab>Pozisyon Detayı</Tab>
-              <Tab>Adaylar</Tab>
-              <Tab>Önerilen Adaylar</Tab>
+              <Tab>Paylaşılan Adaylar</Tab>
+              <Tab>CV Havuzu</Tab>
+              <Tab>Talep Ettiğim Adaylar</Tab>
             </TabList>
 
             <TabPanel>
@@ -124,14 +218,14 @@ const PositionDetail = () => {
                       {position.experienceperiod}
                     </p>
                     <p>
-                      <strong>İşyeri Politikası:</strong>{" "}
-                      {position.modeofoperation}
+                      <strong>Çalışma Şekli:</strong> {position.modeofoperation}
                     </p>
                     <p>
-                      <strong>İş Türü:</strong> {position.worktype}
+                      <strong>Sözleşme Tipi:</strong> {position.worktype}
                     </p>
                     <p>
-                      <strong>İşe Başlama Tarihi:</strong> {formattedDate}
+                      <strong>İşe Başlama Tarihi:</strong>{" "}
+                      {position.dateOfStart}
                     </p>
                     <p>
                       <strong className="mr-2">Tercih Edilen Sektörler:</strong>
@@ -201,7 +295,7 @@ const PositionDetail = () => {
                   >
                     <CircularBar nominee={nominee}></CircularBar>
                     <p>
-                      <strong>Unvan:</strong> {nominee.cv.title}
+                      <strong>Unvan:</strong> {nominee.cv?.title}
                     </p>
                     {nominee.cv.education.map((edu, index) => (
                       <ul key={index}>
@@ -214,7 +308,7 @@ const PositionDetail = () => {
                     ))}
                     <strong>Beceriler:</strong>
                     <ul className="list-disc ml-4">
-                      {nominee.cv.skills.map((skill, index) => (
+                      {nominee.cv?.skills.map((skill, index) => (
                         <li key={index}>{skill}</li>
                       ))}
                     </ul>
@@ -243,9 +337,9 @@ const PositionDetail = () => {
                 >
                   <h4 className="font-semibold text-lg mb-2">Unknown</h4>
                   <p>
-                    <strong>Unvan:</strong> {nominee.cv.title}
+                    <strong>Unvan:</strong> {nominee.cv?.title}
                   </p>
-                  {nominee.cv.education.map((edu, index) => (
+                  {nominee.cv?.education.map((edu, index) => (
                     <ul key={index}>
                       <li>
                         <div>
@@ -256,13 +350,68 @@ const PositionDetail = () => {
                   ))}
                   <strong>Beceriler:</strong>
                   <ul className="list-disc ml-4">
-                    {nominee.cv.skills.map((skill, index) => (
+                    {nominee.cv?.skills.map((skill, index) => (
                       <li key={index}>{skill}</li>
                     ))}
                   </ul>
+
+                  <button className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-5"
+                    onClick={() => {
+                      handleRequestedNominee(nominee.cv._id);
+                    }}
+                  >
+                    Talep Et
+                  </button>
+
                   <button
                     className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
                     onClick={() => handleNomineeDetail(nominee.cv, false)}
+                  >
+                    Detaylar <FaInfoCircle className="ml-2 size-4" />
+                  </button>
+                </div>
+              ))}
+            </TabPanel>
+
+            <TabPanel>
+              {loading && <p>Veriler yükleniyor...</p>}
+              {error && <p>Hata: {error}</p>}
+              {!requestedNominees.length && (
+                <div className="flex w-screen  justify-center items-center">
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                </div>
+              )}
+              {requestedNominees.map((nominee, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
+                >
+                  <h4 className="font-semibold text-lg mb-2">Unknown</h4>
+                  <p>
+                    <strong>Unvan:</strong> {nominee?.title}
+                  </p>
+                  {nominee?.education.map((edu, index) => (
+                    <ul key={index}>
+                      <li>
+                        <div>
+                          <strong>Eğitim:</strong> {edu.degree}
+                        </div>
+                      </li>
+                    </ul>
+                  ))}
+                  <strong>Beceriler:</strong>
+                  <ul className="list-disc ml-4">
+                    {nominee?.skills.map((skill, index) => (
+                      <li key={index}>{skill}</li>
+                    ))}
+                  </ul>
+                  <button className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-2"
+                  onClick={() => handleCancelRequest(nominee?._id)}>
+                    İptal Et
+                  </button>
+                  <button
+                    className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                    onClick={() => handleNomineeDetail(nominee, false)}
                   >
                     Detaylar <FaInfoCircle className="ml-2 size-4" />
                   </button>

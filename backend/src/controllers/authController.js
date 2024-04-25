@@ -6,11 +6,9 @@ const { userCache } = require("../config/userCache");
 
 async function login(req, res) {
   const { email, password } = req.body;
-  console.log(email + " " + password);
 
   try {
     const user = await User.findOne({ email, password });
-    console.log("KULLANICI: ", user);
 
     if (!user) {
       return res.status(400).json({ message: "Geçersiz Kullanıcı Bilgileri" });
@@ -71,11 +69,8 @@ async function refreshAccessToken(req, res) {
 function verifyRefreshToken(refreshToken) {
   try {
     const decoded = jwt.verify(refreshToken, config.secretKey);
-    console.log("DECODED IDDD" + decoded.id);
     return { id: decoded.id, companyId: decoded.companyId };
   } catch (error) {
-    //return null;
-    console.log("AGİRDİAAA" + error.message);
     if (error instanceof TokenExpiredError) return error.message;
   }
 }

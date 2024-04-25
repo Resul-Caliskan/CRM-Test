@@ -4,13 +4,11 @@ const filterCandidates = (candidates,isNormal,searchTerm) => {
 
         // Check name
         if (candidate.name.toLowerCase().includes(lowerCaseSearchTerm&& isNormal)) {
-            console.log("name: "+lowerCaseSearchTerm);
             return true;
         }
 
         // Check title
         if (candidate.title.toLowerCase().includes(lowerCaseSearchTerm)) {
-            console.log("title: "+lowerCaseSearchTerm);
             return true;
         }
 
@@ -20,13 +18,11 @@ const filterCandidates = (candidates,isNormal,searchTerm) => {
             candidate.contact.phone.includes(searchTerm) ||
             candidate.contact.linkedin.toLowerCase().includes(lowerCaseSearchTerm))&& isNormal
         ) {
-            console.log("contacts: "+lowerCaseSearchTerm);
             return true;
         }
 
         // Check skills
         if (candidate.skills.some(skill => skill.toLowerCase().includes(lowerCaseSearchTerm))) {
-            console.log("Skills: "+lowerCaseSearchTerm);
             return true;
         }
 

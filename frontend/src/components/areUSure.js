@@ -19,11 +19,9 @@ const ConfirmPopUp = ({ handleDelete, handleConfirm, isConfirm, id, record }) =>
         handleDelete(id);
       }
 
-      console.log(id);
     }, 2000);
   };
   const handleCancel = () => {
-    console.log('Clicked cancel button');
     setOpen(false);
   };
   return (

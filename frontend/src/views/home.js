@@ -23,9 +23,7 @@ const App = () => {
     if(user?.role === "admin")
       navigate("/forbidden")
     if (!user || user.role === null) {
-      console.log("girdi");
       fetchData().then(data => {
-        console.log("cevap:", data);
         dispatch(login(data.user));
       }).catch(error => {
         console.error(error);

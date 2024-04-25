@@ -72,7 +72,6 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    console.log("aaaapi");
     e.preventDefault();
     setLoading(true);
 
@@ -90,15 +89,11 @@ export default function Login() {
         const token = response.data.accessToken;
         localStorage.setItem("token", token);
         setAuthToken(token);
-
         const refreshToken = response.data.refreshToken;
         localStorage.setItem("refreshToken", refreshToken);
         setMessage(response.data.accessToken);
-        console.log("token " + response.data.accessToken);
-
         const responseMe = getMe();
         responseMe.then((data) => {
-          console.log("cevap:", data);
           dispatch(login(data.user));
 
           if (data.user.role === "admin") {
@@ -115,11 +110,8 @@ export default function Login() {
         });
         setRememberMe(e.target.checked);
         if (e.target.checked) {
-          console.log("rememberme girmedi", rememberMe);
           localStorage.removeItem("rememberedEmail");
         } else {
-          console.log("remberme girdi", rememberMe);
-          // Eğer checkbox işaretlenmişse, e-posta bilgisini local storage'a kaydedin
           localStorage.setItem("rememberedEmail", email);
         }
         Notification(
@@ -138,14 +130,11 @@ export default function Login() {
         setLoading(false);
         console.error(error.response.data.message);
         setErrors({ login: error.response.data.message });
-        console.log("girdiiii");
       }
     } else {
-      console.log("bbb");
       setErrors(errors);
       setEmailError(errors.email);
       setPasswordError(errors.password);
-      console.log(errors);
     }
   };
 

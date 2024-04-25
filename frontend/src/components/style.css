@@ -31,7 +31,7 @@
 
 .body {
 
-    height: 100vh;
+    height: auto;
     width: auto;
     display: flex;
     padding: 24px;
@@ -663,7 +663,7 @@
     font-size: 12px;
     font-weight: lighter;
     margin-inline-start: auto;
-
+    
 }
 
 .menu-container {

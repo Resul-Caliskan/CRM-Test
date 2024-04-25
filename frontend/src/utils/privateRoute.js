@@ -11,7 +11,6 @@ function PrivateRoute({ Component}) {
         const isLoggedIn = !!token;
         /*if (Component === Login) {
           if (isLoggedIn) return <Navigate to="/home" replace />;
-          console.log("girdi");
           return <Component />;
         }*/
         if (!isLoggedIn){

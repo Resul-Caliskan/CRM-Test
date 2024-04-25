@@ -12,8 +12,8 @@ const customerSchema = new mongoose.Schema({
   contactname: { type: String, required: true },
   contactmail: { type: String, required: true },
   contactnumber: { type: String, required: true },
-
   users: [{ type: mongoose.Schema.Types.String, ref: "User" }],
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
 });
 
 module.exports = mongoose.model("Customer", customerSchema);

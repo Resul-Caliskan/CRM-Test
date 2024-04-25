@@ -190,7 +190,6 @@ const sendChangePasswordMail = async (req, res) => {
       if (err) {
         console.error("E-posta gönderme hatası:", err);
       } else {
-        console.log("E-posta gönderildi:", info);
       }
     });
     res.status(200).json({ message: "E-posta başarıyla gönderildi." });

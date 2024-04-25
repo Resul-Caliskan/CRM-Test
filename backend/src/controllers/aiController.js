@@ -18,7 +18,6 @@ async function askAi(req, res) {
       parameters +
         " bu parametrelere göre bir job description tanımla ve içerisinde job'a göre uygun skilleri Teknik Beceriler başlığı altında de listele, yanıt türkçe olsun, teşekkürler"
     );
-    console.log("ai cevap:"+response);
     res.status(200).json({ message: response });
   } catch (error) {
     console.error(error);
@@ -29,7 +28,6 @@ async function askAi(req, res) {
 async function fakeAskAi(req, res) {
   try {
     const cevap = req.body.parameters;
-    console.log("cevap", cevap);
     res.status(200).json({ message: cevap });
   } catch (error) {
     console.error(error);

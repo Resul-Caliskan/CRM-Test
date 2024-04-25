@@ -19,6 +19,8 @@ const positionSchema = new mongoose.Schema({
   companyName: { type: mongoose.Schema.Types.String, ref: "Customer" },
   sharedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
   dateOfStart: { type: String, required: true },
+  requestedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee"}],
+
 });
 
 module.exports = mongoose.model("Position", positionSchema);

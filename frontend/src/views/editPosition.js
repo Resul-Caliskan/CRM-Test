@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, Spin, DatePicker } from "antd";
+import { Form, Input, Button, Select, Spin, DatePicker, Modal } from "antd";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
@@ -14,10 +14,14 @@ import Loading from "../components/loadingComponent";
 import NavBar from "../components/adminNavBar";
 import { City, Country, State } from "country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
-import moment from "moment";
+
 import dayjs from "dayjs";
-
+import { InfoCircleOutlined } from "@ant-design/icons";
+dayjs.extend(customParseFormat);
+const dateFormat = 'DD-MM-YYYY';
+const today = dayjs();
 const { Option } = Select;
 
 const EditPosition = () => {
@@ -45,14 +49,13 @@ const EditPosition = () => {
   const [preferredCompanies, setPreferredCompanies] = useState(null);
   const [isoCode, setIsoCode] = useState("");
   const { user } = useSelector((state) => state.auth);
+  const [visible, setVisible] = useState(false);
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (!user || user.role === null) {
-      console.log("girdi");
       fetchData()
         .then((data) => {
-          console.log("cevap:", data);
           dispatch(login(data.user));
         })
         .catch((error) => {
@@ -62,21 +65,19 @@ const EditPosition = () => {
     if (isFetch) {
       fetchPosition();
     }
+    if (!parameters.length) {
+      fetchParameters();
+    }
 
     form.setFieldsValue({ description: contentValue });
     const values = form.getFieldsValue();
-    console.log("descripton" + values.description);
-    fetchParameters();
-    console.log("veriiii::" + contentValue);
-  }, [id, form, contentValue,user]);
+  }, [id, form, contentValue, user]);
 
   useEffect(() => {
     setstateData(State.getStatesOfCountry(isoCode));
-    console.log("isocode" + isoCode);
   }, [isoCode]);
   useEffect(() => {
     setCountyData(City.getCitiesOfState(isoCode, state?.isoCode));
-    console.log("isocode" + isoCode, state);
   }, [state]);
 
   useEffect(() => {
@@ -95,7 +96,6 @@ const EditPosition = () => {
       setIsFetch(false);
       setLoading(false);
 
-      console.log("usestatede gelen data:" + data.description);
     } catch (error) {
       setLoading(false);
       console.error("Müşteri bilgileri alınırken bir hata oluştu:", error);
@@ -111,7 +111,7 @@ const EditPosition = () => {
   };
 
   const handlePreferredCompaniesChange = (value) => {
-    
+
     if (!Array.isArray(value)) {
       value = value.split('\n');
     }
@@ -119,7 +119,7 @@ const EditPosition = () => {
   };
 
   const handleIndustryChange = (value) => {
-    
+
     if (!Array.isArray(value)) {
       value = value.split('\n');
     }
@@ -148,8 +148,6 @@ const EditPosition = () => {
       );
       setAiResponse(response.data.message);
       setcontentValue(response.data.message);
-      console.log("ai res:" + aiResponse + " mesaj");
-
       Notification("success", "İş Tanımı Başarıyla Oluşturuldu.");
     } catch (error) {
       Notification("error", "İş Tanımı Oluşturulurken Hata Oluştu.");
@@ -161,23 +159,17 @@ const EditPosition = () => {
 
   const handleDateChange = (date, dateString) => {
     setSelectedDate(dateString);
-    console.log("DATESTRING " + dateString);
   };
 
   const handleCityChange = (value) => {
-    console.log("seçilen şehir" + value);
     const selectedCityInfo = stateData.find((city) => city.isoCode === value);
-    console.log("selected city " + selectedCityInfo);
     setState(selectedCityInfo);
-    console.log(selectedCityInfo);
   };
 
   const handleCountyChange = (value) => {
-    console.log(value + " mahalle");
     const selectedCountyInfo = countyData.find(
       (county) => county.name === value
     );
-    console.log(selectedCountyInfo);
     setCounty(selectedCountyInfo);
   };
 
@@ -185,11 +177,7 @@ const EditPosition = () => {
     try {
       const response = await axios.get(`${apiUrl}/api/positions/${id}`);
       const position = response.data;
-      console.log("RESPONSE  " + position);
-      console.log("gelen pozisyon" + position.positionCountry);
-      console.log("POZİSYON DATESİ" + position.dateOfStart);
-      const formattedDate = dayjs(position.dateOfStart);
-      console.log("formatlanmış date" + formattedDate);
+      const formattedDate = dayjs(position.dateOfStart, dateFormat);
       setSelectedDate(formattedDate);
       setIsoCode(position.positionCountry);
 
@@ -204,8 +192,6 @@ const EditPosition = () => {
     await axios
       .get(`${apiUrl}/api/parameters`)
       .then((response) => {
-        console.log(response);
-        console.log("DATAA PARAMETER: " + response.data);
         setParameters(response.data);
       })
       .catch((error) => {
@@ -224,16 +210,15 @@ const EditPosition = () => {
         skills: values.skills,
         description: values.description,
         worktype: values.worktingType,
-        industry:values.industry,
+        industry: values.industry,
         positionCity: state ? state.name : values.positionCity,
         positionCounty: county ? county.name : values.positionCounty,
         positionCountry: isoCode,
         positionAdress: values.positionAdress,
         bannedCompanies: values.bannedcompanies,
-        preferredCompanies:values.preferredcompanies,
+        preferredCompanies: values.preferredcompanies,
         dateOfStart: selectedDate ? selectedDate : values.dateOfStart,
       });
-      console.log("FORRRRRRM gönderildi:", values.description);
       Notification(
         "success",
         "Başarıyla güncellendi.",
@@ -260,7 +245,16 @@ const EditPosition = () => {
       setSubmitLoading(false);
     }
   };
+  const infoSector = () => {
+    setVisible(true);
+  };
+  const handleOk = () => {
+    setVisible(false);
+  };
 
+  const handleCancel = () => {
+    setVisible(false);
+  };
   return (
     <>
 
@@ -269,9 +263,9 @@ const EditPosition = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex justify-center items-center">
-          <div className="w-full max-w-[1000px] mt-12">
-            <h2 className="text-center text-2xl mb-6">Pozisyonu Düzenle</h2>
+        <div className="body">
+          <div className="w-full">
+            <h2 className="text-center text-2xl">Pozisyonu Düzenle</h2>
             <button
               className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
               onClick={() => {
@@ -378,7 +372,7 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="İşyeri Politikası"
+                  label="Çalışma Şekli"
                   name="modeofoperation"
                   rules={[
                     { required: true, message: "İşyeri Politikasını Giriniz!" },
@@ -390,7 +384,7 @@ const EditPosition = () => {
                     placeholder="İşyeri Politikası Seç"
                   >
                     {parameters.map((parameter, index) => {
-                      if (parameter.title === "İşyeri Politikası") {
+                      if (parameter.title === "Çalışma Şekli") {
                         return parameter.values.map((value, idx) => (
                           <Option key={`${parameter._id}-${idx}`} value={value}>
                             {value}
@@ -402,7 +396,7 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="İş Türü"
+                  label="Sözleşme Tipi"
                   name="worktype"
                   rules={[{ required: true, message: "İş Türünü Giriniz!" }]}
                 >
@@ -412,7 +406,7 @@ const EditPosition = () => {
                     placeholder="İş Türü Seç"
                   >
                     {parameters.map((parameter, index) => {
-                      if (parameter.title === "İş Türü") {
+                      if (parameter.title === "Sözleşme Tipi") {
                         return parameter.values.map((value, idx) => (
                           <Option key={`${parameter._id}-${idx}`} value={value}>
                             {value}
@@ -425,34 +419,52 @@ const EditPosition = () => {
                 </Form.Item>
 
                 <Form.Item
-              label="Tercih Edilen Sektörler"
-              name="industry"
-             
-            >
-              <Select
-                mode="tags"
-                showSearch
-                optionFilterProp="children"
-                placeholder="Sektör Seç"
-                onChange={handleIndustryChange}
-                defaultValue={positionData.industry}
+                  label={
+                  <span>
+                    Tercih Edilen Sektörler <InfoCircleOutlined className="text-blue-500" onClick={infoSector} />
+                  </span>
+                }
+                  name="industry"
+                  
+
+                >
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Sektör Seç"
+                    onChange={handleIndustryChange}
+                    defaultValue={positionData.industry}
+                  >
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Sektör") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                </Form.Item>
+                <Modal
+                title="Tercih Edilen Sektörler"
+                visible={visible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                cancelText="Kapat"
+                okText="Tamam"
+                okButtonProps={{ className: 'bg-blue-500' }}
+                cancelButtonProps={{className: 'hidden'}}
               >
-                {parameters.map((parameter, index) => {
-                  if (parameter.title === "Sektör") {
-                    return parameter.values.map((value, idx) => (
-                      <Option key={`${parameter._id}-${idx}`} value={value}>
-                        {value}
-                      </Option>
-                    ));
-                  }
-                  return null;
-                })}
-              </Select>
-            </Form.Item>
+                <p>Bu alana tercih ettiğiniz sektörleri ekleyebilirsiniz.</p>
+                <p>Burada belirtilen sektörler, profilinizdeki tercihlerinizin bir parçasıdır ve belirli özelliklere göre size önerilerde bulunmamıza yardımcı olur.</p>
+              </Modal>
 
-             
 
-                
+
+
                 <Form.Item
                   label="Teknik Beceriler"
                   name="skills"
@@ -489,7 +501,7 @@ const EditPosition = () => {
                       onChange={handleBannedCompaniesChange}
                       defaultValue={positionData.bannedCompanies}
                     >
-                      
+
                       {positionData.bannedCompanies.map((company, index) => (
                         <Option key={index} value={company}>
                           {company}
@@ -499,27 +511,29 @@ const EditPosition = () => {
                   </Form.Item>
                 )}
 
-<Form.Item label="Tercih Edilen Şirketler" name="preferredcompanies">
-                <Select
-                  mode="tags"
-                  showSearch
-                  optionFilterProp="children"
-                  placeholder="Tercih Edilen Şirket Seç"
-                  onChange={handlePreferredCompaniesChange}
-                  defaultValue={positionData.preferredCompanies}
-                >
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Şirketler") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
-                    }
-                    return null;
-                  })}
-                </Select>
-              </Form.Item>
+                <Form.Item label="Tercih Edilen Şirketler" 
+                name="preferredcompanies">
+                
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Tercih Edilen Şirket Seç"
+                    onChange={handlePreferredCompaniesChange}
+                    defaultValue={positionData.preferredCompanies}
+                  >
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Şirketler") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                </Form.Item>
 
 
 
@@ -529,6 +543,8 @@ const EditPosition = () => {
                     onChange={handleDateChange}
                     placeholder="İşe başlama tarihini seçiniz"
                     defaultValue={selectedDate}
+                    format={dateFormat}
+                    minDate={dayjs(today, dateFormat)}
                   />
                 </Form.Item>
                 <Form.Item
@@ -543,15 +559,24 @@ const EditPosition = () => {
                     placeholder="Şehir seç"
                     optionFilterProp="children"
                     onChange={(value) => {
-                      console.log("girdik burayada");
                       handleCityChange(value);
                     }}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .indexOf(input.toString().toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => {
+                      if (isoCode === "TR") {
+                            const normalizedInput = input
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            const normalizedOption = option.children
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            return normalizedOption.includes(normalizedInput);
+                          }
+                          else {
+                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                          }
+                        }}
                   >
                     {stateData &&
                       stateData.map((state, index) => (
@@ -575,12 +600,22 @@ const EditPosition = () => {
                     onChange={(value) => {
                       handleCountyChange(value);
                     }}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .indexOf(input.toString().toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => {
+                      if (isoCode === "TR") {
+                            const normalizedInput = input
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            const normalizedOption = option.children
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            return normalizedOption.includes(normalizedInput);
+                          }
+                          else {
+                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                          }
+                        }}
                   >
                     {countyData &&
                       countyData.map((county, index) => (
@@ -616,12 +651,12 @@ const EditPosition = () => {
                     isLoading={loadingAi}
                   />
                 </Form.Item>
-                <Form.Item className="col-span-2 w-full flex justify-center items-center">
+                <Form.Item className="col-start-1 col-end-3 text-center">
                   <Button
                     type="primary"
                     htmlType="submit"
                     loading={submitLoading}
-                    className="px-20 bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
+                    className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                   >
                     {submitLoading ? <Spin /> : "Güncelle"}{" "}
                   </Button>

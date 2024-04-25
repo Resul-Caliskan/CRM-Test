@@ -25,18 +25,10 @@ axios.interceptors.response.use(
         originalRequest.headers["authorization"] = `Bearer ${newToken}`;
         return axios(originalRequest);
       }).catch(error => {
-
-
-        
         if (error.response.status === 403) {
-         
           localStorage.clear();
-          console.log("REFRESH BİTMİŞ");
-          
-
         }
         console.error("Token yenileme hatası:", error);
-
         return Promise.reject(error);
       });
     }

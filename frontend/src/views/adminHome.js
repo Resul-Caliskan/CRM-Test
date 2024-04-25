@@ -23,14 +23,11 @@ const App = () => {
     (state) => state.selectedOption.selectedOption
   );
   useEffect(() => {
-    console.log("calisti");
     if (user && user.role !== 'admin') {
       navigate('/forbidden');
     }
     if (!user || user.role === null) {
-      console.log("girdi");
       fetchData().then(data => {
-        console.log("cevap:", data);
         dispatch(login(data.user));
         if (data.user.role !== 'admin') {
           navigate('/forbidden');

@@ -26,17 +26,13 @@ const ListCustomers = () => {
     companytype: []
   });
   useEffect(() => {
-    console.log("use firdi");
     if (user?.role === "admin") {
-      console.log(user?.role);
       fetchParameterOptions();
-      console.log("x" + parameterOptions);
       fetchRolesFromDatabase();
       setIsDelete(false);
     }
     // else {
     //   fetchData().then(data => {
-    //     console.log("cevap:", data);
     //     dispatch(login(data.user));
     //     if (data.user.role !== 'admin') {
     //       navigate('/forbidden');
@@ -166,7 +162,6 @@ const ListCustomers = () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
       setCustomers(response.data);
-      console.log(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Roles fetching failed:', error);
@@ -182,7 +177,6 @@ const ListCustomers = () => {
       const filteredOptions = response.data.filter(option => {
         return option.title === "Sektör" || option.title === "Firma Türü";
       });
-      console.log(filteredOptions);
       setParameterOptions(filteredOptions);
     } catch (error) {
       console.error("Parameter options fetching failed:", error);
@@ -204,7 +198,6 @@ const ListCustomers = () => {
   };
   const handleDelete = async (customerId) => {
     try {
-      console.log(customerId);
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/customers/${customerId}`);
       setCustomers(customers.filter(customer => customer.companyId !== customerId));
       Notification("success", "Müşteri başarıyla silindi.", "");

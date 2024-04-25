@@ -49,7 +49,6 @@ export default function NavBar() {
   const firstLetter = () => {
     let firstLetterOfName = user ? user.email[0].toUpperCase():'';
     setLetter(firstLetterOfName);
-    console.log("asdasd"+firstLetterOfName);
 };
   return (
     <>
@@ -122,7 +121,7 @@ export default function NavBar() {
           </li>
         </ul>
       </div>
-      <div className="">{renderComponent}</div>
+      {renderComponent}
     </>
   );
 }

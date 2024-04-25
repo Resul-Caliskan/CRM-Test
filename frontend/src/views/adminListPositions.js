@@ -62,7 +62,7 @@ const AdminListPosition = () => {
     //   render: (text) => highlightSearchTerm(text, searchTerm),
     // },
     {
-      title: "İş Türü",
+      title: "Çalışma Şekli",
       dataIndex: "worktype",
       key: "worktype",
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -159,7 +159,6 @@ const AdminListPosition = () => {
   const fetchCompanyNames = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
-      console.log("customer : " + response.data);
       setCompanyNames(response.data);
     } catch (error) {
       console.error("Positions fetching failed:", error);
@@ -172,7 +171,7 @@ const AdminListPosition = () => {
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
       const filteredOptions = response.data.filter(option => {
-        return option.title === "Departman" ||  option.title === "İş Unvanı" || option.title === "Deneyim Süresi" || option.title === "İşyeri Politikası" || option.title === "Yetenekler";
+        return option.title === "Departman" ||  option.title === "İş Unvanı" || option.title === "Deneyim Süresi" || option.title === "Çalışma Şekli" || option.title === "Yetenekler";
       });
       setParameterOptions(filteredOptions);
       setLoading(false);
@@ -211,7 +210,6 @@ const AdminListPosition = () => {
     if (positionId) {
       navigate(`/admin-position-detail/${positionId}`);
     } else {
-      console.log("aaa" + positionId);
       console.error(
         "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
       );

@@ -6,7 +6,6 @@ const User = require("../models/user");
 const authenticationMiddleware = require("../middlewares/authenticationMiddleware");
 const secretkey = "yusuf";
 router.post("/login", async (req, res) => {
-  console.log("token");
   try {
     const { email, password } = req.body;
 
@@ -21,7 +20,6 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ email }, secretkey);
-    console.log(token);
 
     return res.status(202).json({ token: token });
   } catch (error) {
@@ -35,11 +33,9 @@ router.get(
   async (req, res) => {
     const token = req.header("Authorization");
     if (!token) return res.status(401).json({ error: "Giriş Reddeildi" });
-    console.log(token);
     try {
       const decoded = jwt.verify(token, secretkey);
       req.user = decoded;
-      console.log(decoded);
       res.status(200).send(req.user);
     } catch (error) {
       res.status(400).send("Geçersiz Token");

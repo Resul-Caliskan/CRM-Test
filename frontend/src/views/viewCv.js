@@ -14,7 +14,6 @@ const PdfViewer = () => {
   
   const fetchPdf = async () => {
     try {
-      console.log("PDF alınıyor...");
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/getcv`,
         { filename: "bitirme.pdf" },

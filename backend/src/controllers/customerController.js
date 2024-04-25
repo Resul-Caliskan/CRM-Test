@@ -3,7 +3,29 @@ const Customer = require("../models/customer");
 
 exports.addCustomer = async (req, res) => {
   try {
-    console.log("BODYYYY" + req.body);
+
+    const existingCompany = await Customer.findOne({ companyname: req.body.companyname });
+    if (existingCompany) {
+      return res.status(409).json({ error: "Bu şirket adı daha önce kullanılmış." });
+    }
+    const existingWebsite = await Customer.findOne({ companyweb: req.body.companyweb });
+    if (existingWebsite) {
+      return res.status(409).json({ error: "Bu web sitesi daha önce kullanılmış" });
+    }
+   
+    const existingEmail = await Customer.findOne({ contactmail: req.body.contactmail });
+    if (existingEmail) {
+      return res.status(409).json({ error: "Bu mail daha önce kullanılmış" });
+    }
+
+    
+    const existingNumber = await Customer.findOne({ contactnumber: req.body.contactnumber });
+    if (existingNumber) {
+      return res.status(409).json({ error: "Bu numara daha önce kullanılmış" });
+    }
+
+    
+
     const newCustomer = new Customer({
       companyname: req.body.companyname,
       companytype: req.body.companytype,
@@ -16,21 +38,28 @@ exports.addCustomer = async (req, res) => {
       contactmail: req.body.contactmail,
       contactnumber: req.body.contactnumber,
       companycounty: req.body.companycounty,
-      
     });
+    
     await newCustomer.save();
-    console.log("Başarılı");
     res.status(201).json({ message: "Müşteri başarıyla eklendi." });
   } catch (error) {
-    console.log("Kaydedilmedi" + error);
     res.status(500).json({ error: error.message });
   }
 };
 
 
+
 exports.userAddToCustomer = async (req, res) => {
   try {
-    console.log("GELDİİİİİ" + req.body.email);
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.status(409).json({ error: "Bu mail daha önce kullanılmış" });
+    }
+
+    const existingPhoneUser = await User.findOne({ phone: req.body.phone });
+    if (existingPhoneUser) {
+      return res.status(409).json({ error: "Bu numara daha önce kullanılmış." });
+    }
     const user = req.body;
     const newUser = new User({
       email: user.email,
@@ -38,10 +67,10 @@ exports.userAddToCustomer = async (req, res) => {
       companyId: req.params.id,
       role: req.body.role,
     });
+ 
     newUser
       .save()
       .then(() => {
-        console.log("Kullanıcı başarıyla eklendi.");
       })
       .catch((err) => {
         console.error("Kullanıcı eklenirken hata oluştu:", err);
@@ -64,7 +93,6 @@ exports.userAddToCustomer = async (req, res) => {
 
 exports.updateCustomer = async (req, res) => {
   try {
-    console.log("girdi");
     const updatedCustomer = await Customer.findByIdAndUpdate(
       req.params.id,
       {
@@ -83,7 +111,6 @@ exports.updateCustomer = async (req, res) => {
       { new: true }
     );
     res.status(200).json(updatedCustomer);
-    console.log(updatedCustomer);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -103,7 +130,6 @@ exports.deleteCustomer = async (req, res) => {
 
 exports.getAllCustomers = async (req, res) => {
   try {
-    console.log("SİRKETLER GELDİ.");
     const customers = await Customer.find();
     res.status(200).json(customers);
   } catch (error) {
@@ -139,15 +165,13 @@ exports.getCustomerByName = async (req, res) => {
     res.status(200).json(customer._id);
   } catch (error) {
     res.status(500).json({ error: error.message });
-    console.log("buraya girdin grdaş");
   }
 };
 
 exports.getCustomerNameById = async (req, res) => {
   try {
-   
+
     const customerId = req.params.id;
-    console.log("customerId namee:"+customerId);
     const customer = await Customer.findById(customerId);
 
     if (!customer) {

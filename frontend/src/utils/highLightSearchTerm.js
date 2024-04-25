@@ -13,7 +13,6 @@ export  const highlightSearchTerm = (text, searchTerm) => {
         </>
        
       );
-      console.log("girdi");
       return highlightedText;
     }
     return text;

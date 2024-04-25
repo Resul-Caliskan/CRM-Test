@@ -2,18 +2,14 @@ const Parameter = require("../models/parameter");
 
 exports.addParameter = async (req, res) => {
   try {
-    console.log("Parametre eklendi");
     const filter = req.body.title;
     const key = req.body.key;
     const newValue = req.body.values;
     const existingParameter = await Parameter.findOne({ title: filter });
-    console.log("Parametre eklendi2"+filter);
-    console.log("Parametre değeri:"+newValue);
 
     if (existingParameter !== null) {
       existingParameter.values.push(newValue);
       const updatedParameter = await existingParameter.save();
-      console.log(updatedParameter);
     } else {
       const newParameter = new Parameter({
         title: filter,

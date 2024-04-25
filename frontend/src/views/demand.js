@@ -32,7 +32,6 @@ const DemandForm = () => {
     (state) => state.selectedOption.selectedOption
   );
   useEffect(() => {
-    console.log("GİRDİİİİİİAAASDASFSA");
     fetchCompanies();
   }, []);
 
@@ -40,7 +39,7 @@ const DemandForm = () => {
     await axios
       .get(`${process.env.REACT_APP_API_URL}/api/customers`)
       .then((response) => {
-        console.log(response);
+
         setCompanies(response.data);
       })
       .catch((error) => {

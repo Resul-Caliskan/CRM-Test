@@ -4,7 +4,7 @@ const Notification = (type, message, description) => {
     const config = {
         message: message,
         description: description,
-        duration: 3,
+        duration: 2,
         style: {
             borderRadius: '8px',
             padding: '20px 24px'

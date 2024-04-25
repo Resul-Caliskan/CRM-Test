@@ -59,7 +59,6 @@ const Parameters = () => {
           });
         }
         await fetchParameters();
-        console.log("Parametre kaydedildi:", editedValues);
       } catch (error) {
         console.error("Parametre kaydetme hatası:", error);
       }

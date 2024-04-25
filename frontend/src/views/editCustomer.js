@@ -11,11 +11,10 @@ import 'react-international-phone/style.css';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { number } from 'prop-types';
 import { City, Country, State } from "country-state-city"
-
 import "react-country-state-city/dist/react-country-state-city.css";
 import NavBar from '../components/adminNavBar';
 import Loading from '../components/loadingComponent';
-
+import { setSelectedOption } from "../redux/selectedOptionSlice";
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -32,8 +31,8 @@ const EditCustomerForm = () => {
   const [parameters, setParameters] = useState([]);
   const [form] = Form.useForm();
   const [customerData, setCustomerData] = useState(null);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [phone, setPhone] = useState('');
   const [stateData, setstateData] = useState();
@@ -42,30 +41,26 @@ const EditCustomerForm = () => {
   const [county, setCounty] = useState()
   let countryData = Country.getAllCountries();
   const [country, setCountry] = useState();
+  useSelector((state) => state.selectedOption.selectedOption);
+
   const handleCountryChange = (value) => {
     const selectedCountry = countryData[value];
     setCountry(selectedCountry);
-    console.log(country);
   };
 
   const handleCityChange = (value) => {
-    console.log(value);
     const selectedCityInfo = stateData.find(city => city.isoCode === value);
     setState(selectedCityInfo)
-    console.log(selectedCityInfo);
+    
   }
 
   const handleCountyChange = (value) => {
-    console.log(value + " mahalle");
     const selectedCountyInfo = countyData.find(county => county.name === value);
-    console.log(selectedCountyInfo);
     setCounty(selectedCountyInfo);
   };
   useEffect(() => {
     if (!user || user.role === null) {
-      console.log("girdi");
       fetchData().then(data => {
-        console.log("cevap:", data);
         dispatch(login(data.user));
         if (data.user.role !== 'admin') {
           navigate('/forbidden');
@@ -81,6 +76,8 @@ const EditCustomerForm = () => {
       } catch (error) {
         console.error('Müşteri bilgileri alınırken bir hata oluştu:', error);
       }
+      setLoading(false);
+
     };
     fetchParameters();
     fetchCustomerData();
@@ -88,12 +85,10 @@ const EditCustomerForm = () => {
 
   useEffect(() => {
     setstateData(State.getStatesOfCountry(country?.isoCode));
-    console.log(country?.isoCode);
   }, [country]);
 
   useEffect(() => {
     setCountyData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
-    console.log(country?.isoCode, state?.isoCode)
   }, [state]);
 
   useEffect(() => {
@@ -108,8 +103,6 @@ const EditCustomerForm = () => {
   const fetchParameters = async () => {
     await axios.get(`${process.env.REACT_APP_API_URL}/api/parameters`)
       .then(response => {
-        console.log(response);
-        console.log("DATAA PARAMETER: " + response.data);
         setParameters(response.data);
 
       })
@@ -121,8 +114,6 @@ const EditCustomerForm = () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers/${id}`);
       setCustomerData(response.data);
-      console.log("gelen ülke" + response.data.companycountry);
-      setLoading(false);
       return response.data;
     } catch (error) {
       setLoading(false);
@@ -132,12 +123,8 @@ const EditCustomerForm = () => {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
-    console.log("test" + id);
-
     setLoading(true);
     try {
-      console.log(values.companycountry + "  " + values.companycity + "  " + values.companycounty);
       const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/customers/${id}`, {
 
         companyname: values.companyname,
@@ -152,8 +139,6 @@ const EditCustomerForm = () => {
         contactmail: values.contactmail,
         contactnumber: values.contactnumber,
       });
-      console.log("girdi dayi")
-
       Notification("success", "Müşteri bilgileri güncellendi.");
       navigate("/adminhome");
       setLoading(false);
@@ -173,9 +158,34 @@ const EditCustomerForm = () => {
       <NavBar />
       {loading ? <Loading /> 
        : (
-      <div className="flex justify-center items-center v-screen">
-        <div className="w-full max-w-lg my-10">
-          <h2 className="text-center text-2xl mb-6">Müşteri Düzenle</h2>
+      <div className="body">
+        <div className="w-full">
+          <h2 className="text-center text-2xl">Müşteri Düzenle</h2>
+          <button
+                  className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
+                  onClick={() => {
+                if (user?.role === "admin") {
+                  navigate("/adminhome");
+                  dispatch(setSelectedOption("list-customers"));
+                } 
+              }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Geri Dön
+                </button>
           {customerData && (
             <Form
               form={form}
@@ -292,9 +302,22 @@ const EditCustomerForm = () => {
                     onChange={(value) => {
                       handleCityChange(value);
                     }}
-                    filterOption={(input, option) =>
-                      option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => {
+                          if (country?.isoCode === "TR") {
+                            const normalizedInput = input
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            const normalizedOption = option.children
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            return normalizedOption.includes(normalizedInput);
+                          }
+                          else {
+                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                          }
+                        }}
                   >
                     {stateData && stateData.map((state, index) => (
                       <Option key={index} value={state.isoCode}>
@@ -314,9 +337,22 @@ const EditCustomerForm = () => {
                     onChange={(value) => {
                       handleCountyChange(value);
                     }}
-                    filterOption={(input, option) =>
-                      option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => {
+                          if (country?.isoCode === "TR") {
+                            const normalizedInput = input
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            const normalizedOption = option.children
+                              .toString()
+                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                              .toLowerCase();
+                            return normalizedOption.includes(normalizedInput);
+                          }
+                          else {
+                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                          }
+                        }}
                   >
                     {countyData && countyData.map((county, index) => (
                       <Option key={index} value={county.name}>

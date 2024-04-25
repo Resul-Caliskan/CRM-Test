@@ -15,7 +15,6 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
   const [selectionType, setSelectionType] = useState("checkbox");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
-
   const showPopconfirm = () => {
     setOpen(true);
   };
@@ -30,7 +29,6 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
   };
 
   const handleCancel = () => {
-    console.log('Clicked cancel button');
     setOpen(false);
   };
   const handleSearch = (event) => {
@@ -71,9 +69,10 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
         <div className="search">
           <div className="searchButtonContainer">
             <Input
-              placeholder="Search"
+              placeholder="Ara"
               className="searchButton"
               onChange={handleSearch}
+             
               suffix={<SearchOutlined />}
             ></Input>
           </div>
@@ -127,19 +126,14 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => {
-                          console.log("Clicked on companyId:", record.id);
                           handleUpdate(record.id);
 
                         }}
                       >
                       </Button>}
-                     
-
                       {handleApprove && 
                         <ConfirmPopUp handleConfirm={handleApprove} record={record} isConfirm={true} />
-                      
                       }
-                      
                       {handleDetail && <Button
                         type="link"
                         icon={<InfoCircleOutlined />}
@@ -154,9 +148,13 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
               scroll={{ y: 600 }}
               mobileBreakPoint={768}
               pagination={{
-                pageSizeOptions: [],
+                locale: {items_per_page:'/ Sayfa',jump_to:'Git',page:''},
+                total:data.length,
+                showSizeChanger:true,
                 showQuickJumper: true,
-                total: data.length,
+                
+                
+                pageSizeOptions: ['10', '20', '30', '40', '50'],
 
               }}
             />

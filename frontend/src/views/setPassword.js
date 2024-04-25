@@ -30,8 +30,6 @@ export default function SetPassword() {
   useEffect(() => {
     if (id) {
       const token = jwtDecode(id);
-
-      console.log("id:" + token.id);
       setUserId(token.id);
     }
     const handleResize = () => {

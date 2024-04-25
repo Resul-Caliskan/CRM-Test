@@ -76,7 +76,6 @@ const ListDemand = () => {
     setSelectedDemandIndex(demand);
     setConfirmModalOpen(true);
 
-    console.log("Talep onaylandı:", demand.companyId);
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/customers/add/${demand.companyId}`,
@@ -95,7 +94,6 @@ const ListDemand = () => {
           );
           fetchDemands();
         } catch (error) {
-          console.log("errrror silinmedi kamil" + error);
         }
         try {
           const response = await axios.post(
@@ -105,7 +103,6 @@ const ListDemand = () => {
             }
           );
         } catch (error) {
-          console.log("errrror mail gönderilemedi" + error);
         }
       }
     } catch (error) {
@@ -115,7 +112,6 @@ const ListDemand = () => {
   };
 
   const handleDeleteDemand = async (demandId) => {
-    console.log("Talep silindi:", demandId);
     try {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/demands/${demandId}`
@@ -167,17 +163,15 @@ const ListDemand = () => {
   ];
   const filterDemands = (demands) => {
     if (!searchTerm) return demands;
-    console.log("buraya geçti");
     return demands.filter((demand) => {
       const { name, surname, number, email, password, companyId, companyname } =
         demand;
 
       if (!name || !surname || !number || !email || !companyId || !companyname)
         return false;
-      console.log("filtreledi");
 
       return (
-        console.log("filtreledi"),
+
         name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
           number.toLowerCase().includes(searchTerm.toLowerCase()) ||

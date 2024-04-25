@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Checkbox, Input } from "antd";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 const VerticalFilterContainer = ({
@@ -10,7 +10,13 @@ const VerticalFilterContainer = ({
   const [checkedItems, setCheckedItems] = useState([]);
   const [openParameters, setOpenParameters] = useState({});
   const [isClear, setIsClear] = useState(false);
-  
+  useEffect(() => {
+    const initialOpenParameters = {};
+    parameterOptions.forEach((parameter) => {
+      initialOpenParameters[parameter.title] = true;
+    });
+    setOpenParameters(initialOpenParameters);
+  }, [parameterOptions]);
   const handleClearAll = () => {
     setIsClear(true);
     parameterOptions.forEach((parameter) => {

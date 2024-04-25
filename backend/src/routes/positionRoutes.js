@@ -5,6 +5,7 @@ const authenticationMiddleware = require("../middlewares/authenticationMiddlewar
 
 router.post("/positions", positionController.addPosition);
 
+
 router.put("/positions/:id", positionController.updatePosition);
 
 router.delete("/positions/:id", positionController.deletePosition);
@@ -17,7 +18,13 @@ router.put(
   positionController.deleteNomineeIdFromPosition
 );
 
+router.put("/positions/request/:id", positionController.requestNominee);
+
+router.put("/positions/delete-request/:id", positionController.deleteRequestedNomineeFromPosition);
+
 router.get("/positions/get/:id", positionController.getPositionByCompanyId);
+
+router.put("/positions/accept/:id", positionController.moveRequestedNomineeToSharedNominees);
 
 router.get(
   "/positions/:id",

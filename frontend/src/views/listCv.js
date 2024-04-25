@@ -6,13 +6,22 @@ import NomineeDetail from "../components/nomineeDetail";
 import SearchInput from "../components/searchInput";
 import Highlighter from "react-highlight-words";
 import Loading from "../components/loadingComponent";
-import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import "../components/style.css";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { Button, Input } from "antd";
 import FilterComponent from "../components/filterComponent";
 import filterFunction from "../utils/globalSearchFunction";
 const CVList = () => {
+  const navigate = useNavigate();
   const [sharedItems, setSharedItems] = useState([]);
   const [cvs, setCvs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,10 +61,9 @@ const CVList = () => {
   const filterCvs = (cvs, isNormal, searchTerm) => {
     return cvs.filter((candidate) => {
       const searchFields = ["title", "skills"];
-      const searchTermFields = ["title", "skills", "name",];
+      const searchTermFields = ["title", "skills", "name"];
       const { jobtitle, skills } = filters;
       if (isNormal) {
-
         return (
           (jobtitle.length === 0 ||
             jobtitle.includes(candidate.nomineeInfo.title) ||
@@ -140,7 +148,15 @@ const CVList = () => {
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
-
+  const handlePositionDetails = (positionId) => {
+    if (positionId) {
+      navigate(`/position-detail/${positionId}`);
+    } else {
+      console.error(
+        "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
+      );
+    }
+  };
   return (
     <>
       {loading ? (
@@ -160,8 +176,6 @@ const CVList = () => {
                 searchTerm={searchTerm.toLowerCase()}
                 onSearch={handleSearch}
               />
-
-
             </div>
             <div className="tabBar">
               <Tabs className="">
@@ -198,12 +212,21 @@ const CVList = () => {
                                     <h4 className="font-semibold text-lg">
                                       Adayın Önerildiği Pozisyon:{" "}
                                     </h4>
-                                    <h4 className="font-semibold text-md mb-2 ">
+                                    <h4
+                                      className="font-semibold text-md mb-2 underline cursor-pointer"
+                                      onClick={() =>
+                                        handlePositionDetails(
+                                          nominee?.position?.id
+                                        )
+                                      }
+                                    >
                                       <Highlighter
                                         highlightClassName="highlighted"
                                         searchWords={[searchTerm]}
                                         autoEscape={true}
-                                        textToHighlight={nominee?.jobtitle || ""}
+                                        textToHighlight={
+                                          nominee?.position?.title || ""
+                                        }
                                       />
                                     </h4>
                                   </div>
@@ -239,7 +262,6 @@ const CVList = () => {
                                 )
                               )}
 
-                              
                               <strong>Skills:</strong>
                               <ul className="list-disc ml-4">
                                 {nominee.nomineeInfo?.skills.map(
@@ -340,7 +362,6 @@ const CVList = () => {
                         )}
                       </div>
                     </div>
-
                   </TabPanel>
                   <TabPanel>
                     <div className="cols-span-1 p-4 md:border-r-2">
@@ -363,18 +384,28 @@ const CVList = () => {
                                     }
                                   />
                                 </h4>
+                                
                                 <h4>
                                   <div className="flex flex-col items-center ">
                                     {" "}
                                     <h4 className="font-semibold text-lg">
                                       Adayın Önerildiği Pozisyon:{" "}
                                     </h4>
-                                    <h4 className="font-semibold text-md mb-2 ">
+                                    <h4
+                                      className="font-semibold text-md mb-2 underline cursor-pointer"
+                                      onClick={() =>
+                                        handlePositionDetails(
+                                          nominee?.position?.id
+                                        )
+                                      }
+                                    >
                                       <Highlighter
                                         highlightClassName="highlighted"
                                         searchWords={[searchTerm]}
                                         autoEscape={true}
-                                        textToHighlight={nominee.jobtitle || ""}
+                                        textToHighlight={
+                                          nominee?.position?.title || ""
+                                        }
                                       />
                                     </h4>
                                   </div>

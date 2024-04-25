@@ -32,14 +32,12 @@ import {
           countryid={countryid}
           stateid={stateid}
           onChange={(e) => {
-            console.log(e);
           }}
           placeHolder="Select City"
         />
         <h6>Language</h6>
         <LanguageSelect
           onChange={(e) => {
-            console.log(e);
           }}
           placeHolder="Select Language"
         />

@@ -3,7 +3,6 @@ const Cv = require("../models/cv");
 exports.getPdfById = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("girdid:" + id);
     const cvs = await Cv.find({ companyId: id });
     res.status(200).json(cvs);
   } catch (error) {

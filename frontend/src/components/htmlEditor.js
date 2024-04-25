@@ -5,7 +5,7 @@ import { marked } from "marked";
 import PropTypes from "prop-types";
 import { OpenAIOutlined } from "@ant-design/icons";
 import { Button, Space, Spin } from "antd";
-import HRH from "../assets/hrh.gif"
+import HRH from "../assets/hrh.gif";
 
 const CustomButton = ({ isLoading }) => (
   <div
@@ -19,18 +19,14 @@ const CustomButton = ({ isLoading }) => (
       width: 130,
       height: 30,
       marginBottom: 15,
-      marginTop:-4,
+      marginTop: -4,
       borderRadius: 5,
       padding: 10,
-    
     }}
     className="text-white  sm:w-1/2  h-10  mb-2  bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  text-center "
   >
-
     {isLoading ? (
-
-        <img src={HRH} style={{ width: 25, height: 25,marginLeft:40 }} />
-
+      <img src={HRH} style={{ width: 25, height: 25, marginLeft: 40 }} />
     ) : (
       <>
         <OpenAIOutlined className="mr-1 mb-1" />
@@ -42,7 +38,6 @@ const CustomButton = ({ isLoading }) => (
 
 const CustomToolbar = ({ handleAskAi, isLoading }) => (
   <div id="toolbar">
-    {console.log("TT" + isLoading)}
     <select
       className="ql-header"
       defaultValue={""}
@@ -65,33 +60,44 @@ const CustomToolbar = ({ handleAskAi, isLoading }) => (
     </select>
     <button className="ql-italic"></button>
 
-    <Button disabled={isLoading} className="ql-insertStar mb-1" onClick={handleAskAi}>
+    <Button
+      disabled={isLoading}
+      className="ql-insertStar mb-1"
+      onClick={handleAskAi}
+    >
       <CustomButton isLoading={isLoading} />
     </Button>
   </div>
 );
 
-const Editor = ({ placeholder, setContent, initialContent, handleAskAi, isLoading }) => {
+const Editor = ({
+  placeholder,
+  setContent,
+  initialContent,
+  handleAskAi,
+  isLoading,
+}) => {
   const [content, setContent2] = useState(initialContent || "");
-
+  const regex = /^\s*<p>\s*<\/p>\s*$/;
   const handleChange = (value) => {
-    setContent(value);
-    console.log("content editor: ", content);
-    setContent2(value);
+    if (value.trim() === "<p><br></p>" || regex.test(value)) {
+      setContent("");
+      setContent2("");
+    } else {
+      setContent(value);
+      setContent2(value);
+    }
   };
 
   return (
     <div className="text-editor">
-      <CustomToolbar handleAskAi={handleAskAi}
-        isLoading={isLoading}
-      />
+      <CustomToolbar handleAskAi={handleAskAi} isLoading={isLoading} />
       <ReactQuill
         className="h-[400px]"
         value={content}
         onChange={handleChange}
         placeholder={placeholder}
         modules={Editor.modules}
-
       />
     </div>
   );
@@ -100,7 +106,6 @@ const Editor = ({ placeholder, setContent, initialContent, handleAskAi, isLoadin
 Editor.modules = {
   toolbar: {
     container: "#toolbar",
-
   },
 };
 
@@ -132,7 +137,6 @@ const EditableContent = ({ content, setContent, handleAskAi, isLoading }) => {
 
   useEffect(() => {
     setHtmlContent(marked(content));
-    console.log("XX:" + isLoading);
   }, [content, isLoading]);
 
   return (
