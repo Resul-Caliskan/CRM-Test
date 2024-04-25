@@ -10,9 +10,9 @@ import MarkdownEditor from "@uiw/react-markdown-editor";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
 import { Empty } from "antd";
-import Notification from '../utils/notification';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import Notification from "../utils/notification";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
 
@@ -41,18 +41,18 @@ const PositionDetail = () => {
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
-  const navigate=useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user?.role === "admin")
-      navigate("/forbidden")
+    if (user?.role === "admin") navigate("/forbidden");
     if (!user || user.role === null) {
-      fetchData().then(data => {
-        dispatch(login(data.user));
-      }).catch(error => {
-        console.error(error);
-      });
+      fetchData()
+        .then((data) => {
+          dispatch(login(data.user));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
     fetchNominees();
     fetchRequestedNominees();
@@ -78,7 +78,7 @@ const PositionDetail = () => {
     }
     setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
   };
-  
+
   const fetchNominees = async () => {
     setLoading(true); // loading true olarak ayarlayın
     try {
@@ -86,7 +86,6 @@ const PositionDetail = () => {
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
         { positionId: id, isAdmin: false }
       );
-      console.log("dene");
       const nominees = response.data.sharedNominees;
       const suggested = response.data.suggestedAllCvs;
       setNominees(nominees);
@@ -138,17 +137,16 @@ const PositionDetail = () => {
 
       setPosition(response.data);
 
-      // Talep edilen adayı talep edilen adaylar listesine ekle
-      setRequestedNominees((prevRequestedNominees) => [
-        ...prevRequestedNominees,
-        nominees.find((nominee) => nominee.cv._id === nomineeId),
-      ]);
+      // // Talep edilen adayı talep edilen adaylar listesine ekle
+      // setRequestedNominees((prevRequestedNominees) => [
+      //   ...prevRequestedNominees,
+      //   nominees.find((nominee) => nominee.cv?._id === nomineeId),
+      // ]);
 
-      setSuggestedNominees((prevSuggestedNominees) =>
-        prevSuggestedNominees.filter((item) => item._id !== nomineeId)
-      );
+      // setSuggestedNominees((prevSuggestedNominees) =>
+      //   prevSuggestedNominees.filter((item) => item._id !== nomineeId)
+      // );
 
-      
       fetchNominees();
       fetchRequestedNominees();
 
@@ -174,6 +172,8 @@ const PositionDetail = () => {
       setRequestedNominees((prevRequestedNominees) =>
         prevRequestedNominees.filter((item) => item._id !== nomineeId)
       );
+      fetchNominees();
+      fetchRequestedNominees();
 
       Notification("success", "Talep Başarıyla Silindi.");
     } catch (error) {
@@ -356,9 +356,10 @@ const PositionDetail = () => {
                     ))}
                   </ul>
 
-                  <button className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-5"
+                  <button
+                    className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-5"
                     onClick={() => {
-                      handleRequestedNominee(nominee.cv._id);
+                      handleRequestedNominee(nominee.cv?._id);
                     }}
                   >
                     Talep Et
@@ -389,9 +390,9 @@ const PositionDetail = () => {
                 >
                   <h4 className="font-semibold text-lg mb-2">Unknown</h4>
                   <p>
-                    <strong>Unvan:</strong> {nominee?.title}
+                    <strong>Unvan:</strong> {nominee.cv?.title}
                   </p>
-                  {nominee?.education.map((edu, index) => (
+                  {nominee.cv?.education.map((edu, index) => (
                     <ul key={index}>
                       <li>
                         <div>
@@ -402,12 +403,14 @@ const PositionDetail = () => {
                   ))}
                   <strong>Beceriler:</strong>
                   <ul className="list-disc ml-4">
-                    {nominee?.skills.map((skill, index) => (
+                    {nominee.cv?.skills.map((skill, index) => (
                       <li key={index}>{skill}</li>
                     ))}
                   </ul>
-                  <button className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-2"
-                  onClick={() => handleCancelRequest(nominee?._id)}>
+                  <button
+                    className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-2"
+                    onClick={() => handleCancelRequest(nominee?.cv._id)}
+                  >
                     İptal Et
                   </button>
                   <button
