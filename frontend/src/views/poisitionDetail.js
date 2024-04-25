@@ -78,7 +78,7 @@ const PositionDetail = () => {
     }
     setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
   };
-
+  
   const fetchNominees = async () => {
     setLoading(true); // loading true olarak ayarlayın
     try {
@@ -86,6 +86,7 @@ const PositionDetail = () => {
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
         { positionId: id, isAdmin: false }
       );
+      console.log("dene");
       const nominees = response.data.sharedNominees;
       const suggested = response.data.suggestedAllCvs;
       setNominees(nominees);
