@@ -15,7 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
-
+import io from 'socket.io-client';
+import socket from "../config/config";
 const PositionDetail = () => {
   const [nominees, setNominees] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
@@ -29,6 +30,23 @@ const PositionDetail = () => {
   const [position, setPosition] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
+
+  useEffect(() => {
+
+    socket.on('demandCreated', (response) => {
+      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
+      console.log('Yeni talep oluşturuldu:', response);
+      if (response.id === id) {
+        console.log("burayayda geldiidii");
+        setRequestedNominees(response.allCVs.requestedNominees);
+        setNominees(response.allCVs.sharedNominees);
+        setSuggestedNominees(response.allCVs.suggestedAllCvs);
+      }
+      // Örneğin, DOM manipülasyonu yaparak HTML içinde bu veriyi gösterebilirsiniz.
+    });
+
+  }, [])
+
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -129,26 +147,42 @@ const PositionDetail = () => {
   };
 
   const handleRequestedNominee = async (nomineeId) => {
+    console.log("pozsition sid:" + id);
     try {
-      const response = await axios.put(
+      const response2 = await axios.put(
         `${apiUrl}/api/positions/request/${id}`,
         { nomineeId: nomineeId }
       );
 
-      setPosition(response.data);
 
-      // // Talep edilen adayı talep edilen adaylar listesine ekle
-      // setRequestedNominees((prevRequestedNominees) => [
-      //   ...prevRequestedNominees,
-      //   nominees.find((nominee) => nominee.cv?._id === nomineeId),
-      // ]);
 
-      // setSuggestedNominees((prevSuggestedNominees) =>
-      //   prevSuggestedNominees.filter((item) => item._id !== nomineeId)
-      // );
+      socket.emit('createDemand', id);
+      console.log("COMPAYID" + response2.data.updatedPosition.companyName);
+      console.log("NAMEEE" + position.companyName);
+      console.log("TİTTLLELELELE" + position.jobtitle);
+      try {
+        const response = await axios.post(
+          `${apiUrl}/api/notification/add`,
+          {
+            message: response2.data.updatedPosition.companyName + " " + response2.data.updatedPosition.jobtitle + " pozisyonu için yeni aday talep etti",
+            type: "nomineeDemand",
+            url: `/admin-position-detail/${id}`,
+            companyId: response2.data.updatedPosition.companyId,
+            positionId: id,
+            nomineeId: nomineeId,
+            receiverCompanyId: "660688a38e88e341516e7acd"
+          }
+        )
+        console.log("BİLDİRİM GİTTTİİİ" + response);
+        socket.emit('notificationCreated', response.data.notificationId);
 
+      } catch (error) {
+        console.error(error + "bildirim iletilemedi.");
+      }
+      setPosition(response2.data.updatedPosition);
       fetchNominees();
       fetchRequestedNominees();
+      // WebSocket bağlantısını oluştur
 
       Notification("success", "Aday Başarıyla Talep Edildi.");
     } catch (error) {
@@ -168,13 +202,22 @@ const PositionDetail = () => {
         `${apiUrl}/api/positions/delete-request/${id}`,
         { nomineeId: nomineeId }
       );
-      // Talep edilen adayı talep edilen adaylar listesinden kaldır
+      setPosition(response.data);
+      try {
+        const response2 = await axios.delete(
+          `${apiUrl}/api/notification/delete/${id}/${nomineeId}`,
+        )
+        console.log("Bildirim silindi:", response2.data);
+        socket.emit('notificationDeleted', response2.data.notificationId);
+      } catch (error) {
+        console.error("Bildirim silinirken bir hata oluştu:", error);
+      }
       setRequestedNominees((prevRequestedNominees) =>
         prevRequestedNominees.filter((item) => item._id !== nomineeId)
       );
       fetchNominees();
       fetchRequestedNominees();
-
+      socket.emit('createDemand', id);
       Notification("success", "Talep Başarıyla Silindi.");
     } catch (error) {
       console.error("Talep silinirken bir hata oluştu:", error);
@@ -415,7 +458,7 @@ const PositionDetail = () => {
                   </button>
                   <button
                     className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                    onClick={() => handleNomineeDetail(nominee, false)}
+                    onClick={() => handleNomineeDetail(nominee.cv, false)}
                   >
                     Detaylar <FaInfoCircle className="ml-2 size-4" />
                   </button>

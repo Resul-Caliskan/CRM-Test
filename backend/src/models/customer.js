@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
+
 const customerSchema = new mongoose.Schema({
+  
   companyname: { type: String, required: true, unique: true },
   companytype: { type: String, required: true },
   companysector: { type: String, required: true },
@@ -12,8 +14,10 @@ const customerSchema = new mongoose.Schema({
   contactname: { type: String, required: true },
   contactmail: { type: String, required: true },
   contactnumber: { type: String, required: true },
+  industries: [{type: String}],
   users: [{ type: mongoose.Schema.Types.String, ref: "User" }],
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
+  notificationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Notification" }],
 });
 
 module.exports = mongoose.model("Customer", customerSchema);

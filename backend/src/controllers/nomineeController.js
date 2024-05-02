@@ -38,7 +38,7 @@ exports.getNomineeByCompanyId = async (req, res) => {
       allCvs = await Nominee.find(
         {
           title: { $in: title },
-          _id: { $nin: sharedNominees.map((aday) => aday._id) }
+          _id: { $nin: sharedNominees.map((aday) => aday._id) },
         },
 
         {
@@ -60,6 +60,8 @@ exports.getNomineeByCompanyId = async (req, res) => {
 };
 
 exports.addFavorite = async (req, res) => {
+  console.log(req.body.nomineeId);
+  console.log(req.params.id);
   try {
     const nominee = req.body.nomineeId;
     const companyId = req.params.id;
@@ -69,7 +71,7 @@ exports.addFavorite = async (req, res) => {
       return res.status(400).json({ error: "Bu aday zaten favorilerde." });
     }
     const updatedCustomer = await Customer.findByIdAndUpdate(
-      id,
+      companyId,
       {
         $push: { favorites: [nominee] },
       },
@@ -77,6 +79,42 @@ exports.addFavorite = async (req, res) => {
     );
     res.status(200).json(updatedCustomer);
   } catch (error) {
+    console.log("SELamu");
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAllFavorites = async (req, res) => {
+  try {
+    const companyId = req.params.id;
+
+    const customer = await Customer.findById(companyId);
+
+    const favoriteIds = customer.favorites;
+
+    res.status(200).json({ favorites: favoriteIds });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteFavorites = async (req, res) => {
+  console.log(req.body.nomineeId);
+  console.log(req.params.id);
+  try {
+    const nominee = req.body.nomineeId;
+    const companyId = req.params.id;
+
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      companyId,
+      {
+        $pull: { favorites: nominee },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedCustomer);
+  } catch (error) {
+    console.log("SELamu");
     res.status(500).json({ error: error.message });
   }
 };
@@ -178,62 +216,6 @@ exports.getNomineeByPositionId = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
-
-// exports.getRequestedNomineesById = async (req, res) => {
-//   try {
-//     const positionId = req.body.positionId;
-//     const isAdmin = req.body.isAdmin;
-//     const positions = await Position.findById(positionId);
-//     let requestedNominees = [];
-
-//     positions.skills.forEach((skill) => {
-//       skills.push(skill);
-//     });
-//     positions.requestedNominees.forEach((aday) => {
-//       requestedNominees.push(aday);
-//     });
-
-//     let sharedNominees = [];
-
-//     await Promise.all(
-//       sharedNomineesFromPosition.map(async (aday) => {
-//         const nominee = await Nominee.findById(aday);
-//         sharedNominees.push(nominee);
-//       })
-//     );
-
-//     let sharedNomineesRate = findMatches(skills, sharedNominees);
-
-//     let allCvs = [];
-
-//     if (isAdmin) {
-//       allCvs = await Nominee.find({
-//         _id: { $nin: sharedNominees.map((aday) => aday._id) },
-//       });
-//     } else {
-//       allCvs = await Nominee.find(
-//         {
-//           title: { $in: title },
-//           _id: { $nin: sharedNominees.map((aday) => aday._id) },
-//         },
-
-//         {
-//           name: 0,
-//           contact: 0,
-//         }
-//       );
-//     }
-
-//     let suggestedAllCvs = findMatches(skills, allCvs);
-//     console.log("nomienne:", suggestedAllCvs);
-//     res.status(200).json({
-//       sharedNominees: sharedNomineesRate,
-//       suggestedAllCvs: suggestedAllCvs,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error });
-//   }
-// };
 
 exports.addNominee = async (req, res) => {
   try {

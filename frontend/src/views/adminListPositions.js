@@ -9,6 +9,8 @@ import Notification from "../utils/notification";
 import FilterComponent from "../components/filterComponent"
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import Loading from '../components/loadingComponent';
+import io from 'socket.io-client';
+const socket = io("http://localhost:3000");
 const AdminListPosition = () => {
   const [positions, setPositions] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
@@ -146,7 +148,15 @@ const AdminListPosition = () => {
     fetchParameterOptions();
     fetchCompanyNames();
   }, []);
- 
+
+  useEffect(() => {
+    socket.on('positionListUpdated', (positions) => {
+      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
+      console.log('Yeni talep oluşturuldu:', positions);
+      setPositions(positions);
+  });
+  }, []);
+  
   const fetchPositions = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/positions`);

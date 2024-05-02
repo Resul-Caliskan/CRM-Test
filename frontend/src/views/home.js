@@ -1,14 +1,16 @@
-import React, {  useEffect } from 'react';
+import React, { useEffect } from "react";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../redux/authSlice';
-import { fetchData } from '../utils/fetchData';
-import UserNavbar from '../components/userNavbar';
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../redux/authSlice";
+import { fetchData } from "../utils/fetchData";
+import UserNavbar from "../components/userNavbar";
 import DashBoard from "../views/dashboard";
+import Notifications from "../views/notifications";
 import CVList from "../views/listCv";
 import ListPosition from "../views/listPosition";
+import CustomerParameters from "../views/customerParameters";
 import AddPosition from "../views/addPosition";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -16,20 +18,19 @@ const App = () => {
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
-  const navigate=useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if(user?.role === "admin")
-      navigate("/forbidden")
+    if (user?.role === "admin") navigate("/forbidden");
     if (!user || user.role === null) {
-      fetchData().then(data => {
-        dispatch(login(data.user));
-      }).catch(error => {
-        console.error(error);
-      });
+      fetchData()
+        .then((data) => {
+          dispatch(login(data.user));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-
   }, [user]);
   let renderComponent;
   switch (userSelectedOption) {
@@ -46,19 +47,23 @@ const App = () => {
       renderComponent = <ListPosition />;
       break;
     case "add-position":
-        renderComponent=<AddPosition/>
-        break;
+      renderComponent = <AddPosition />;
+      break;
+    case "notifications":
+      renderComponent = <Notifications />;
+      break;
+    case "parameters":
+      renderComponent = <CustomerParameters />;
+      break;
     default:
       renderComponent = <DashBoard />;
   }
- 
-  
+
   return (
     <div>
-      <UserNavbar/>
+      <UserNavbar />
       <div>{renderComponent}</div>
     </div>
-   
   );
 };
 export default App;

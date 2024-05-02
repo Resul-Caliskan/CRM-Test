@@ -10,6 +10,7 @@ import ListPosition from "../views/listPosition";
 import Parameters from "../views/parameters";
 import AdminListPosition from "../views/adminListPositions";
 import AddPosition from "../views/addPosition";
+import Notifications from "../views/notifications";
 import NavBar from '../components/adminNavBar';
 import DemandForm from './demand';
 import UserForm from './addUser';
@@ -68,6 +69,9 @@ const App = () => {
       case "add-user":
         renderComponent = <UserForm />;
         break;
+        case "notifications":
+          renderComponent = <Notifications />;
+          break;
     default:
       renderComponent = <ListCustomers />;
   }

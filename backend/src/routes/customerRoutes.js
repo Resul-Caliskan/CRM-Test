@@ -31,6 +31,15 @@ router.get(
 
 router.put("/add/:id", customerController.userAddToCustomer);
 
+router.put("/add-industry/:id", customerController.industryAddToCustomer);
+
+router.put("/delete-industry/:id", customerController.industryRemoveFromCustomer);
+
+router.get("/get-industry/:id", customerController.getCustomerIndustries);
+
+
+// router.put("/edit-industry/:id", customerController.editParameter);
+
 router.get(
   "/get/:name",
   authenticationMiddleware.authenticateToken,

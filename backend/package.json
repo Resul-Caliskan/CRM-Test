@@ -24,6 +24,7 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.11",
     "nodemon": "^3.1.0",
+    "socket.io": "^4.7.5",
     "socketio": "^1.0.0"
   },
   "devDependencies": {

@@ -1,11 +1,16 @@
-import React, { useEffect, useState ,useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import "./style.css";
 import hrhub from "../assets/hrhub.png";
-import { Button } from 'antd';
-import { LogoutOutlined } from '@ant-design/icons';
+import { Badge, Drawer } from 'antd';
+import { BellOutlined, LogoutOutlined } from '@ant-design/icons';
+import { getIdFromToken } from "../utils/getIdFromToken";
+import axios from "axios";
+import io from 'socket.io-client';
+import socket from "../config/config";
+
 export default function UserNavbar() {
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
@@ -16,14 +21,29 @@ export default function UserNavbar() {
   const { user } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const dropdownState = useRef(null);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const companyId = getIdFromToken(localStorage.getItem("token"));
+  const [notifications, setNotifications] = useState([]);
+  const [isNotificationChanged,setIsNotificationChanged]=useState(false);
+  const [loading, setLoading] = useState(false);
+
+
+  const toggleDrawer = () => {
+    setShowDrawer(!showDrawer);
+  };
 
   useEffect(() => {
     if (!localStorage.getItem("token")) navigate("/");
     if (user) firstLetter();
+    
 
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+      }
+      if (dropdownState.current && !dropdownState.current.contains(event.target)) {
+        setShowDrawer(false);
       }
     };
 
@@ -33,11 +53,52 @@ export default function UserNavbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
 
-  }, [user]);
+  }, []);
+  useEffect(() => {
+    if (!localStorage.getItem("token")) navigate("/");
+      fetchNotifications();
+    
+  }, [])
+  
+  useEffect(() => {
+
+    socket.on('createdNot', (notification) => {
+      if (notification.receiverCompanyId === companyId) {
+        setNotifications((prev) => [notification, ...prev]);
+      }
+    })
+    socket.on('deletedNot', (deletedNotification) => {
+      if (deletedNotification.receiverCompanyId === companyId) {
+        console.log("zartzort" + deletedNotification);
+        setNotifications((prev) => prev.filter(notification => notification._id !== deletedNotification));
+      }
+    });
+  
+  }, [])
+
+  const fetchNotifications = async () => {
+    setLoading(true);
+
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/notification/get-notifications/${companyId}`,
+
+      );
+      console.log(response.data.notifications);
+      const filteredNotifications = response.data.notifications.filter(notification => !notification.state).reverse();
+      setNotifications(filteredNotifications);
+    } catch (error) {
+      console.error(error + "Bildirimler alınamadı.")
+    }
+    setLoading(false);
+  };
+
+
   const handleOptionClick = (option) => {
     navigate("/home");
     dispatch(setUserSelectedOption(option));
   };
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -46,11 +107,32 @@ export default function UserNavbar() {
     localStorage.clear();
     return navigate("/");
   };
+  const updateNotifications = async (index) => {
+    try {
+      // Sunucuya bildirimin durumunu güncellemek için istek yap
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/notification/mark-as-read/${notifications[index]._id}`
+      );
+      setShowDrawer(false);
+    } catch (error) {
+      console.error("Bildirimin durumu güncellenirken bir hata oluştu:", error);
+    }
+    const updatedNotifications = [...notifications];
+    updatedNotifications[index].state = true;
+    setNotifications(updatedNotifications);
+
+    navigate(updatedNotifications[index].url);
+    console.log(updatedNotifications[index].url);
+  };
+  const handleNotifications = () => {
+    navigate("/home");
+    dispatch(setUserSelectedOption("notifications"));
+    setShowDrawer(false);
+  };
   const firstLetter = () => {
     let firstLetterOfName = user ? user.email[0].toUpperCase() : '';
     setLetter(firstLetterOfName);
   };
-
 
   return (
     <>
@@ -72,13 +154,37 @@ export default function UserNavbar() {
             </div>
           </div>
           <div className="avatar-container">
-            <div className="labels">
+            <Badge count={notifications.filter(notification => !notification.state).length} size="small" onClick={toggleDrawer} status="processing">
+              <BellOutlined className="text-gray-600 size-6 hover:text-blue-500 cursor-pointer" />
+            </Badge>
+            <Drawer
+              title="Bildirimler"
+              placement="right"
+              closable={true}
+              onClose={toggleDrawer}
+              visible={showDrawer}
+            >
+              <div className="notification-list">
+                {notifications.slice(0, 15).map((notification, index) => (
+                  <div key={index} className={`notification-item ${notification.state ? 'read' : 'unread'}`}>
+                    <p className={notification.state ? "text-gray-500" : ""} onClick={() => updateNotifications(index)}>
+                      <Badge status={notification.state ? "default" : "processing"} className="mr-2" style={{ dotSize: 16 }} />
+                      {notification.message}
+                    </p>
+                  </div>
 
+
+                ))}
+              </div>
+
+              <div className="show-more-button " onClick={handleNotifications}>
+                Tümünü Görüntüle
+              </div>
+
+            </Drawer>
+            <div className="labels">
               <label className="nameLabel">{user?.email}</label>
               <div className="roleLabel">
-
-
-
                 {user?.role
                   ? user?.role.charAt(0).toUpperCase() + user?.role.slice(1)
                   : ""}
@@ -89,13 +195,12 @@ export default function UserNavbar() {
             </div>
             {isOpen && (
               <ul className="user-dropdown-menu " ref={dropdownRef}>
-                <li className="logout-button" onClick={handleLogout} >Çıkış  <LogoutOutlined /></li>
+                <li className="logout-button" onClick={handleLogout}>Çıkış <LogoutOutlined /></li>
               </ul>
             )}
-
           </div>
         </div>
-        <ul class="menu">
+        <ul className="menu">
           <li className={`menu-item ${userSelectedOption === "dashboard" ? "selected" : ""}`}>
             <a href="#" onClick={() => handleOptionClick("dashboard")} className="menu-link">
               Anasayfa
@@ -111,9 +216,14 @@ export default function UserNavbar() {
               Pozisyonlar
             </a>
           </li>
+
+          {user.role==="user-admin"&&<li className={`menu-item ${userSelectedOption === "position" ? "selected" : ""}`}>
+            <a href="#" className="menu-link" onClick={() => handleOptionClick("parameters")}>
+              Parametreler
+            </a>
+          </li>}
         </ul>
       </div>
-      
     </>
   );
 }

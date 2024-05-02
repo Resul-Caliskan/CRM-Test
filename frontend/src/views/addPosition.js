@@ -1,5 +1,15 @@
 import React, { useEffect, useState, createContext } from "react";
-import { Form, DatePicker, Button, Select, Input, Modal, Space, Alert, Popover } from "antd";
+import {
+  Form,
+  DatePicker,
+  Button,
+  Select,
+  Input,
+  Modal,
+  Space,
+  Alert,
+  Popover,
+} from "antd";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import axios from "axios";
 import Notification from "../utils/notification";
@@ -12,17 +22,17 @@ import EditableContent from "../components/htmlEditor";
 import Loading from "../components/loadingComponent";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { City, Country, State } from "country-state-city";
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { InfoCircleOutlined } from "@ant-design/icons";
+import socket from "../config/config";
 dayjs.extend(customParseFormat);
-const dateFormat = 'DD-MM-YYYY';
+const dateFormat = "DD-MM-YYYY";
 const today = dayjs();
 const ReachableContext = createContext(null);
 const UnreachableContext = createContext(null);
 const preferredSector = (
-
   <div className="relative z-50 bg-gray-50 p-6 rounded-lg ">
     <p>Bu alana tercih ettiğiniz sektörleri ekleyebilirsiniz.</p>
     <p>Burada belirtilen sektörler, profilinizdeki </p>
@@ -71,8 +81,11 @@ const AddPosition = () => {
   const [bannedCompanies, setBannedCompanies] = useState(null);
   const [industry, setIndustry] = useState(null);
   const [preferredCompanies, setPreferredCompanies] = useState(null);
+  const companyId = getIdFromToken(localStorage.getItem("token"));
   const { user } = useSelector((state) => state.auth);
   const [modal, contextHolder] = Modal.useModal();
+  const [industries, setIndustries] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL;
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
@@ -82,34 +95,29 @@ const AddPosition = () => {
   const findIsoCode = (countryName) => {
     countryData.forEach((item) => {
       if (item.name === countryName) setIsoCode(item.isoCode);
-
     });
   };
 
   const handleBannedCompaniesChange = (value) => {
-
     if (!Array.isArray(value)) {
-      value = value.split('\n');
+      value = value.split("\n");
     }
     setBannedCompanies(value);
   };
 
   const handlePreferredCompaniesChange = (value) => {
-
     if (!Array.isArray(value)) {
-      value = value.split('\n');
+      value = value.split("\n");
     }
     setPreferredCompanies(value);
   };
 
   const handleIndustryChange = (value) => {
-
     if (!Array.isArray(value)) {
-      value = value.split('\n');
+      value = value.split("\n");
     }
     setIndustry(value);
   };
-
 
   const handleDateChange = (date, dateString) => {
     setSelectedDate(dateString);
@@ -125,13 +133,22 @@ const AddPosition = () => {
   };
 
   const handleCountyChange = (value) => {
-
     const selectedCountyInfo = countyData.find(
       (county) => county.name === value
     );
     setCounty(selectedCountyInfo);
   };
   const navigate = useNavigate();
+  const fetchIndustries = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/api/customers/get-industry/${companyId}`
+      );
+      setIndustries(response.data.industries);
+    } catch (error) {
+      console.error("Error fetching industries:", error);
+    }
+  };
   useEffect(() => {
     if (!user || user.role === null) {
       fetchData()
@@ -151,6 +168,7 @@ const AddPosition = () => {
     }
     form.setFieldsValue({ description: contentValue });
     fetchCompany();
+    fetchIndustries();
     findIsoCode(selectedCompany?.companycountry);
   }, [contentValue, form, isoCode]);
 
@@ -262,40 +280,94 @@ const AddPosition = () => {
             companyName: companies[values.companyName].companyname,
           }
         );
+        try {
+          const response2 = await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/notification/add`,
+            {
+              message:
+                "Şirketiniz için  " +
+                values.jobtitle +
+                " pozisyonunu oluşturdu.",
+              type: "nomineeDemand",
+              url: `/position-detail/${response.data.positionId}`,
+              companyId: "660688a38e88e341516e7acd",
+              positionId: response.data.positionId,
+              receiverCompanyId: companies[values.companyName]._id,
+            }
+          );
+          console.log("BİLDİRİM GİTTTİİİ" + response2);
+          socket.emit("positionCreated", response2.data.notificationId);
+        } catch (error) {
+          console.error(error + "bildirim iletilemedi.");
+        }
       } else {
         const companyId = getIdFromToken(localStorage.getItem("token"));
-        const companyName = await axios
-          .get(
+
+        try {
+          const companyNameResponse = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/customers/getname/${companyId}`
-          )
-          .then((response) => {
-            return response.data.customername;
-          })
-          .catch((error) => {
-            console.error("name fetching error:", error);
-          });
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/positions`,
-          {
-            department: values.department,
-            jobtitle: values.jobtitle,
-            experienceperiod: values.experienceperiod,
-            modeofoperation: values.modeofoperation,
-            description: values.description,
-            worktype: values.workingType,
-            skills: values.skills,
-            positionCountry: isoCode,
-            positionCity: state.name,
-            positionCounty: county.name,
-            industry: industry,
-            positionAdress: values.address,
-            preferredCompanies: preferredCompanies,
-            bannedCompanies: bannedCompanies,
-            dateOfStart: selectedDate,
-            companyId: companyId,
-            companyName: companyName,
+          );
+
+          const companyName = companyNameResponse.data.customername;
+
+          const response = await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/positions`,
+            {
+              department: values.department,
+              jobtitle: values.jobtitle,
+              experienceperiod: values.experienceperiod,
+              modeofoperation: values.modeofoperation,
+              description: values.description,
+              worktype: values.workingType,
+              skills: values.skills,
+              positionCountry: isoCode,
+              positionCity: state.name,
+              positionCounty: county.name,
+              industry: industry,
+              positionAdress: values.address,
+              preferredCompanies: preferredCompanies,
+              bannedCompanies: bannedCompanies,
+              dateOfStart: selectedDate,
+              companyId: companyId,
+              companyName: companyName,
+            }
+          );
+          const newIndustries = industry.filter(
+            (ind) => !industries.includes(ind)
+          );
+
+          await Promise.all(
+            newIndustries.map(async (newIndustry) => {
+              await axios.put(
+                `${apiUrl}/api/customers/add-industry/${companyId}`,
+                { industry: newIndustry }
+              );
+            })
+          );
+          try {
+            const response2 = await axios.post(
+              `${process.env.REACT_APP_API_URL}/api/notification/add`,
+              {
+                message:
+                  companyName +
+                  " için " +
+                  values.jobtitle +
+                  " pozisyon oluşturuldu.",
+                type: "nomineeDemand",
+                url: `/admin-position-detail/${response.data.positionId}`,
+                companyId: companyId,
+                positionId: response.data.positionId,
+                receiverCompanyId: "660688a38e88e341516e7acd",
+              }
+            );
+            console.log("BİLDİRİM GİTTTİİİ" + response);
+            socket.emit("positionCreated", response2.data.notificationId);
+          } catch (error) {
+            console.error(error + "bildirim iletilemedi.");
           }
-        );
+        } catch (error) {
+          console.error("name fetching error:", error);
+        }
       }
 
       Notification(
@@ -325,19 +397,15 @@ const AddPosition = () => {
   const handleCompanyChange = (value) => {
     setSelectedCompany(value);
     findIsoCode(companies[value]?.companycountry);
-
   };
   return (
     <>
-
       {loading ? (
         <Loading />
       ) : (
         <div className="body">
           <div className="w-full">
-            <h2 className="text-center text-2xl">
-              Pozisyon Ekle
-            </h2>
+            <h2 className="text-center text-2xl">Pozisyon Ekle</h2>
             <button
               className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
               onClick={() => {
@@ -381,8 +449,8 @@ const AddPosition = () => {
                   <Select
                     placeholder="Şirket Seç"
                     onChange={(value) => {
-                      handleCompanyChange(value)
-                      handleCountryChange(value)
+                      handleCompanyChange(value);
+                      handleCountryChange(value);
                     }}
                   >
                     {companies.map((company, index) => (
@@ -489,7 +557,9 @@ const AddPosition = () => {
               <Form.Item
                 label="Sözleşme Tipi"
                 name="workingType"
-                rules={[{ required: true, message: "Sözleşme Tipini Giriniz!" }]}
+                rules={[
+                  { required: true, message: "Sözleşme Tipini Giriniz!" },
+                ]}
               >
                 <Select
                   showSearch
@@ -513,7 +583,12 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Tercih Edilen Sektörler <Popover content={preferredSector} title="Tercih Edilen Sektörler" trigger={"click"} >
+                        Tercih Edilen Sektörler{" "}
+                        <Popover
+                          content={preferredSector}
+                          title="Tercih Edilen Sektörler"
+                          trigger={"click"}
+                        >
                           <InfoCircleOutlined className="text-blue-500" />
                         </Popover>
                       </span>
@@ -524,24 +599,40 @@ const AddPosition = () => {
                 }
                 name="industry"
               >
-                <Select
-                  mode="tags"
-                  showSearch
-                  optionFilterProp="children"
-                  placeholder="Sektör Seç"
-                  onChange={handleIndustryChange}
-                >
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Sektör") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
-                    }
-                    return null;
-                  })}
-                </Select>
+                 {user.role === "admin" ? (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Sektör Seç"
+                    onChange={handleIndustryChange}
+                  >
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Sektör") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                ) : (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Sektör Seç"
+                    onChange={handleIndustryChange}
+                  >
+                    {industries.map((industry, index) => (
+                      <Option key={`${index}`} value={industry}>
+                        {industry}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               </Form.Item>
               <Form.Item
                 label="Teknik Beceriler"
@@ -573,7 +664,12 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Yasaklı Şirketler <Popover content={bannedCompany} trigger={"click"} title="Yasaklı Şirketler">
+                        Yasaklı Şirketler{" "}
+                        <Popover
+                          content={bannedCompany}
+                          trigger={"click"}
+                          title="Yasaklı Şirketler"
+                        >
                           <InfoCircleOutlined className="text-blue-500" />
                         </Popover>
                       </span>
@@ -582,7 +678,8 @@ const AddPosition = () => {
                     <UnreachableContext.Provider value="Bamboo" />
                   </ReachableContext.Provider>
                 }
-                name="bannedcompanies">
+                name="bannedcompanies"
+              >
                 <Select
                   mode="tags"
                   showSearch
@@ -608,17 +705,22 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Tercih Edilen Şirketler <Popover content={preferredCompany} trigger={"click"} title="Tercih Edilen Şirketler">
+                        Tercih Edilen Şirketler{" "}
+                        <Popover
+                          content={preferredCompany}
+                          trigger={"click"}
+                          title="Tercih Edilen Şirketler"
+                        >
                           <InfoCircleOutlined className="text-blue-500" />
                         </Popover>
                       </span>
-
                     </Space>
                     {contextHolder}
                     <UnreachableContext.Provider value="Bamboo" />
                   </ReachableContext.Provider>
                 }
-                name="preferredcompanies">
+                name="preferredcompanies"
+              >
                 <Select
                   mode="tags"
                   showSearch
@@ -667,26 +769,30 @@ const AddPosition = () => {
                   placeholder="Şehir seç"
                   optionFilterProp="children"
                   onChange={(value) => {
-
                     handleCityChange(value);
-
                   }}
                   filterOption={(input, option) => {
-
                     if (isoCode === "TR") {
-
                       const normalizedInput = input
                         .toString()
-                        .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                        .replace(/[İIı]/g, (match, offset) =>
+                          offset === 0 ? "i" : "i"
+                        )
                         .toLowerCase();
                       const normalizedOption = option.children
                         .toString()
-                        .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                        .replace(/[İIı]/g, (match, offset) =>
+                          offset === 0 ? "i" : "i"
+                        )
                         .toLowerCase();
                       return normalizedOption.includes(normalizedInput);
-                    }
-                    else {
-                      return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                    } else {
+                      return (
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(input.toString().toLowerCase()) >= 0
+                      );
                     }
                   }}
                 >
@@ -713,20 +819,27 @@ const AddPosition = () => {
                     handleCountyChange(value);
                   }}
                   filterOption={(input, option) => {
-
                     if (isoCode === "TR") {
                       const normalizedInput = input
                         .toString()
-                        .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                        .replace(/[İIı]/g, (match, offset) =>
+                          offset === 0 ? "i" : "i"
+                        )
                         .toLowerCase();
                       const normalizedOption = option.children
                         .toString()
-                        .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
+                        .replace(/[İIı]/g, (match, offset) =>
+                          offset === 0 ? "i" : "i"
+                        )
                         .toLowerCase();
                       return normalizedOption.includes(normalizedInput);
-                    }
-                    else {
-                      return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
+                    } else {
+                      return (
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .indexOf(input.toString().toLowerCase()) >= 0
+                      );
                     }
                   }}
                 >

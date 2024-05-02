@@ -6,7 +6,11 @@ router.post("/nominee/add", nomineeController.addNominee);
 
 router.post("/nominee/get-nominees", nomineeController.getNomineeByCompanyId);
 
-router.post("/nominee/add-favorites", nomineeController.addFavorite);
+router.put("/nominee/add-favorites/:id", nomineeController.addFavorite);
+
+router.put("/nominee/delete-favorites/:id", nomineeController.deleteFavorites);
+
+router.get("/nominee/get-favorites/:id", nomineeController.getAllFavorites);
 
 router.post(
   "/nominee/get-position-nominees",

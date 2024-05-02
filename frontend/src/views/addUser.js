@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Form, Input, Button, Select } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -46,13 +45,16 @@ const UserForm = () => {
 
   const handleFormSubmit = async (values) => {
     setLoading(true);
+    console.log("numaraa" + phone);
+
     try {
       const formData = {
         companyName: values.companyName,
         firstName: values.firstName,
         lastName: values.lastName,
+        role:values.role,
         email: values.email,
-        phone: values.phone,
+        phone: phone,
       };
 
       const companyId = companies[formData.companyName]._id;
@@ -62,8 +64,9 @@ const UserForm = () => {
         `${process.env.REACT_APP_API_URL}/api/customers/add/${companyId}`,
         {
           email: formData.email,
-          password: "şifre",
-          role: "user",
+          password: "123456",
+          role: formData.role,
+          phone: formData.phone,
         }
       );
       // Check if the user addition was successful
@@ -91,20 +94,16 @@ const UserForm = () => {
       setLoading(false);
       if (error.response && error.response.status === 409) {
         setLoading(false);
-        
-        console.log("sdds:"+ error.response.data.error);
+
+        console.log("sdds:" + error.response.data.error);
         Notification("error", error.response.data.error);
       } else {
         // If other errors occur, log and notify the user
         console.error("İstek yapılırken bir hata oluştu:", error);
         Notification("error", "Kullanıcı eklenirken hata oluştu");
       }
-    } 
-      
-     
-    
+    }
   };
-
 
   return (
     <div className="flex justify-center items-center">
@@ -157,6 +156,20 @@ const UserForm = () => {
               ))}
             </Select>
           </Form.Item>
+
+          <Form.Item
+            label="Kullanıcı Rolü Seç"
+            name="role"
+            rules={[
+              { required: true, message: "Lütfen kullanıcı rolü seçiniz!" },
+            ]}
+          >
+            <Select placeholder="Rol Seçiniz">
+              <Option value="user">Kullanıcı</Option>
+              <Option value="user-admin">Kullanıcı-Admin</Option>
+            </Select>
+          </Form.Item>
+
           <Form.Item
             label="İsim"
             name="firstName"
@@ -229,4 +242,3 @@ const UserForm = () => {
 };
 
 export default UserForm;
-

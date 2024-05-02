@@ -14,7 +14,6 @@ import ListDemand from './views/listDemand';
 import DemandForm from './views/demand';
 import AddPosition from './views/addPosition';
 import ListPosition from './views/listPosition';
-import ListCustomers from './views/listCustomer';
 import PdfViewer from './views/viewCv';
 import EditPosition from './views/editPosition';
 import PositionDetail from './views/poisitionDetail';

@@ -6,10 +6,11 @@ import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleO
 import { useNavigate } from "react-router-dom";
 import ConfirmPopUp from "./areUSure";
 import "./style.css";
- 
- 
-const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name, notification }) => {
+
+
+const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name, notification, checkbox }) => {
   const [selectedItems, setSelectedItems] = useState([]);
+
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [selectionType, setSelectionType] = useState("checkbox");
@@ -18,16 +19,16 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
   const showPopconfirm = () => {
     setOpen(true);
   };
- 
+
   const handleOk = () => {
     setConfirmLoading(true);
- 
+
     setTimeout(() => {
       setOpen(false);
       setConfirmLoading(false);
     }, 2000);
   };
- 
+
   const handleCancel = () => {
     setOpen(false);
   };
@@ -45,14 +46,14 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
       setSelectedItems(updatedItems);
     }
   };
- 
+
   const dispatch = useDispatch();
- 
+
   const handleOptionClick = (option) => {
     dispatch(setSelectedOption(option));
   };
- 
- 
+
+
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
@@ -62,7 +63,7 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
       name: record.name,
     }),
   };
- 
+
   return (
     <div className="body">
       <div className="searchFilterButton">
@@ -72,13 +73,13 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
               placeholder="Ara"
               className="searchButton"
               onChange={handleSearch}
- 
+
               suffix={<SearchOutlined />}
             ></Input>
           </div>
           <div className="filterSearch">
             {dropdowns}
- 
+
           </div>
         </div>
         <div className="crudButtons">
@@ -109,9 +110,8 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
         </div>
         <div className="listData">
           <div className="onlyData">
- 
+
             <Table
- 
               columns={[
                 ...columns,
                 {
@@ -119,7 +119,7 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                   key: 'action',
                   render: (text, record) => (
                     <Space size="small" className="flex justify-center items-center">
-                    
+
                       {handleDelete && (
                         <ConfirmPopUp handleDelete={handleDelete} id={record.id} isConfirm={false} />
                       )}
@@ -128,29 +128,29 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                         icon={<EditOutlined />}
                         onClick={() => {
                           handleUpdate(record.id);
- 
+
                         }}
                       >
                       </Button>}
-                      
+
                       {handleApprove &&
                         <ConfirmPopUp handleConfirm={handleApprove} record={record} isConfirm={true} />
                       }
                       {notification ?
-                         <button onClick={() => handleDetail(record.id)}>
-                         {console.log("idfaf:",record)}
+                        <button onClick={() => handleDetail(record.id)}>
+                          {console.log("idfaf:", record)}
                           <Badge count={record.requestedNominees?.length} className="" size="small">
                             <Avatar className="bg-white text-blue-500" shape="square" icon={<InfoCircleOutlined />} size="medium" />
                           </Badge>
                         </button> :
                         handleDetail && <Button
-                        type="link"
-                        icon={<InfoCircleOutlined />}
-                        onClick={() => handleDetail(record.id)}
-                      >
-                      </Button>}
-                      
-                      
+                          type="link"
+                          icon={<InfoCircleOutlined />}
+                          onClick={() => handleDetail(record.id)}
+                        >
+                        </Button>}
+
+
                     </Space>
                   ),
                 },
@@ -163,10 +163,10 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
                 total: data.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
- 
- 
+
+
                 pageSizeOptions: ['10', '20', '30', '40', '50'],
- 
+
               }}
             />
           </div>

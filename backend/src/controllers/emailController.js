@@ -15,7 +15,7 @@ const sendEmail = async (req, res) => {
       },
     });
     const users = await User.findOne({ email: req.body.recipientEmail });
-    const id = users._id;
+    const id = users?._id;
     const mailToken = jwt.sign({ id }, config.secretKey, {
       expiresIn: "10d",
     });

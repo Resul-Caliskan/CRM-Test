@@ -1,5 +1,4 @@
 const Position = require("../models/position");
-
 exports.addPosition = async (req, res) => {
   try {
     const newPosition = new Position({
@@ -21,7 +20,7 @@ exports.addPosition = async (req, res) => {
       positionCounty: req.body.positionCounty,
       positionCountry: req.body.positionCountry,
     });
-    
+
     const duplicates = newPosition.requestedNominees.filter((value, index, self) => self.indexOf(value) !== index);
     if (duplicates.length > 0) {
       throw new Error('Duplicate entries found in requestedNominees.');
@@ -29,7 +28,7 @@ exports.addPosition = async (req, res) => {
 
     await newPosition.save();
 
-    res.status(201).json({ message: "Pozisyon başarıyla eklendi." });
+    res.status(201).json({ message: "Pozisyon başarıyla eklendi." , positionId:newPosition._id});
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
@@ -132,10 +131,18 @@ exports.requestNominee = async (req, res) => {
     const nominee = req.body.nomineeId;
     const id = req.params.id;
 
+    // İlgili pozisyonu bul
     const position = await Position.findById(id);
+
+    // Eğer aday zaten talep edilmişse hata döndür
     if (position.requestedNominees.includes(nominee)) {
       return res.status(400).json({ error: "Bu aday zaten talep edilmiş." });
     }
+
+    // Talep sayısını artır
+    const demandCount = position.requestedNominees.length + 1;
+
+    // Pozisyonu güncelle
     const updatedPosition = await Position.findByIdAndUpdate(
       id,
       {
@@ -143,11 +150,17 @@ exports.requestNominee = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).json(updatedPosition);
+
+    // Talep sayısını WebSocket üzerinden gönder
+    //io.emit(`positionDemandCountUpdated_${id}`, demandCount);
+
+    // Güncellenmiş pozisyonu ve talep sayısını döndür
+    res.status(200).json({ updatedPosition, demandCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.deleteRequestedNomineeFromPosition = async (req, res) => {
   try {
@@ -202,7 +215,7 @@ exports.deleteNomineeIdFromPosition = async (req, res) => {
 
 exports.moveRequestedNomineeToSharedNominees = async (req, res) => {
   try {
-   
+
     const nomineeId = req.body.nomineeId;
 
     const updatedPosition = await Position.findByIdAndUpdate(
@@ -210,7 +223,7 @@ exports.moveRequestedNomineeToSharedNominees = async (req, res) => {
       {
         $pull: { requestedNominees: nomineeId },
         $push: { sharedNominees: nomineeId },
-       
+
       },
 
       { new: true }

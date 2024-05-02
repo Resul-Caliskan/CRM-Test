@@ -1,7 +1,53 @@
 .header {
     font-family: 'SF Pro Text', sans-serif;
 }
+.dropdownButton {
+    width: auto;
+    background-color: #F9F9F9;
+    border: none;
+    cursor: pointer;
+    color: var(--colorPrimaryBase, #0057D9);
+    font-family: "SF Pro Text", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    padding: 0 10px; 
+}
 
+.dropdownButton:hover,
+.dropdownButton.selected {
+    color: #000000; 
+}
+
+.notification-list{
+    margin-top: -20px;
+}
+.show-more-button {
+    background-color: #f0f0f0;
+    padding: 4px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 15px;
+    border: 1px solid #ccc;
+  }
+  
+  .show-more-button:hover {
+    background-color: #e0e0e0;
+  }
+
+  .notification-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .notification-item:hover {
+    color:cornflowerblue;
+    cursor: pointer;
+    border-radius: 4px; 
+    padding: 4;
+  }
+  
 .user-dropdown-menu {
     position: absolute;
     top: calc(100% + 5px);
@@ -119,7 +165,7 @@
 .rightTab{
     right: 0;
     height: calc(100vh - 125px);
-    width: calc(100vw - 300px);
+    width: calc(100vw - 274px);
     background-color: #F9F9F9;
     position: absolute;
 

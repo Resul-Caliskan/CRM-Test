@@ -18,6 +18,9 @@ import UserNavbar from "../components/userNavbar";
 import Loading from "../components/loadingComponent";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { Badge } from "antd";
+import socket from "../config/config";
+
+
 const AdminPositionDetail = () => {
 
   const [nominees, setNominees] = useState([]);
@@ -32,7 +35,7 @@ const AdminPositionDetail = () => {
   const { id } = useParams();
   const [show, setShow] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-
+  const [numOfReqNominees, setNumOfReqNominees] = useState(0);
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -48,6 +51,24 @@ const AdminPositionDetail = () => {
   };
   const navigate = useNavigate();
 
+  useEffect(() => {
+
+    socket.on('demandCreated', (response) => {
+      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
+      console.log(response);
+      if (response.id === id) {
+        console.log("burayayda geldiidii");
+        setRequestedNominees(response.allCVs.requestedNominees);
+        setNominees(response.allCVs.sharedNominees);
+        setSuggestedNominees(response.allCVs.suggestedAllCvs);
+      }
+
+
+
+      // Örneğin, DOM manipülasyonu yaparak HTML içinde bu veriyi gösterebilirsiniz.
+    });
+
+  }, [])
   useEffect(() => {
     if (user && user.role !== "admin") {
       navigate("/forbidden");
@@ -67,8 +88,8 @@ const AdminPositionDetail = () => {
     getPositionById(id);
   }, [id]);
 
- 
- 
+
+
   const getPositionById = async (id) => {
     setLoading(true);
     try {
@@ -93,13 +114,13 @@ const AdminPositionDetail = () => {
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
         { positionId: id, isAdmin: true }
       );
-      console.log("response"+response.data.suggestedNominees);
+
       const nomineesData = response.data.sharedNominees;
       const suggestedData = response.data.suggestedAllCvs;
       const requestedNominees = response.data.requestedNominees;
-      console.log("REQUESTED NEPMÖAİDFÖSLK:::  "+requestedNominees);
 
-    
+
+
 
       setNominees(nomineesData);
       setSuggestedNominees(suggestedData);
@@ -165,12 +186,14 @@ const AdminPositionDetail = () => {
 
       setNominees(newNominees);
       setSuggestedNominees(newSuggestedNominees);
+
       try {
         const response = axios.put(
           `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
           { nomineeId: movedNominee.cv._id }
         );
         Notification("success", `${movedNominee.cv?.name} Başarıyla Eklendi`);
+        socket.emit("createDemand", id);
       } catch (error) { }
     } else if (destination.droppableId === "suggestedNominees") {
       const movedNominee = nominees.find(
@@ -194,6 +217,7 @@ const AdminPositionDetail = () => {
           { nomineeId: movedNominee.cv._id }
         );
         Notification("success", `${movedNominee.cv?.name} Başarıyla Silindi`);
+        socket.emit("createDemand", id);
       } catch (error) { }
     }
   };
@@ -233,6 +257,7 @@ const AdminPositionDetail = () => {
         { nomineeId: movedNominee.cv._id }
       );
       Notification("success", `${movedNominee.cv?.name} Başarıyla Eklendi`);
+      socket.emit("createDemand", id);
     } catch (error) { }
   };
 
@@ -254,53 +279,99 @@ const AdminPositionDetail = () => {
         { nomineeId: movedNominee.cv._id }
       );
       Notification("success", `${movedNominee.cv?.name} Başarıyla Silindi`);
+      socket.emit("createDemand", id);
     } catch (error) { }
   };
 
-  const removeNomineeFromDemanded =(nomineeId)=>{
-   
+  const removeNomineeFromDemanded = async (nomineeId) => {
+
     try {
-      const response = axios.put(
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/delete-request/${id}`,
         { nomineeId: nomineeId }
-        
+
       );
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/notification/add`,
+          {
+            message:
+              position.companyName +
+              " " +
+              position.jobtitle +
+              " pozisyonu için talep edilen aday reddedildi.",
+            type: "nomineeDemand",
+            url: `/position-detail/${id}`,
+            companyId: "660688a38e88e341516e7acd",
+            positionId: id,
+            nomineeId: nomineeId,
+            receiverCompanyId: position.companyId,
+          }
+        );
+        console.log("BİLDİRİM GİTTTİİİ" + response);
+        socket.emit("notificationCreated", response.data.notificationId);
+      } catch (error) {
+        console.error(error + " bildirim iletilemedi.");
+      }
       const movedNominee = requestedNominees.find(
         (nominee) => nominee.cv._id === nomineeId
       );
       const newNominees = requestedNominees.filter(
         (nominee) => nominee.cv._id !== nomineeId
-      ); 
+      );
       setRequestedNominees(newNominees);
+      socket.emit("createDemand", id);
       Notification("success", ` Başarıyla Silindi`);
-    } catch (error) { 
+    } catch (error) {
       Notification("error", ` İşlem gerçekleşirken bir hata oluştu.`);
     }
   }
 
 
-  const acceptNomineeFromDemanded=(nomineeId)=>{
+  const acceptNomineeFromDemanded = async (nomineeId) => {
     const movedNominee = requestedNominees.find(
       (nominee) => nominee.cv._id === nomineeId
     );
     const newNominees = requestedNominees.filter(
       (nominee) => nominee.cv._id !== nomineeId
     );
-    try{
-      const response = axios.put(
+    try {
+      const response2 = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/accept/${id}`,
         { nomineeId: nomineeId }
-        
       );
+
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/notification/add`,
+          {
+            message:
+              position.companyName +
+              " " +
+              position.jobtitle +
+              " pozisyonu için talep edilen aday onaylandı.",
+            type: "nomineeDemand",
+            url: `/position-detail/${id}`,
+            companyId: "660688a38e88e341516e7acd",
+            positionId: id,
+            nomineeId: nomineeId,
+            receiverCompanyId: position.companyId,
+          }
+        );
+        console.log("BİLDİRİM GİTTTİİİ" + response);
+        socket.emit("notificationCreated", response.data.notificationId);
+      } catch (error) {
+        console.error(error + " bildirim iletilemedi.");
+      }
+
       setRequestedNominees(newNominees);
       setNominees([...nominees, movedNominee]);
+      socket.emit("createDemand", id);
       Notification("success", ` Başarıyla Onaylandı`);
-    }catch ( error){
+    } catch (error) {
       Notification("error", ` onaylanırken bir hata oluştu.`);
     }
-   
-
-  }
+  };
 
 
   return (
@@ -558,12 +629,12 @@ const AdminPositionDetail = () => {
                         Talep Edilen Adaylar
                       </h3>
                       <div >
-                        { requestedNominees.map((nominee, index) => (
+                        {requestedNominees.map((nominee, index) => (
                           <div
 
                             className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
                           >
-                             <CircularBar nominee={nominee}></CircularBar> 
+                            <CircularBar nominee={nominee}></CircularBar>
 
                             <p>
                               <strong>Unvan:</strong> {nominee.cv?.title}
