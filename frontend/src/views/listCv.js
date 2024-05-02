@@ -82,10 +82,6 @@ const CVList = () => {
           favoriteCvs.push(cv);
         }
       });
-
-      console.log("FAVORİ SHARED " + favoriteSharedItems);
-      console.log("SİKTİMİN CVSİ " + favoriteCvs);
-
       // Favori adayları listelerini state'e ata
       if (favoriteSharedItems) {
         setFavoriteSharedNominees(favoriteSharedItems);
@@ -221,7 +217,7 @@ const CVList = () => {
         { nomineeId: nominee._id }
       );
       if (isShared) {
-        console.log("GİRDİ" + nominee.title);
+       
         setFavoriteSharedNominees([...favoriteSharedNominees, nominee]);
       } else {
         setFavoriteCvs([...favoriteCvs, nominee]);
@@ -426,7 +422,7 @@ const CVList = () => {
                             >
                               <h4 className="font-semibold text-lg mb-2">
                                 Unknown{" "}
-                                <FaStar
+                                {/* <FaStar
                                   value={favorites}
                                   style={{
                                     fontSize: "24px",
@@ -435,7 +431,7 @@ const CVList = () => {
                                   onClick={() => {
                                     handleAddToFavorites(nominee, false);
                                   }}
-                                />
+                                /> */}
                               </h4>
                               <p>
                                 <strong>Unvan:</strong>
@@ -627,7 +623,7 @@ const CVList = () => {
                             >
                               <h4 className="font-semibold text-lg mb-2">
                                 Unknown{" "}
-                                <FaStar
+                                {/* <FaStar
                                   value={favorites}
                                   style={{
                                     fontSize: "24px",
@@ -636,7 +632,7 @@ const CVList = () => {
                                   onClick={() => {
                                     handleAddToFavorites(nominee, false);
                                   }}
-                                />
+                                /> */}
                               </h4>
                               <p>
                                 <strong>Unvan:</strong>
@@ -701,104 +697,9 @@ const CVList = () => {
                   <TabPanel>
                     <div className="cols-span-1 p-4 md:border-r-2">
                       <ul>
-                        {console.log("FAVORİ CVLER" + favoriteCvs)}
-                        {favoriteCvs &&
-                          favoriteCvs.map((nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox duration-150 p-4 rounded border shadow mb-4 relative"
-                            >
-                              <div className="flex justify-between">
-                                <h4 className="font-semibold text-lg mb-2 ">
-                                  Unknown
-                                  <FaStar
-                                    value={favorites}
-                                    style={{
-                                      fontSize: "24px",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() =>
-                                      handleDeleteFavorites(nominee,false)
-                                    }
-                                  />
-                                </h4>
-                                <h4>
-                                  <div className="flex flex-col items-center ">
-                                    <h4 className="font-semibold text-lg">
-                                      Adayın Önerildiği Pozisyon:{" "}
-                                    </h4>
-                                    <h4
-                                      className="font-semibold text-md mb-2 underline cursor-pointer"
-                                      onClick={() =>
-                                        handlePositionDetails(
-                                          nominee?.position?.id
-                                        )
-                                      }
-                                    >
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={
-                                          nominee?.position?.title || ""
-                                        }
-                                      />
-                                    </h4>
-                                  </div>
-                                </h4>
-                              </div>
-
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={nominee.title || ""}
-                                />
-                              </p>
-                              {nominee.education.map((edu, index) => (
-                                <ul>
-                                  <li key={index}>
-                                    <div>
-                                      <strong>Degree:</strong>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={edu.degree || ""}
-                                      />
-                                    </div>
-                                  </li>
-                                </ul>
-                              ))}
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.skills.map((skill, index) => (
-                                  <li key={index}>
-                                    <Highlighter
-                                      highlightClassName="highlighted"
-                                      searchWords={[searchTerm]}
-                                      autoEscape={true}
-                                      textToHighlight={skill || ""}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee, true)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
-                          ))}
-                        {console.log(
-                          "FAVORİ SİKTİM paylaşılan" + favoriteSharedNominees
-                        )}
+                      
+                        
+                       
 
                         {favoriteSharedNominees &&
                           favoriteSharedNominees.map((nominee, index) => (
