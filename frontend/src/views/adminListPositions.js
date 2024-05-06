@@ -9,8 +9,8 @@ import Notification from "../utils/notification";
 import FilterComponent from "../components/filterComponent"
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import Loading from '../components/loadingComponent';
-import io from 'socket.io-client';
-const socket = io("http://localhost:3000");
+import socket from '../config/config';
+
 const AdminListPosition = () => {
   const [positions, setPositions] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
