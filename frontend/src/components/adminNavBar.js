@@ -55,7 +55,6 @@ export default function NavBar() {
       }
     });
     socket.on("deletedNot", (deletedNotification) => {
-      console.log("geldi" + deletedNotification);
       setNotifications((prev) =>
         prev.filter(
           (notification) => notification._id !== deletedNotification._id
@@ -135,6 +134,7 @@ export default function NavBar() {
     setLetter(firstLetterOfName);
   };
   const handleProfile = () => {
+    navigate("/adminhome");
     dispatch(setSelectedOption("profile"));
   };
   return (
@@ -157,7 +157,6 @@ export default function NavBar() {
             </div>
           </div>
           <div className="avatar-container ">
-          
             <Badge
               count={
                 notifications.filter((notification) => !notification.state)

@@ -34,9 +34,8 @@ const DemandNomineeModel = ({
   };
 
   const handleRequest = async () => {
-    console.log(positions[selectedPositionIndex]);
     const id = positions[selectedPositionIndex]._id;
-    console.log(nomineeId);
+
     try {
       const response2 = await axios.put(
         `${apiUrl}/api/positions/request/${id}`,
@@ -74,8 +73,6 @@ const DemandNomineeModel = ({
           // Güncellenmiş pozisyon listesini döndür
           return updatedPositions;
         });
-        console.log(positions[selectedPositionIndex].requestedNominees);
-        console.log(positions[selectedPositionIndex].requestedNominees);
       } catch (error) {
         console.error(error + "bildirim iletilemedi.");
       }

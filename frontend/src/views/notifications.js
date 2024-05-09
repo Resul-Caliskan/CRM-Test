@@ -5,7 +5,6 @@ import { CheckOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { getIdFromToken } from "../utils/getIdFromToken";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client";
 import socket from "../config/config";
 import { useTranslation } from "react-i18next";
 const NotificationPage = () => {
@@ -22,7 +21,6 @@ const NotificationPage = () => {
   useEffect(() => {
     socket.on("createdNot", (notification) => {
       if (notification.receiverCompanyId === companyId) {
-        console.log("tetiklendi");
         setNotifications((prev) => [notification, ...prev]);
         setFilteredNotifications((prev) => [notification, ...prev]);
       }

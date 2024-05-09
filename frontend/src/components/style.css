@@ -206,6 +206,12 @@
     overflow-x: auto;
 
 }
+.profile {
+    margin-top: 5px;
+    height: calc(100vh/1.27);
+    
+
+}
 .sideFilter{
     height: calc(100vh - 147px);
     overflow-y: auto;

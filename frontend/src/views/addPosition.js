@@ -709,7 +709,6 @@ const AddPosition = () => {
                   >
                     {selectedCompany?.companies.map((company, index) => (
                       <Option key={`${index}`} value={company}>
-                        {console.log("COMPANY Vini:" + company)}
                         {company}
                       </Option>
                     ))}

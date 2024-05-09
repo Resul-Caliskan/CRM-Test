@@ -154,8 +154,6 @@ const AdminListPosition = () => {
 
   useEffect(() => {
     socket.on("positionListUpdated", (positions) => {
-      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
-      console.log("Yeni talep oluşturuldu:", positions);
       setPositions(positions);
     });
   }, []);
@@ -167,7 +165,6 @@ const AdminListPosition = () => {
       );
       setPositions(response.data);
       setRequestedNominees(response.data.requestedNominees);
-      console.log("SAY", requestedNominees);
     } catch (error) {
       console.error("Positions fetching failed:", error);
     }

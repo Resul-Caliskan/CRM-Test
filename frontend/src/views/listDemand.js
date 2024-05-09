@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useTransition } from "react";
 import axios from "axios";
-import showNotification from "../utils/showNotification";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import AreUSure from "../components/areUSure";
 import filterFunction from "../utils/globalSearchFunction";
-import SearchInput from "../components/searchInput";
-import MailConfirmModal from "../components/mailConfirmmodal";
 import Notification from "../utils/notification";
-import Highlighter from "react-highlight-words";
-import { normalize } from "react-highlight-words";
 import ListComponent from "../components/listComponent";
 import Loading from "../components/loadingComponent";
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
@@ -27,9 +21,7 @@ const ListDemand = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {i18n,t}=useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalEmail, setModalEmail] = useState("");
+  const { i18n, t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
@@ -52,13 +44,6 @@ const ListDemand = () => {
     fetchDemands();
   }, []);
 
-  const handleOpenModal = (email) => {
-    setModalEmail(email);
-    setIsModalOpen(true);
-  };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
   const fetchDemands = async () => {
     try {
       const response = await axios.get(
@@ -95,8 +80,7 @@ const ListDemand = () => {
             `${process.env.REACT_APP_API_URL}/api/demands/${demand.id}`
           );
           fetchDemands();
-        } catch (error) {
-        }
+        } catch (error) {}
         try {
           const response = await axios.post(
             `${process.env.REACT_APP_API_URL}/api/sendemail`,
@@ -104,8 +88,7 @@ const ListDemand = () => {
               recipientEmail: demand.email,
             }
           );
-        } catch (error) {
-        }
+        } catch (error) {}
       }
     } catch (error) {
       Notification("error", "Talep onaylanırken bir hata oluştu.");
@@ -132,32 +115,32 @@ const ListDemand = () => {
   };
   const columns = [
     {
-      title: ()=> t("userDemands.company_name"),
+      title: () => t("userDemands.company_name"),
       dataIndex: "companyname",
       key: "companyname",
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title:()=> t("userDemands.name"),
+      title: () => t("userDemands.name"),
       dataIndex: "name",
       key: "name",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: ()=> t("userDemands.surname"),
+      title: () => t("userDemands.surname"),
       dataIndex: "surname",
       key: "surname",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: ()=> t("userDemands.phone"),
+      title: () => t("userDemands.phone"),
       dataIndex: "number",
       key: "number",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: ()=> t("userDemands.email"),
+      title: () => t("userDemands.email"),
       dataIndex: "email",
       key: "email",
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -173,13 +156,12 @@ const ListDemand = () => {
         return false;
 
       return (
-
         name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          password.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          companyname.toLowerCase().includes(searchTerm.toLowerCase())
+        surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        password.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        companyname.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
   };

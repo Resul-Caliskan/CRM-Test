@@ -476,5 +476,40 @@
     "phone_message": "Please enter a valid phone number.",
     "save_button": "Save",
     "select_role_popover": "You can authorize employees or managers from this field. Please pay attention to the level of authority."
+  },
+  "admin_detail": {
+    "position_detail": "Position Detail",
+    "department": "Department",
+    "job_title": "Job Title",
+    "experience_period": "Experience Period",
+    "work_mode": "Work Mode",
+    "contract_type": "Contract Type",
+    "preferred_industries": "Preferred Industries",
+    "banned_companies": "Banned Companies",
+    "preferred_companies": "Preferred Companies",
+    "skills": "Skills",
+    "nominee_operations": "Candidate Operations",
+    "working_mode": "Type Of Work",
+    "description": "Description",
+    "back": "Back",
+    "candidate_banned_company": "candidate has a banned company on his CV.",
+    "added_success": "Successfully Added.",
+    "removed_success": "Successfully Deleted",
+    "removed_error": " An error occurred during the transaction.",
+    "candidate_rejected": "Requested Candidate Was Rejected",
+    "approve": "Successfully Approved.",
+    "approve_error": "an error occurred while confirming."
+  },
+  "nominee_list": {
+    "assigned_nominees": "Assigned Candidates",
+    "cv_pool": "CV Pool",
+    "remove": "Remove",
+    "add": "Add",
+    "details": "Details",
+    "matched_skills":"Matching Skills",
+    "requested_nominees":"Requested Candidates",
+    "reject":"Refuse",
+    "approve":"Confirm"
+
   }
 }

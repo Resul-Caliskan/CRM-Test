@@ -10,9 +10,9 @@ import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
- 
+
 import { ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
- 
+
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
 export const isPhoneValid = (phone) => {
@@ -22,21 +22,20 @@ export const isPhoneValid = (phone) => {
     return false;
   }
 };
- 
+
 const UserForm = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [phone, setPhone] = useState("");
   const { t } = useTranslation();
- 
- 
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     fetchCompanies();
   }, []);
- 
+
   const fetchCompanies = async () => {
     await axios
       .get(`${process.env.REACT_APP_API_URL}/api/customers`)
@@ -47,11 +46,10 @@ const UserForm = () => {
         console.error("Roles fetching failed:", error);
       });
   };
- 
+
   const handleFormSubmit = async (values) => {
     setLoading(true);
-    console.log("numaraa" + phone);
- 
+
     try {
       const formData = {
         companyName: values.companyName,
@@ -61,9 +59,9 @@ const UserForm = () => {
         email: values.email,
         phone: phone,
       };
- 
+
       const companyId = companies[formData.companyName]._id;
- 
+
       const userResponse = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/customers/add/${companyId}`,
         {
@@ -98,8 +96,6 @@ const UserForm = () => {
       setLoading(false);
       if (error.response && error.response.status === 409) {
         setLoading(false);
- 
-        console.log("sdds:" + error.response.data.error);
         Notification("error", error.response.data.error);
       } else {
         // If other errors occur, log and notify the user
@@ -108,7 +104,7 @@ const UserForm = () => {
       }
     }
   };
- 
+
   return (
     <div className="body">
       <div className="w-full">
@@ -123,7 +119,6 @@ const UserForm = () => {
             }
           }}
         >
- 
           {t("addUser.back")}
         </Button>
         <h2 className="text-center text-2xl mb-6">{t("addUser.title")}</h2>
@@ -139,7 +134,10 @@ const UserForm = () => {
                 label={t("addUser.company_name_label")}
                 name="companyName"
                 rules={[
-                  { required: true, message: t("addUser.company_name_message") },
+                  {
+                    required: true,
+                    message: t("addUser.company_name_message"),
+                  },
                 ]}
               >
                 <Select placeholder={t("addUser.company_name_placeholder")}>
@@ -150,37 +148,42 @@ const UserForm = () => {
                   ))}
                 </Select>
               </Form.Item>
- 
+
               <Form.Item
                 label={
                   <span>
-                    {t("addUser.select_role")} <Popover content={t("addUser.select_role_popover")} trigger={"click"} title={t("addUser.select_role")}>
+                    {t("addUser.select_role")}{" "}
+                    <Popover
+                      content={t("addUser.select_role_popover")}
+                      trigger={"click"}
+                      title={t("addUser.select_role")}
+                    >
                       <InfoCircleOutlined className="text-blue-500" />
                     </Popover>
                   </span>
                 }
                 name="role"
-                rules={[
-                  { required: true, message:  t("addUser.role_message") },
-                ]}
+                rules={[{ required: true, message: t("addUser.role_message") }]}
               >
                 <Select placeholder={t("addUser.role_placeholder")}>
                   <Option value="user">{t("addUser.user")}</Option>
                   <Option value="user-admin">{t("addUser.system_user")}</Option>
                 </Select>
               </Form.Item>
- 
+
               <Form.Item
-                label= {t("addUser.name")}
+                label={t("addUser.name")}
                 name="firstName"
-                rules={[{ required: true, message:  t("addUser.name_message")}]}
+                rules={[{ required: true, message: t("addUser.name_message") }]}
               >
-                <Input placeholder= {t("addUser.name")} />
+                <Input placeholder={t("addUser.name")} />
               </Form.Item>
               <Form.Item
                 label={t("addUser.surname")}
                 name="lastName"
-                rules={[{ required: true, message: t("addUser.surname_message") }]}
+                rules={[
+                  { required: true, message: t("addUser.surname_message") },
+                ]}
               >
                 <Input placeholder={t("addUser.surname")} />
               </Form.Item>
@@ -207,9 +210,7 @@ const UserForm = () => {
                     message: t("addUser.phone_message"),
                     validator: (_, value) => {
                       if (value && !isPhoneValid(value) && value.length > 3) {
-                        return Promise.reject(
-                          t("addUser.phone_message")
-                        );
+                        return Promise.reject(t("addUser.phone_message"));
                       }
                       return Promise.resolve();
                     },
@@ -223,7 +224,7 @@ const UserForm = () => {
                   onChange={(phone) => setPhone(phone)}
                 />
               </Form.Item>
- 
+
               <Form.Item>
                 <Button
                   type="primary"
@@ -242,5 +243,5 @@ const UserForm = () => {
     </div>
   );
 };
- 
+
 export default UserForm;

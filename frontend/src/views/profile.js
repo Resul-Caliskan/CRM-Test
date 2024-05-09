@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import UserInfo from "../components/profile/userInfo";
 import { CaretDownOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-
+import "../components/style.css";
 export default function Profile() {
   const { t, i18n } = useTranslation();
   const [activeItem, setActiveItem] = useState("user");
@@ -46,8 +46,8 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-row justify-center items-center bg-[#F9F9F9] h-screen py-10 font-sans gap-4">
-      <div className="flex flex-col col-span-1 py-5  items-center  bg-white rounded-lg h-full w-1/6">
+    <div className="flex flex-row justify-center  items-center bg-[#F9F9F9]  pt-10 font-sans gap-4 profile">
+      <div className="flex flex-col border col-span-1 py-5 pb-5  mb-4 items-center  bg-white rounded-lg h-full  w-1/6">
         <ul className="flex flex-col gap-2 relative h-full text-gray-500">
           <li
             onClick={() => setActiveItem("user")}
@@ -61,10 +61,13 @@ export default function Profile() {
             </div>
           </li>
           <li className=" w-full  px-5 py-2 rounded-lg ">
-            <div onClick={() => setIsOpen(!isOpen)} className="flex flex-row items-center gap-3 cursor-pointer">
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex flex-row items-center gap-3 cursor-pointer"
+            >
               <IoSettingsOutline size={20} />
               <p className="mr-10">{t("profile.settings")}</p>
-              <button >
+              <button>
                 <CaretDownOutlined className="text-end focus:outline-none"></CaretDownOutlined>
               </button>
             </div>
@@ -79,7 +82,7 @@ export default function Profile() {
           )}
           <li
             onClick={handleLogout}
-            className={`absolute bottom-1/4 cursor-pointer w-full  px-5 py-2`}
+            className={`cursor-pointer w-full  px-5 py-2`}
           >
             <div className="flex  flex-row items-center gap-3 ">
               <RiLogoutCircleLine className="text-gray-500" size={20} />
@@ -88,7 +91,7 @@ export default function Profile() {
           </li>
         </ul>
       </div>
-      <div className="flex justify-center items-start col-span-4 overflow-auto  h-full bg-white rounded-lg  w-3/6">
+      <div className="flex justify-center border items-start col-span-4   h-full mb-4 bg-white rounded-lg  w-3/6">
         {renderComponent(activeItem)}
       </div>
     </div>

@@ -108,11 +108,6 @@ export default function UserNavbar() {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    dispatch(setUserSelectedOption("dashboard"));
-    localStorage.clear();
-    return navigate("/");
-  };
   const updateNotifications = async (index) => {
     try {
       // Sunucuya bildirimin durumunu güncellemek için istek yap
@@ -138,12 +133,13 @@ export default function UserNavbar() {
     let firstLetterOfName = user ? user.email[0].toUpperCase() : "";
     setLetter(firstLetterOfName);
   };
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    document.cookie = `i18next=${lng}; path=/`;
+  const handleLogout = () => {
+    dispatch(setUserSelectedOption("dashboard"));
+    localStorage.clear();
+    return navigate("/");
   };
   const handleProfile = () => {
+    navigate("/home");
     dispatch(setUserSelectedOption("profile"));
   };
   return (
@@ -255,7 +251,7 @@ export default function UserNavbar() {
                   {t("logout")} <LogoutOutlined />
                 </li>
                 <li
-                  className="flex flex-row  px items-center cursor-pointer text-base gap-1"
+                  className="flex flex-row z-30 px items-center cursor-pointer text-base gap-1"
                   onClick={handleProfile}
                 >
                   {t("profile_menu")}{" "}

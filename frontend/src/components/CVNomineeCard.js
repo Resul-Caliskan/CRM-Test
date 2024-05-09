@@ -76,20 +76,14 @@ const NomineeCard = ({
         console.error("Bildirim silinirken bir hata oluştu:", error);
       }
       setPositions((prevPositions) => {
-        // Seçilen pozisyonun index'ini bul
         const positionIndex = prevPositions.findIndex(
           (position) => position._id === positionId
         );
-
-        // Eğer pozisyon bulunamazsa, mevcut pozisyon listesini geri döndür
         if (positionIndex === -1) {
           return prevPositions;
         }
-
-        // Seçilen pozisyonu kopyala
         const updatedPositions = [...prevPositions];
 
-        // Seçilen pozisyonun aday listesinden belirli adayı çıkar
         updatedPositions[positionIndex] = {
           ...updatedPositions[positionIndex],
           requestedNominees: updatedPositions[
@@ -97,7 +91,6 @@ const NomineeCard = ({
           ].requestedNominees.filter((id) => id !== nomineeId),
         };
 
-        // Güncellenmiş pozisyon listesini döndür
         return updatedPositions;
       });
       socket.emit("notificationDeleted", positionId);
@@ -107,14 +100,9 @@ const NomineeCard = ({
     }
   };
   const checkNomineeInPositions = (nomineeId, positions) => {
-    // positions içindeki her bir pozisyonu gez
     for (let i = 0; i < positions.length; i++) {
-      console.log("sdklksjfsd" + positions[i].requestedNominees[0]);
       for (let j = 0; j < positions[i].requestedNominees.length; j++) {
-        // Eğer nomineeId, mevcut talep edilen adayın ID'sine eşitse, true döndür
-        console.log(positions[i].requestedNominees[j] + "  " + nomineeId);
         if (positions[i].requestedNominees[j] === nomineeId) {
-          console.log("girdiiii");
           return positions[i];
         }
       }
@@ -268,12 +256,12 @@ const NomineeCard = ({
                 {" "}
                 {!checkNomineeInPositions(nominee._id, positions) ? (
                   <Tooltip placement={"top"} title={t("request_position")}>
-                  <button
-                    className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
-                    onClick={() => handleRequestNominee(nominee)}
-                  >
-                    <PlusOutlined className="size-4" />
-                  </button>
+                    <button
+                      className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
+                      onClick={() => handleRequestNominee(nominee)}
+                    >
+                      <PlusOutlined className="size-4" />
+                    </button>
                   </Tooltip>
                 ) : (
                   <Tooltip placement={"top"} title={t("cancel")}>

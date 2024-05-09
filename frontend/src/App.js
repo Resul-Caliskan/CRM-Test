@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/login";
 import Home from "./views/home";
@@ -21,8 +21,32 @@ import ResetPassword from "./views/resetPassword";
 import SetPassword from "./views/setPassword";
 import SentPassword from "./views/sentPassword";
 import { Toaster } from "react-hot-toast";
+import i18n from "./localization/i18n";
 
 function App() {
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!initialized) {
+      getLanguageCookie();
+      setInitialized(true);
+    }
+  }, [initialized]);
+
+  const getLanguageCookie = () => {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+
+      if (name === "i18next") {
+        i18n.changeLanguage(value);
+      }
+    }
+    if (i18n.language === undefined) {
+      i18n.changeLanguage("tr");
+    }
+  };
+
   return (
     <>
       <Router>

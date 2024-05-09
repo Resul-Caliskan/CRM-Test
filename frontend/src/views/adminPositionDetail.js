@@ -16,8 +16,10 @@ import { Badge, Button } from "antd";
 import socket from "../config/config";
 import NomineeList from "../components/NomineeList";
 import RequestedNomineeList from "../components/RequestedNomineesList";
+import { useTranslation } from "react-i18next";
 
 const AdminPositionDetail = () => {
+  const { t } = useTranslation();
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
@@ -51,14 +53,12 @@ const AdminPositionDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    socket.on('demandCreated', (response) => {
+    socket.on("demandCreated", (response) => {
       if (response.id === id) {
         setRequestedNominees(response.allCVs.requestedNominees);
         setNominees(response.allCVs.sharedNominees);
         setSuggestedNominees(response.allCVs.suggestedAllCvs);
       }
-
     });
   }, []);
   useEffect(() => {
@@ -160,7 +160,9 @@ const AdminPositionDetail = () => {
       ) {
         Notification(
           "error",
-          `${movedNominee.cv?.name} adlı adayın şirketi yasaklı.`
+          `${movedNominee.cv?.name} ${t(
+            "admin_detail.candidate_banned_company"
+          )}`
         );
         return;
       }
@@ -179,9 +181,12 @@ const AdminPositionDetail = () => {
           `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
           { nomineeId: movedNominee.cv._id }
         );
-        Notification("success", `${movedNominee.cv?.name} Başarıyla Eklendi`);
+        Notification(
+          "success",
+          `${movedNominee.cv?.name} ${t("admin_detail.added_success")}`
+        );
         socket.emit("createDemand", id);
-      } catch (error) { }
+      } catch (error) {}
     } else if (destination.droppableId === "suggestedNominees") {
       const movedNominee = nominees.find(
         (nominee) => nominee.cv._id === draggableId
@@ -203,9 +208,12 @@ const AdminPositionDetail = () => {
           `${process.env.REACT_APP_API_URL}/api/positions/delete/${id}`,
           { nomineeId: movedNominee.cv._id }
         );
-        Notification("success", `${movedNominee.cv?.name} Başarıyla Silindi`);
+        Notification(
+          "success",
+          `${movedNominee.cv?.name} ${t("admin_detail.removed_success")}`
+        );
         socket.emit("createDemand", id);
-      } catch (error) { }
+      } catch (error) {}
     }
   };
 
@@ -228,7 +236,9 @@ const AdminPositionDetail = () => {
     if (isCompanyBanned) {
       Notification(
         "error",
-        `${movedNominee.cv?.name} adlı adayın şirketi yasaklı.`
+        `${movedNominee.cv?.name}  ${t(
+          "admin_detail.candidate_banned_company"
+        )}`
       );
       return;
     }
@@ -243,9 +253,12 @@ const AdminPositionDetail = () => {
         `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
         { nomineeId: movedNominee.cv._id }
       );
-      Notification("success", `${movedNominee.cv?.name} Başarıyla Eklendi`);
+      Notification(
+        "success",
+        `${movedNominee.cv?.name} ${t("admin_detail.added_success")}`
+      );
       socket.emit("createDemand", id);
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const moveNomineeToNominees = (draggableId) => {
@@ -265,9 +278,12 @@ const AdminPositionDetail = () => {
         `${process.env.REACT_APP_API_URL}/api/positions/delete/${id}`,
         { nomineeId: movedNominee.cv._id }
       );
-      Notification("success", `${movedNominee.cv?.name} Başarıyla Silindi`);
+      Notification(
+        "success",
+        `${movedNominee.cv?.name}${t("admin_detail.removed_success")}`
+      );
       socket.emit("createDemand", id);
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const removeNomineeFromDemanded = async (nomineeId) => {
@@ -284,7 +300,8 @@ const AdminPositionDetail = () => {
               position.companyName +
               " " +
               position.jobtitle +
-              " pozisyonu için talep edilen aday reddedildi.",
+              " " +
+              t("admin_detail.candidate_rejected"),
             type: "nomineeDemand",
             url: `/position-detail/${id}`,
             companyId: "660688a38e88e341516e7acd",
@@ -305,9 +322,9 @@ const AdminPositionDetail = () => {
       );
       setRequestedNominees(newNominees);
       socket.emit("createDemand", id);
-      Notification("success", ` Başarıyla Silindi`);
+      Notification("success", ` ${t("admin_detail.removed_success")}`);
     } catch (error) {
-      Notification("error", ` İşlem gerçekleşirken bir hata oluştu.`);
+      Notification("error", `  ${t("admin_detail.removed_error")}`);
     }
   };
 
@@ -332,7 +349,8 @@ const AdminPositionDetail = () => {
               position.companyName +
               " " +
               position.jobtitle +
-              " pozisyonu için talep edilen aday onaylandı.",
+              " " +
+              t("admin_detail.candidate_rejected"),
             type: "nomineeDemand",
             url: `/position-detail/${id}`,
             companyId: "660688a38e88e341516e7acd",
@@ -349,9 +367,9 @@ const AdminPositionDetail = () => {
       setRequestedNominees(newNominees);
       setNominees([...nominees, movedNominee]);
       socket.emit("createDemand", id);
-      Notification("success", ` Başarıyla Onaylandı`);
+      Notification("success", ` ${t("admin_detail.approve")}`);
     } catch (error) {
-      Notification("error", ` onaylanırken bir hata oluştu.`);
+      Notification("error", `  ${t("admin_detail.approve_error")}`);
     }
   };
 
@@ -365,25 +383,28 @@ const AdminPositionDetail = () => {
           <Button
             type="link"
             icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(-1)} >
-            Geri Dön
+            onClick={() => navigate(-1)}
+          >
+            {t("admin_detail.back")}
           </Button>
-          {/* TABS DİV */}
+          {/* TABS DIV */}
           <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
             <div className="flex flex- row justify-start items-center ml-2">
               <button
-                className={`flex items-center justify-center m-2 ${selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
-                  } `}
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
                 onClick={() => handleTabChange(0)}
               >
-                Pozisyon Detay
+                {t("admin_detail.position_detail")}
               </button>
               <button
-                className={`flex items-center justify-center m-2 ${selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
-                  } `}
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
                 onClick={() => handleTabChange(1)}
               >
-                Aday İşlemleri
+                {t("admin_detail.nominee_operations")}
                 {requestedNominees.length !== 0 && (
                   <Badge
                     className="ml-2 mb-1"
@@ -400,16 +421,61 @@ const AdminPositionDetail = () => {
                 <div className="flex relative">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
-                      <p><strong className="font-semibold">Departman: </strong>{position?.department}</p>
-                      <p><strong className="font-semibold">İş Unvanı:</strong> {position?.jobtitle}</p>
-                      <p><strong className="font-semibold">Deneyim Süresi:</strong>{position?.experienceperiod}</p>
-                      <p><strong className="font-semibold">Çalışma Şekli:</strong> {position?.modeofoperation}</p>
-                      <p><strong className="font-semibold">Sözleşme Tipi:</strong> {position?.worktype}</p>
-                      <p><strong className="font-semibold">Tercih Edilen Sektörler:</strong> { position?.industry &&  position?.industry?.join(", ")}</p>
-                      <p><strong className="font-semibold">Yasaklı Şirketler:</strong>{" "}{position?.bannedCompanies && position?.bannedCompanies?.join(", ")} </p>
-                      <p><strong className="font-semibold">Tercih Edilen Şirketler:</strong>{" "}{position?.preferredCompanies && position?.preferredCompanies?.join(", ")} </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.department")}:{" "}
+                        </strong>
+                        {position?.department}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.job_title")}:
+                        </strong>{" "}
+                        {position?.jobtitle}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.experience_period")}:
+                        </strong>
+                        {position?.experienceperiod}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.working_mode")}:
+                        </strong>{" "}
+                        {position?.modeofoperation}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.contract_type")}:
+                        </strong>{" "}
+                        {position?.worktype}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.preferred_industries")}:
+                        </strong>{" "}
+                        {position?.industry && position?.industry?.join(", ")}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.banned_companies")}:
+                        </strong>{" "}
+                        {position?.bannedCompanies &&
+                          position?.bannedCompanies?.join(", ")}{" "}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.preferred_companies")}:
+                        </strong>{" "}
+                        {position?.preferredCompanies &&
+                          position?.preferredCompanies?.join(", ")}{" "}
+                      </p>
                       <div className="w-[207px] h-[1px] bg-[#E8E8E8]"></div>
-                      <p><strong className="font-semibold">Beceriler:</strong>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("admin_detail.skills")}:
+                        </strong>
                         <ul className="list-disc ml-4 mt-1 grid grid-cols-2 font-thin ">
                           {position?.skills.map((skill, index) => (
                             <li key={index}>{skill}</li>

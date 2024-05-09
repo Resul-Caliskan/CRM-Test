@@ -14,7 +14,6 @@ const resources = {
   },
 };
 
-// i18n başlat
 i18n.use(initReactI18next).init({
   resources,
   lng: "tr",
