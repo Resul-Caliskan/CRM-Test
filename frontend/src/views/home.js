@@ -11,6 +11,7 @@ import ListPosition from "../views/listPosition";
 import CustomerParameters from "../views/customerParameters";
 import AddPosition from "../views/addPosition";
 import { useNavigate } from "react-router-dom";
+import Profile from "./profile";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,9 @@ const App = () => {
     case "parameters":
       renderComponent = <CustomerParameters />;
       break;
+    case "profile":
+      renderComponent = <Profile />;
+      break;
     default:
       renderComponent = <DashBoard />;
   }
@@ -62,8 +66,8 @@ const App = () => {
   return (
     <div>
       <UserNavbar />
-      <div>{renderComponent}</div>
-    </div>
+      <div className="h-full">{renderComponent}</div>
+    </div >
   );
 };
 export default App;

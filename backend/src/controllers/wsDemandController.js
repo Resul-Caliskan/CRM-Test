@@ -13,13 +13,9 @@ function initWebSocket(server) {
     })
     io.on('connection', (socket) => {
 
-        //console.log('Yeni bir kullanıcı bağlandı');
-
-
         socket.on('createDemand', async (positionId) => {
 
             const position = await Position.findById(positionId);
-
             let nominees = [];
             const nomineePromises = position.requestedNominees.map(async (element) => {
                 // Her bir nominee'nin belirli bir kimliği olduğunu varsayalım
@@ -42,24 +38,23 @@ function initWebSocket(server) {
 
 
         socket.on('notificationCreated', async (notificationId) => {
-           
+
             const notification = await Notification.findById(notificationId);
-            console.log("NOTİFİCAİTON OLUŞTUTMA AÇIŞTIIIII");
             io.emit('createdNot', notification);
         })
-        socket.on('notificationDeleted', async (notificationId) => {
-            console.log("geldi id cusotmer" + notificationId);
-            io.emit('deletedNot', notificationId);
-            
+        socket.on('notificationDeleted', async (deletedNotification) => {
+            const positions = await Position.find();
+            io.emit('positionListUpdated', positions);
+            io.emit('deletedNot', deletedNotification);
         })
-        socket.on('positionCreated',async (notificationId)=>{
+        socket.on('positionCreated', async (notificationId) => {
             const notification = await Notification.findById(notificationId);
-            console.log("poszisyon için geldi");
-            io.emit('createdPositionNot',notification);
+            io.emit('createdPositionNot', notification);
         })
-
+        socket.on('notificationRead' , (notificationId)=>{
+            io.emit("readNot",notificationId);
+        })
         socket.on('disconnect', () => {
-            console.log('Bir kullanıcı ayrıldı');
         });
     });
 }

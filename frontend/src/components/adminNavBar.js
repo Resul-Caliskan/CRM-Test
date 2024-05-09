@@ -4,14 +4,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import "./style.css";
 import hrhub from "../assets/hrhub.png";
-import { Badge, Drawer } from 'antd';
-import { BellOutlined, LogoutOutlined } from '@ant-design/icons';
-import io from 'socket.io-client';
+import { Badge, Button, Drawer, notification } from "antd";
+import { BellOutlined, LogoutOutlined } from "@ant-design/icons";
+import { IoPersonCircleOutline } from "react-icons/io5";
+import io from "socket.io-client";
 import axios from "axios";
 import { getIdFromToken } from "../utils/getIdFromToken";
 import socket from "../config/config";
+import { useTranslation } from "react-i18next";
+import { AiFillLeftCircle } from "react-icons/ai";
 
 export default function NavBar() {
+  const { t, i18n } = useTranslation();
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
@@ -28,7 +32,6 @@ export default function NavBar() {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-
     if (!localStorage.getItem("token")) navigate("/");
     fetchNotifications();
     if (user) firstLetter();
@@ -43,57 +46,56 @@ export default function NavBar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-
   }, []);
 
   useEffect(() => {
-
-    socket.on('createdNot', (notification) => {
+    socket.on("createdNot", (notification) => {
       if (notification.receiverCompanyId === companyId) {
-
         setNotifications((prev) => [notification, ...prev]);
-      }
-    })
-    socket.on('deletedNot', (deletedNotification) => {
-      console.log("silinen id:" + deletedNotification + "   companysi:" + deletedNotification.receiverCompanyId);
-      if (deletedNotification.receiverCompanyId === companyId) {
-        console.log("zartzort" + deletedNotification);
-        setNotifications((prev) => prev.filter(notification => notification._id !== deletedNotification));
       }
     });
-    socket.on('createdPositionNot', (notification) => {
-      console.log("ilk not:"+notification);
+    socket.on("deletedNot", (deletedNotification) => {
+      console.log("geldi" + deletedNotification);
+      setNotifications((prev) =>
+        prev.filter(
+          (notification) => notification._id !== deletedNotification._id
+        )
+      );
+    });
+    socket.on("readNot", (notificationId) => {
+      setNotifications((prev) =>
+        prev.filter((notification) => notification._id !== notificationId)
+      );
+    });
+    socket.on("createdPositionNot", (notification) => {
       if (notification.receiverCompanyId === companyId) {
-        console.log("notification:"+notification);
         setNotifications((prev) => [notification, ...prev]);
       }
-    })
-  }, [])
+    });
+  }, []);
 
   const fetchNotifications = async () => {
     setLoading(true);
 
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/notification/get-notifications/${companyId}`,
-
+        `${process.env.REACT_APP_API_URL}/api/notification/get-notifications/${companyId}`
       );
-      console.log(response.data.notifications);
-      const filteredNotifications = response.data.notifications.filter(notification => !notification.state).reverse();
+      const filteredNotifications = response.data.notifications
+        .filter((notification) => !notification.state)
+        .reverse();
       setNotifications(filteredNotifications);
     } catch (error) {
-      console.error(error + "Bildirimler alınamadı.")
+      console.error(error + "Bildirimler alınamadı.");
     }
-    setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
+    setLoading(false);
   };
-
 
   const toggleDrawer = () => {
     setShowDrawer(!showDrawer);
   };
   const updateNotifications = async (index) => {
     try {
-      // Sunucuya bildirimin durumunu güncellemek için istek yap
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notification/mark-as-read/${notifications[index]._id}`
       );
@@ -105,7 +107,6 @@ export default function NavBar() {
     setNotifications(updatedNotifications);
     setShowDrawer(false);
     navigate(updatedNotifications[index].url);
-    console.log(updatedNotifications[index].url);
   };
   const handleNotifications = () => {
     navigate("/adminhome");
@@ -117,6 +118,7 @@ export default function NavBar() {
     dispatch(setSelectedOption(option));
   };
   const handleLogout = () => {
+    dispatch(setSelectedOption("dashboard"));
     localStorage.clear();
     return navigate("/");
   };
@@ -124,9 +126,16 @@ export default function NavBar() {
     setIsOpen(!isOpen);
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.cookie = `i18next=${lng}; path=/`;
+  };
   const firstLetter = () => {
-    let firstLetterOfName = user ? user.email[0].toUpperCase() : '';
+    let firstLetterOfName = user ? user.email[0].toUpperCase() : "";
     setLetter(firstLetterOfName);
+  };
+  const handleProfile = () => {
+    dispatch(setSelectedOption("profile"));
   };
   return (
     <>
@@ -140,39 +149,83 @@ export default function NavBar() {
               <div className="rectangleSubtract"></div>
               <div className="rectangleLeft"></div>
               <div className="rectangleCenter">
-                <label className="text-gray-700 flex items-center justify-center h-full labelTab">
-                  Müşteri İlişkileri Yönetimi
+                <label className="text-gray-700 flex items-center justify-center h-full labelTab text-sm">
+                  {t("customer_relationship_management")}
                 </label>
               </div>
               <div className="rectangleRight"></div>
             </div>
           </div>
-          <div className="avatar-container">
-            <Badge count={notifications.filter(notification => !notification.state).length} size="small" onClick={toggleDrawer} status="processing">
-              <BellOutlined className="text-gray-600 size-6 hover:text-blue-500 cursor-pointer" />
+          <div className="avatar-container ">
+          
+            <Badge
+              count={
+                notifications.filter((notification) => !notification.state)
+                  .length
+              }
+              size="small"
+              onClick={toggleDrawer}
+              status="processing"
+            >
+              <BellOutlined className="text-gray-600 w-[40px] h-[30px] hover:text-blue-500 cursor-pointer pl-4  text-[18px]" />
             </Badge>
             <Drawer
-              title="Bildirimler"
+              title={
+                <div className="w-full">
+                  <p className="mr-5">{t("notifications")}</p>
+                </div>
+              }
+              headerStyle={{
+                marginTop: "20px",
+                borderBottom: "none",
+                textAlign: "center",
+                fontfamily: "SF Pro Text",
+                fontWeight: "500",
+                fontSize: "20px",
+                lineHeight: "24px",
+                marginRight: "50px",
+              }}
+              closeIcon={
+                <AiFillLeftCircle className="w-[40px] h-[40px] text-[#0057D9] hover:text-[#0050D9]" />
+              }
               placement="right"
               closable={true}
               onClose={toggleDrawer}
               visible={showDrawer}
             >
-              <div className="notification-list">
-                {notifications.slice(0, 15).map((notification, index) => (
-                  <div key={index} className={`notification-item ${notification.state ? 'read' : 'unread'}`}>
-                    <p className={notification.state ? "text-gray-500" : ""} onClick={() => updateNotifications(index)}>
-                      <Badge status={notification.state ? "default" : "processing"} className="mr-2" style={{ dotSize: 16 }} />
-                      {notification.message}
-                    </p>
-                  </div>
-                ))}
+              <div className="h-full relative">
+                <div className="notification-list">
+                  {notifications.slice(0, 15).map((notification, index) => (
+                    <div
+                      key={index}
+                      className={`notification-item ${
+                        notification.state ? "read" : "unread"
+                      }`}
+                    >
+                      <p
+                        className={notification.state ? "text-gray-500" : ""}
+                        onClick={() => updateNotifications(index)}
+                      >
+                        <Badge
+                          status={notification.state ? "default" : "processing"}
+                          className="mr-2"
+                          style={{ dotSize: 16 }}
+                        />
+                        {notification.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex absolute bottom-1 w-full ">
+                  <Button
+                    type="primary"
+                    onClick={handleNotifications}
+                    className="w-full bg-[#0057D9]"
+                  >
+                    {t("view_all")}
+                  </Button>
+                </div>
               </div>
-
-              <div className="show-more-button " onClick={handleNotifications}>
-                Tümünü Görüntüle
-              </div>
-
             </Drawer>
             <div className="labels">
               <label className="nameLabel">{user?.email}</label>
@@ -183,39 +236,91 @@ export default function NavBar() {
               </div>
             </div>
             <div className="avatar-icon" onClick={toggleDropdown}>
-              <p className="letter">{letter}</p>
+              <p className="letter">{user?.email.charAt(0).toUpperCase()}</p>
             </div>
             {isOpen && (
-              <ul className="user-dropdown-menu " ref={dropdownRef}>
-                <li className="logout-button" onClick={handleLogout}>Çıkış <LogoutOutlined /></li>
+              <ul className="user-dropdown-menu py-2 px-4" ref={dropdownRef}>
+                <li
+                  className="flex flex-row  px items-center cursor-pointer text-base  gap-1 mb-2"
+                  onClick={handleLogout}
+                >
+                  {t("logout")} <LogoutOutlined />
+                </li>
+                <li
+                  className="flex flex-row  px items-center cursor-pointer text-base gap-1"
+                  onClick={handleProfile}
+                >
+                  {t("profile_menu")}
+                  <IoPersonCircleOutline size={19} className="" />
+                </li>
               </ul>
             )}
           </div>
         </div>
         <ul className="menu">
-          <li className={`menu-item ${selectedOption === "dashboard" ? "selected" : ""}`}>
-            <a href="#" onClick={() => handleOptionClick("dashboard")} className="menu-link ">
-              Anasayfa
+          <li
+            className={`menu-item ${
+              selectedOption === "dashboard" ? "selected" : ""
+            }`}
+          >
+            <a
+              href="#"
+              onClick={() => handleOptionClick("dashboard")}
+              className="menu-link "
+            >
+              {t("homepage")}
             </a>
           </li>
-          <li className={`menu-item ${selectedOption === "list-costumers" ? "selected" : ""}`}>
-            <a href="#" className="menu-link" onClick={() => handleOptionClick("list-costumers")}>
-              Müşteri İşlemleri
+          <li
+            className={`menu-item ${
+              selectedOption === "list-costumers" ? "selected" : ""
+            }`}
+          >
+            <a
+              href="#"
+              className="menu-link"
+              onClick={() => handleOptionClick("list-costumers")}
+            >
+              {t("customer_operations")}
             </a>
           </li>
-          <li className={`menu-item ${selectedOption === "list-demands" ? "selected" : ""}`}>
-            <a href="#" className="menu-link" onClick={() => handleOptionClick("list-demands")}>
-              Kullanıcı Talepleri
+          <li
+            className={`menu-item ${
+              selectedOption === "list-demands" ? "selected" : ""
+            }`}
+          >
+            <a
+              href="#"
+              className="menu-link"
+              onClick={() => handleOptionClick("list-demands")}
+            >
+              {t("user_demands")}
             </a>
           </li>
-          <li className={`menu-item hidden-sm ${selectedOption === "list-positions" ? "selected" : ""}`}>
-            <a href="#" className="menu-link" onClick={() => handleOptionClick("list-positions")}>
-              Pozisyon Talepleri
+          <li
+            className={`menu-item hidden-sm ${
+              selectedOption === "list-positions" ? "selected" : ""
+            }`}
+          >
+            <a
+              href="#"
+              className="menu-link"
+              onClick={() => handleOptionClick("list-positions")}
+            >
+              {t("position_demands")}
             </a>
           </li>
-          <li className={`menu-item hidden-sm ${selectedOption === "parameters" ? "selected" : ""}`}>
-            <a href="#" className="menu-link" onClick={() => handleOptionClick("parameters")}>
-              Parametreler
+          <li
+            className={`menu-item hidden-sm ${
+              selectedOption === "parameters" ? "selected" : ""
+            }`}
+          >
+            <a
+              href="#"
+              className="menu-link"
+              onClick={() => handleOptionClick("parameters")}
+            >
+              {t("parameters_menu")}
             </a>
           </li>
         </ul>

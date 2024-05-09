@@ -25,40 +25,21 @@ import { City, Country, State } from "country-state-city";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import "react-country-state-city/dist/react-country-state-city.css";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import socket from "../config/config";
+import { useTranslation } from "react-i18next";
+
 dayjs.extend(customParseFormat);
+
 const dateFormat = "DD-MM-YYYY";
 const today = dayjs();
 const ReachableContext = createContext(null);
 const UnreachableContext = createContext(null);
-const preferredSector = (
-  <div className="relative z-50 bg-gray-50 p-6 rounded-lg ">
-    <p>Bu alana tercih ettiğiniz sektörleri ekleyebilirsiniz.</p>
-    <p>Burada belirtilen sektörler, profilinizdeki </p>
-    <p>tercihlerinizin bir parçasıdır ve belirli </p>
-    <p>özelliklere göre size önerilerde bulunmamıza yardımcı olur.</p>
-  </div>
-);
-const preferredCompany = (
-  <div className="relative z-50 bg-gray-100 p-6 rounded-lg ">
-    <p>Bu alana tercih ettiğiniz şirketleri ekleyebilirsiniz.</p>
-    <p>Burada belirtilen sektörler, </p>
-    <p>pozisyon için önerilen adayların geçmişte </p>
-    <p>çalıştığı şirketlere göre önerilme işlemi gerçekleştirir.</p>
-  </div>
-);
-const bannedCompany = (
-  <div className="relative z-50 bg-gray-100 p-6 rounded-lg ">
-    <p>Bu alana yasaklamak istediğiniz şirketleri ekleyebilirsiniz.</p>
-    <p>Burada belirtilen şirketler,</p>
-    <p>pozisyon için önerilen adayların geçmişte</p>
-    <p>çalıştığı şirketlere göre yasaklama işlemi gerçekleştirir.</p>
-  </div>
-);
 const { Option } = Select;
 
 const AddPosition = () => {
+  const { t, i18n } = useTranslation();
+
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [loadingAi, setLoadingAi] = useState(false);
@@ -80,6 +61,7 @@ const AddPosition = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [bannedCompanies, setBannedCompanies] = useState(null);
   const [industry, setIndustry] = useState(null);
+
   const [preferredCompanies, setPreferredCompanies] = useState(null);
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const { user } = useSelector((state) => state.auth);
@@ -169,6 +151,7 @@ const AddPosition = () => {
     form.setFieldsValue({ description: contentValue });
     fetchCompany();
     fetchIndustries();
+    fetchCompanies();
     findIsoCode(selectedCompany?.companycountry);
   }, [contentValue, form, isoCode]);
 
@@ -222,9 +205,9 @@ const AddPosition = () => {
         }
       );
       setAiResponse(response.data.message);
-      Notification("success", "İş Tanımı Başarıyla Oluşturuldu.");
+      Notification("success", t("addPosition.jobAI_success"));
     } catch (error) {
-      Notification("error", "İş Tanımı Oluşturulurken Hata Oluştu.");
+      Notification("error", t("addPosition.jobAI_errorr"));
       console.error("Form gönderilirken bir hata oluştu:", error);
     } finally {
       setLoadingAi(false);
@@ -295,7 +278,6 @@ const AddPosition = () => {
               receiverCompanyId: companies[values.companyName]._id,
             }
           );
-          console.log("BİLDİRİM GİTTTİİİ" + response2);
           socket.emit("positionCreated", response2.data.notificationId);
         } catch (error) {
           console.error(error + "bildirim iletilemedi.");
@@ -327,6 +309,7 @@ const AddPosition = () => {
               positionAdress: values.address,
               preferredCompanies: preferredCompanies,
               bannedCompanies: bannedCompanies,
+
               dateOfStart: selectedDate,
               companyId: companyId,
               companyName: companyName,
@@ -341,6 +324,19 @@ const AddPosition = () => {
               await axios.put(
                 `${apiUrl}/api/customers/add-industry/${companyId}`,
                 { industry: newIndustry }
+              );
+            })
+          );
+
+          const newCompanies = selectedCompany?.companies.filter(
+            (cmp) => !companies.includes(cmp)
+          );
+
+          await Promise.all(
+            newCompanies.map(async (newCompany) => {
+              await axios.put(
+                `${apiUrl}/api/customers/add-company/${companyId}`,
+                { companies: newCompany }
               );
             })
           );
@@ -360,7 +356,6 @@ const AddPosition = () => {
                 receiverCompanyId: "660688a38e88e341516e7acd",
               }
             );
-            console.log("BİLDİRİM GİTTTİİİ" + response);
             socket.emit("positionCreated", response2.data.notificationId);
           } catch (error) {
             console.error(error + "bildirim iletilemedi.");
@@ -370,11 +365,7 @@ const AddPosition = () => {
         }
       }
 
-      Notification(
-        "success",
-        "Başarıyla oluşturuldu.",
-        "Pozisyon talebiniz başarıyla oluşturuldu."
-      );
+      Notification("success", t("addPosition.position_add_success"));
       setTimeout(() => {
         if (user.role === "admin") {
           setSubmitLoading(false);
@@ -386,11 +377,7 @@ const AddPosition = () => {
       }, 500);
     } catch (error) {
       console.error("Form gönderilirken bir hata oluştu:", error);
-      Notification(
-        "error",
-        "Bir hata oluştu.",
-        "Pozisyon talebiniz oluşturulurken bir hata oluştu."
-      );
+      Notification("error", t("addPosition.position_add_error"));
       setSubmitLoading(false);
     }
   };
@@ -398,6 +385,7 @@ const AddPosition = () => {
     setSelectedCompany(value);
     findIsoCode(companies[value]?.companycountry);
   };
+
   return (
     <>
       {loading ? (
@@ -405,9 +393,9 @@ const AddPosition = () => {
       ) : (
         <div className="body">
           <div className="w-full">
-            <h2 className="text-center text-2xl">Pozisyon Ekle</h2>
-            <button
-              className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
+            <Button
+              icon={<ArrowLeftOutlined />}
+              type="link"
               onClick={() => {
                 if (user.role === "admin") {
                   dispatch(setSelectedOption("list-positions"));
@@ -416,38 +404,31 @@ const AddPosition = () => {
                 }
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Geri Dön
-            </button>
+              {t("addPosition.back")}
+            </Button>
+
+            <h2 className="text-center text-2xl">
+              {t("addPosition.addPosition_form_title")}
+            </h2>
             <Form
               form={form}
               onFinish={handleSubmit}
               layout="vertical"
-              className="bg-white grid grid-cols-1 sm:grid-cols-2 gap-4 shadow-md rounded px-8 pt-6 pb-8 mb-4"
+              className="bg-white grid grid-cols-1 sm:grid-cols-2 gap-4 shadow-md rounded px-8 pt-6 pb-8 mt-4"
             >
               {user.role === "admin" && (
                 <Form.Item
-                  label="Şirket Adı"
+                  label={t("addPosition.companyName_label")}
                   name="companyName"
                   rules={[
-                    { required: true, message: "Lütfen şirket adını seçiniz!" },
+                    {
+                      required: true,
+                      message: t("addPosition.companyName_message"),
+                    },
                   ]}
                 >
                   <Select
-                    placeholder="Şirket Seç"
+                    placeholder={t("addPosition.companyName_placeholder")}
                     onChange={(value) => {
                       handleCompanyChange(value);
                       handleCountryChange(value);
@@ -462,14 +443,19 @@ const AddPosition = () => {
                 </Form.Item>
               )}
               <Form.Item
-                label="İş Unvanı"
+                label={t("addPosition.jobTitle_label")}
                 name="jobtitle"
-                rules={[{ required: true, message: "İş Unvanını Giriniz!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t("addPosition.jobTitle_message"),
+                  },
+                ]}
               >
                 <Select
                   showSearch
                   optionFilterProp="children"
-                  placeholder="İş Unvanı Seç"
+                  placeholder={t("addPosition.jobTitle_placeholder")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "İş Unvanı") {
@@ -484,14 +470,19 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                label="Departman"
+                label={t("addPosition.department_label")}
                 name="department"
-                rules={[{ required: true, message: "Departmanı Giriniz!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t("addPosition.department_message"),
+                  },
+                ]}
               >
                 <Select
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Departman Seç"
+                  placeholder={t("addPosition.department_placeholder")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "Departman") {
@@ -507,16 +498,19 @@ const AddPosition = () => {
               </Form.Item>
 
               <Form.Item
-                label="Deneyim Süresi"
+                label={t("addPosition.experiencePeriod_label")}
                 name="experienceperiod"
                 rules={[
-                  { required: true, message: "Deneyim Süresini Giriniz!" },
+                  {
+                    required: true,
+                    message: t("addPosition.experiencePeriod_message"),
+                  },
                 ]}
               >
                 <Select
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Deneyim Süresi Seç"
+                  placeholder={t("addPosition.experiencePeriod_placeholder")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "Deneyim Süresi") {
@@ -531,16 +525,19 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                label="Çalışma Şekli"
+                label={t("addPosition.modeOfOperation_label")}
                 name="modeofoperation"
                 rules={[
-                  { required: true, message: "İşyeri Politikasını Giriniz!" },
+                  {
+                    required: true,
+                    message: t("addPosition.modeOfOperation_message"),
+                  },
                 ]}
               >
                 <Select
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Çalışma Şekli Seç"
+                  placeholder={t("addPosition.modeOfOperation_placeholder")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "Çalışma Şekli") {
@@ -555,16 +552,19 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                label="Sözleşme Tipi"
+                label={t("addPosition.workingType_label")}
                 name="workingType"
                 rules={[
-                  { required: true, message: "Sözleşme Tipini Giriniz!" },
+                  {
+                    required: true,
+                    message: t("addPosition.workingType_message"),
+                  },
                 ]}
               >
                 <Select
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Sözleşme Tipi Seç"
+                  placeholder={t("addPosition.workingType_label")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "Sözleşme Tipi") {
@@ -583,10 +583,10 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Tercih Edilen Sektörler{" "}
+                        {t("addPosition.preferred_sectors")}{" "}
                         <Popover
-                          content={preferredSector}
-                          title="Tercih Edilen Sektörler"
+                          content={t("addPosition.preferred_sector_info")}
+                          title={t("addPosition.preferred_sectors")}
                           trigger={"click"}
                         >
                           <InfoCircleOutlined className="text-blue-500" />
@@ -599,12 +599,12 @@ const AddPosition = () => {
                 }
                 name="industry"
               >
-                 {user.role === "admin" ? (
+                {user.role === "admin" ? (
                   <Select
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Sektör Seç"
+                    placeholder={t("addPosition.preferred_sectors_placeholder")}
                     onChange={handleIndustryChange}
                   >
                     {parameters.map((parameter, index) => {
@@ -635,17 +635,17 @@ const AddPosition = () => {
                 )}
               </Form.Item>
               <Form.Item
-                label="Teknik Beceriler"
+                label={t("addPosition.skills_label")}
                 name="skills"
                 rules={[
-                  { required: true, message: "Teknik Becerileri Giriniz!" },
+                  { required: true, message: t("addPosition.skills_message") },
                 ]}
               >
                 <Select
                   mode="tags"
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Yetenek Seç"
+                  placeholder={t("addPosition.skills_placeholder")}
                 >
                   {parameters.map((parameter, index) => {
                     if (parameter.title === "Yetenekler") {
@@ -664,11 +664,11 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Yasaklı Şirketler{" "}
+                        {t("addPosition.banned_companies")}{" "}
                         <Popover
-                          content={bannedCompany}
+                          content={t("addPosition.banned_company_info")}
                           trigger={"click"}
-                          title="Yasaklı Şirketler"
+                          title={t("addPosition.banned_companies")}
                         >
                           <InfoCircleOutlined className="text-blue-500" />
                         </Popover>
@@ -680,24 +680,41 @@ const AddPosition = () => {
                 }
                 name="bannedcompanies"
               >
-                <Select
-                  mode="tags"
-                  showSearch
-                  optionFilterProp="children"
-                  placeholder="Yasaklı Şirket Seç"
-                  onChange={handleBannedCompaniesChange}
-                >
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Şirketler") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
-                    }
-                    return null;
-                  })}
-                </Select>
+                {user.role === "admin" ? (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder={t("addPosition.banned_companies_placeholder")}
+                    onChange={handleBannedCompaniesChange}
+                  >
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Şirketler") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                ) : (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Yasaklı Şirket Seç"
+                    onChange={handleBannedCompaniesChange}
+                  >
+                    {selectedCompany?.companies.map((company, index) => (
+                      <Option key={`${index}`} value={company}>
+                        {console.log("COMPANY Vini:" + company)}
+                        {company}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               </Form.Item>
 
               <Form.Item
@@ -705,11 +722,11 @@ const AddPosition = () => {
                   <ReachableContext.Provider value="Light">
                     <Space>
                       <span>
-                        Tercih Edilen Şirketler{" "}
+                        {t("addPosition.preferred_companies")}{" "}
                         <Popover
-                          content={preferredCompany}
+                          content={t("addPosition.preferred_company_info")}
                           trigger={"click"}
-                          title="Tercih Edilen Şirketler"
+                          title={t("addPosition.preferred_companies")}
                         >
                           <InfoCircleOutlined className="text-blue-500" />
                         </Popover>
@@ -725,7 +742,7 @@ const AddPosition = () => {
                   mode="tags"
                   showSearch
                   optionFilterProp="children"
-                  placeholder="Tercih Edilen Şirket Seç"
+                  placeholder={t("addPosition.preferred_companies_placeholder")}
                   onChange={handlePreferredCompaniesChange}
                 >
                   {parameters.map((parameter, index) => {
@@ -743,30 +760,35 @@ const AddPosition = () => {
 
               <Form.Item
                 name="date"
-                label="İşe Başlama Tarihi"
+                label={t("addPosition.startDate_label")}
                 className=""
                 rules={[
-                  { required: true, message: "İşe Başlama Tarihini seçiniz!" },
+                  {
+                    required: true,
+                    message: t("addPosition.startDate_message"),
+                  },
                 ]}
               >
                 <DatePicker
                   className="w-full"
                   onChange={handleDateChange}
                   format={dateFormat}
-                  placeholder="İşe başlama tarihini seçiniz."
+                  placeholder={t("addPosition.startDate_placeholder")}
                   minDate={dayjs(today, dateFormat)}
                 />
               </Form.Item>
               <Form.Item
-                label="Şehir"
+                label={t("addPosition.city_label")}
                 name="companycity"
-                rules={[{ required: true, message: "Şehir seçiniz!" }]}
+                rules={[
+                  { required: true, message: t("addPosition.city_message") },
+                ]}
               >
                 <Select
                   showSearch
                   style={{ width: "100%" }}
                   value={state ? state.isoCode : undefined}
-                  placeholder="Şehir seç"
+                  placeholder={t("addPosition.city_placeholder")}
                   optionFilterProp="children"
                   onChange={(value) => {
                     handleCityChange(value);
@@ -805,15 +827,17 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                label="İlçe"
+                label={t("addPosition.county_label")}
                 name="companycounty"
-                rules={[{ required: true, message: "İlçe seçiniz!" }]}
+                rules={[
+                  { required: true, message: t("addPosition.county_message") },
+                ]}
               >
                 <Select
                   showSearch
                   style={{ width: "100%" }}
                   value={state ? state.isoCode : undefined}
-                  placeholder="İlçe seç"
+                  placeholder={t("addPosition.county_placeholder")}
                   optionFilterProp="children"
                   onChange={(value) => {
                     handleCountyChange(value);
@@ -852,22 +876,30 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                label="Adres"
+                label={t("addPosition.address_label")}
                 name="address"
-                rules={[{ required: true, message: "Adres giriniz!" }]}
+                rules={[
+                  { required: true, message: t("addPosition.address_message") },
+                ]}
               >
                 <Input.TextArea
-                  placeholder="Adres"
+                  placeholder={t("addPosition.address_placeholder")}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </Form.Item>
               <Form.Item
-                label="İş Tanımı"
+                label={t("addPosition.description_label")}
                 name="description"
                 className="col-start-1 col-end-3"
-                rules={[{ required: true, message: "İş Tanımını Giriniz!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t("addPosition.description_message"),
+                  },
+                ]}
               >
                 <EditableContent
+                  t={t}
                   key={aiResponse}
                   content={aiResponse}
                   setContent={setcontentValue}
@@ -882,7 +914,7 @@ const AddPosition = () => {
                   loading={submitLoading}
                   className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                 >
-                  Kaydet
+                  {t("addPosition.save_button")}
                 </Button>
               </Form.Item>
             </Form>

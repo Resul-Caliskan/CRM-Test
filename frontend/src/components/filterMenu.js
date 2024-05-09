@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Checkbox, Input } from "antd";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 const VerticalFilterContainer = ({
   parameterOptions,
   isHorizontal,
@@ -10,6 +11,7 @@ const VerticalFilterContainer = ({
   const [checkedItems, setCheckedItems] = useState([]);
   const [openParameters, setOpenParameters] = useState({});
   const [isClear, setIsClear] = useState(false);
+  const { t } = useTranslation();
   useEffect(() => {
     const initialOpenParameters = {};
     parameterOptions.forEach((parameter) => {
@@ -45,8 +47,7 @@ const VerticalFilterContainer = ({
   const handleCheckboxChange = (options, value) => {
     let newCheckedItems = [];
     if (value === "__TUMU__") {
-      newCheckedItems =
-        checkedItems.length === options.length ? [] : options;
+      newCheckedItems = checkedItems.length === options.length ? [] : options;
     } else {
       const currentIndex = checkedItems.indexOf(value);
       newCheckedItems = [...checkedItems];
@@ -93,35 +94,40 @@ const VerticalFilterContainer = ({
   };
 
   return (
-    <div className={`filter-container ${isHorizontal ? "horizontal" : "vertical"}`}>
+    <div
+      className={`border filter-container  ${
+        isHorizontal ? "horizontal" : "vertical"
+      }`}
+    >
       {!isHorizontal && (
         <Button
           type="link"
-          className="clearFilter"
+          className="bg-[#0057D9] text-center text-white rounded-md mb-2"
           block={!isHorizontal}
           onClick={handleClearAll}
         >
-          Tümünü Temizle
+           {t("nomineeDetail.clearAll")}
         </Button>
       )}
       <ul className="filter-list">
         {parameterOptions.map((parameter) => (
           <li key={parameter.title}>
             <span
-              className="filterTitle"
+              className="border filterTitle"
               onClick={() => toggleParameter(parameter.title)}
             >
-              {parameter.title} {openParameters[parameter.title] ? (
+              {parameter.title}{" "}
+              {openParameters[parameter.title] ? (
                 <CaretUpOutlined className="ml-1" />
               ) : (
                 <CaretDownOutlined className="ml-1" />
               )}
             </span>
             {openParameters[parameter.title] && (
-              <div>
+              <div className="bg-[#FAFAFA] border rounded-md p-2 mb-2">
                 <Input
                   allowClear={true}
-                  placeholder="Ara..."
+                  placeholder= {t("nomineeDetail.search")}
                   value={searchTerms[parameter.title] || ""}
                   onChange={(e) =>
                     handleSearchChange(parameter.title, e.target.value)
@@ -129,7 +135,10 @@ const VerticalFilterContainer = ({
                   className="mb-2 mt-2 h-8"
                 />
                 <ul className="filter-values">
-                  {filterOptions(parameter.values, searchTerms[parameter.title] || "").map((value) => (
+                  {filterOptions(
+                    parameter.values,
+                    searchTerms[parameter.title] || ""
+                  ).map((value) => (
                     <li
                       key={value}
                       onChange={() => handleSelect(parameter.key, value)}

@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import filterFunction from "../utils/globalSearchFunction";
 import Notification from "../utils/notification";
-
 import { getIdFromToken } from "../utils/getIdFromToken";
 import { useSelector, useDispatch } from "react-redux";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import ListComponent from "../components/listComponent";
-import FilterComponent from "../components/filterComponent"
+import FilterComponent from "../components/filterComponent";
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
-import Loading from '../components/loadingComponent';
+import Loading from "../components/loadingComponent";
+import { useTranslation } from "react-i18next";
+
 const ListPosition = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,6 @@ const ListPosition = () => {
   );
   const dispatch = useDispatch();
 
-
   useEffect(() => {
     fetchParameterOptions();
     fetchPositions();
@@ -35,11 +36,11 @@ const ListPosition = () => {
     dispatch(setUserSelectedOption("add-position"));
   };
 
-
-
   const fetchPositions = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/positions/get/${companyId}`);
+      const response = await axios.get(
+        `${apiUrl}/api/positions/get/${companyId}`
+      );
       setPositions(response.data);
       setLoading(false);
     } catch (error) {
@@ -52,13 +53,21 @@ const ListPosition = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
-      const filteredOptions = response.data.filter(option => {
-        return option.title === "İş Unvanı" || 
-        option.title === "Departman" || 
-        option.title === "Deneyim Süresi" || 
-        option.title === "Sözleşme Tipi" || 
-        option.title === "Yetenekler" || 
-        option.title === "Çalışma Şekli";
+      const filteredOptions = response.data.filter((option) => {
+        return (
+          (option.title === "İş Unvanı" &&
+            (option.title = t("userListPosition.job_title"))) ||
+          (option.title === "Departman" &&
+            (option.title = t("userListPosition.department"))) ||
+          (option.title === "Deneyim Süresi" &&
+            (option.title = t("userListPosition.experience_period"))) ||
+          (option.title === "Sözleşme Tipi" &&
+            (option.title = t("userListPosition.work_type"))) ||
+          (option.title === "Yetenekler" &&
+            (option.title = t("userListPosition.skills"))) ||
+          (option.title === "Çalışma Şekli" &&
+            (option.title = t("userListPosition.mode_of_operation")))
+        );
       });
       setParameterOptions(filteredOptions);
     } catch (error) {
@@ -68,11 +77,15 @@ const ListPosition = () => {
   const handleDeletePosition = async (positionId) => {
     try {
       await axios.delete(`${apiUrl}/api/positions/${positionId}`);
-      Notification("success", "Pozisyon başarıyla silindi.", "");
+      Notification(
+        "success",
+        t("userListPosition.position_deleted_successfully"),
+        ""
+      );
       fetchPositions();
     } catch (error) {
-      console.error("Pozisyon silinirken bir hata oluştu:", error);
-      Notification("error", "Pozisyon silinirken bir hata oluştu.", "");
+      console.error("An error occurred while deleting position:", error);
+      Notification("error", t("userListPosition.error_deleting_position"), "");
     } finally {
       setDeleteConfirmation(null);
     }
@@ -86,13 +99,12 @@ const ListPosition = () => {
       navigate(`/position-detail/${positionId}`);
     } else {
       console.error(
-        "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
+        "Position details could not be retrieved: Position information is incomplete or invalid."
       );
     }
   };
 
   const [filters, setFilters] = useState({
-
     jobtitle: [],
     department: [],
     experienceperiod: [],
@@ -102,38 +114,45 @@ const ListPosition = () => {
   });
   const columns = [
     {
-      title: "İş Ünvanı",
+      title: t("userListPosition.job_title"),
       dataIndex: "jobtitle",
       key: "jobtitle",
-      render: (text) => highlightSearchTerm(text, searchTerm),
+      render: (text, record) => (
+        <span
+          style={{ cursor: "pointer", textDecoration: "underline" }}
+          onClick={() => handlePositionDetails(record.id)}
+        >
+          {highlightSearchTerm(text, searchTerm)}
+        </span>
+      ),
     },
     {
-      title: "Departman",
+      title: t("userListPosition.department"),
       dataIndex: "department",
       key: "department",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
 
     {
-      title: "Deneyim Süresi",
+      title: t("userListPosition.experience_period"),
       dataIndex: "experienceperiod",
       key: "experienceperiod",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Çalışma Şekli",
+      title: t("userListPosition.mode_of_operation"),
       dataIndex: "modeofoperation",
       key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Sözleşme Tipi",
+      title: t("userListPosition.work_type"),
       dataIndex: "worktype",
       key: "worktype",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Yetenekler",
+      title: t("userListPosition.skills"),
       dataIndex: "skills",
       key: "skills",
       render: (text) => {
@@ -151,7 +170,6 @@ const ListPosition = () => {
         }
       },
     },
-
   ];
   const filteredPositions = positions.filter((position) => {
     const searchFields = [
@@ -164,13 +182,20 @@ const ListPosition = () => {
     ];
 
     return (
-      (filters.jobtitle.length === 0 || filters.jobtitle.includes(position.jobtitle)) &&
-      (filters.department.length === 0 || filters.department.includes(position.department)) &&
-      (filters.experienceperiod.length === 0 || filters.experienceperiod.includes(position.experienceperiod)) &&
-      (filters.modeofoperation.length === 0 || filters.modeofoperation.includes(position.modeofoperation)) &&
-      (filters.worktype.length === 0 || filters.worktype.includes(position.worktype)) &&
-      (filters.skills.length === 0 || position.skills.some((skill) => filters.skills.includes(skill))) &&
-      (searchTerm === "" || filterFunction(searchFields, position, searchTerm.toLowerCase()))
+      (filters.jobtitle.length === 0 ||
+        filters.jobtitle.includes(position.jobtitle)) &&
+      (filters.department.length === 0 ||
+        filters.department.includes(position.department)) &&
+      (filters.experienceperiod.length === 0 ||
+        filters.experienceperiod.includes(position.experienceperiod)) &&
+      (filters.modeofoperation.length === 0 ||
+        filters.modeofoperation.includes(position.modeofoperation)) &&
+      (filters.worktype.length === 0 ||
+        filters.worktype.includes(position.worktype)) &&
+      (filters.skills.length === 0 ||
+        position.skills.some((skill) => filters.skills.includes(skill))) &&
+      (searchTerm === "" ||
+        filterFunction(searchFields, position, searchTerm.toLowerCase()))
     );
   });
 
@@ -188,32 +213,31 @@ const ListPosition = () => {
     companyName: position.companyName,
   }));
 
-
   return (
     <>
-    {loading ? (
+      {loading ? (
         <Loading />
       ) : (
-    <ListComponent
-      handleAdd={handleAddPosition}
-      handleUpdate={handleEditPosition}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      dropdowns={<FilterComponent
-        setFilters={setFilters}
-        parameterOptions={parameterOptions}
-      />}
-      handleDelete={handleDeletePosition}
-      handleDetail={handlePositionDetails}
-      columns={columns}
-      data={data}
-      name={"Pozisyon Listesi"}
-    />
+        <ListComponent
+          handleAdd={handleAddPosition}
+          handleUpdate={handleEditPosition}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          dropdowns={
+            <FilterComponent
+              setFilters={setFilters}
+              parameterOptions={parameterOptions}
+            />
+          }
+          handleDelete={handleDeletePosition}
+          handleDetail={handlePositionDetails}
+          columns={columns}
+          data={data}
+          title={t("userListPosition.position_list")}
+        />
       )}
-      </>
-
+    </>
   );
 };
 
 export default ListPosition;
-

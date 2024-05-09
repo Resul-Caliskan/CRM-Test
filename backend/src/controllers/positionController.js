@@ -28,9 +28,8 @@ exports.addPosition = async (req, res) => {
 
     await newPosition.save();
 
-    res.status(201).json({ message: "Pozisyon başarıyla eklendi." , positionId:newPosition._id});
+    res.status(201).json({ message: "Pozisyon başarıyla eklendi.", positionId: newPosition._id });
   } catch (error) {
-    console.log(error.message);
     res.status(500).json({ error: error.message });
   }
 };

@@ -246,3 +246,64 @@ exports.getCustomerIndustries = async (req, res) => {
   }
 };
 
+
+exports.companyAddToCustomer = async (req, res) => {
+  try {
+    const company = req.body.company;
+    const id = req.params.id;
+
+    const isExisting = await Customer.findById(id);
+    if (isExisting.companies.includes(company)) {
+      return res.status(400).json({ error: "Bu Şirket Zaten Mevcut." });
+    }
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      id,
+      {
+        $push: { companies: company },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedCustomer);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.companyRemoveFromCustomer = async (req, res) => {
+  try {
+    const company = req.body.company;
+    const id = req.params.id;
+
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      id,
+      {
+        $pull: { companies: company },
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedCustomer);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getCustomerCompanies = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const customer = await Customer.findById(id);
+
+    if (!customer) {
+      return res.status(404).json({ error: "Müşteri bulunamadı." });
+    }
+
+    const companies = customer.companies;
+
+    res.status(200).json({ companies: companies });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+

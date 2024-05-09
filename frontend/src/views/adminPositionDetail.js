@@ -1,28 +1,23 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaInfoCircle } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { DragDropContext } from "react-beautiful-dnd";
 import Notification from "../utils/notification";
 import "react-circular-progressbar/dist/styles.css";
 import NavBar from "../components/adminNavBar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
-import CircularBar from "../components/circularBar";
-import UserNavbar from "../components/userNavbar";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import Loading from "../components/loadingComponent";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { Badge } from "antd";
+import { Badge, Button } from "antd";
 import socket from "../config/config";
-
+import NomineeList from "../components/NomineeList";
+import RequestedNomineeList from "../components/RequestedNomineesList";
 
 const AdminPositionDetail = () => {
-
   const [nominees, setNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
@@ -34,6 +29,7 @@ const AdminPositionDetail = () => {
   const [position, setPosition] = useState();
   const { id } = useParams();
   const [show, setShow] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [numOfReqNominees, setNumOfReqNominees] = useState(0);
   const toggleDropdown = () => {
@@ -49,26 +45,22 @@ const AdminPositionDetail = () => {
   const closeNomineeDetail = () => {
     setIsNomineeDetailOpen(false);
   };
+  const handleTabChange = (index) => {
+    setSelectedTab(index);
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
 
     socket.on('demandCreated', (response) => {
-      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
-      console.log(response);
       if (response.id === id) {
-        console.log("burayayda geldiidii");
         setRequestedNominees(response.allCVs.requestedNominees);
         setNominees(response.allCVs.sharedNominees);
         setSuggestedNominees(response.allCVs.suggestedAllCvs);
       }
 
-
-
-      // Örneğin, DOM manipülasyonu yaparak HTML içinde bu veriyi gösterebilirsiniz.
     });
-
-  }, [])
+  }, []);
   useEffect(() => {
     if (user && user.role !== "admin") {
       navigate("/forbidden");
@@ -87,8 +79,6 @@ const AdminPositionDetail = () => {
     }
     getPositionById(id);
   }, [id]);
-
-
 
   const getPositionById = async (id) => {
     setLoading(true);
@@ -119,12 +109,9 @@ const AdminPositionDetail = () => {
       const suggestedData = response.data.suggestedAllCvs;
       const requestedNominees = response.data.requestedNominees;
 
-
-
-
       setNominees(nomineesData);
       setSuggestedNominees(suggestedData);
-      setRequestedNominees(requestedNominees)
+      setRequestedNominees(requestedNominees);
       setLoading(false);
     } catch (error) {
       setError(error.message);
@@ -284,12 +271,10 @@ const AdminPositionDetail = () => {
   };
 
   const removeNomineeFromDemanded = async (nomineeId) => {
-
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/delete-request/${id}`,
         { nomineeId: nomineeId }
-
       );
       try {
         const response = await axios.post(
@@ -308,7 +293,6 @@ const AdminPositionDetail = () => {
             receiverCompanyId: position.companyId,
           }
         );
-        console.log("BİLDİRİM GİTTTİİİ" + response);
         socket.emit("notificationCreated", response.data.notificationId);
       } catch (error) {
         console.error(error + " bildirim iletilemedi.");
@@ -325,8 +309,7 @@ const AdminPositionDetail = () => {
     } catch (error) {
       Notification("error", ` İşlem gerçekleşirken bir hata oluştu.`);
     }
-  }
-
+  };
 
   const acceptNomineeFromDemanded = async (nomineeId) => {
     const movedNominee = requestedNominees.find(
@@ -358,7 +341,6 @@ const AdminPositionDetail = () => {
             receiverCompanyId: position.companyId,
           }
         );
-        console.log("BİLDİRİM GİTTTİİİ" + response);
         socket.emit("notificationCreated", response.data.notificationId);
       } catch (error) {
         console.error(error + " bildirim iletilemedi.");
@@ -373,324 +355,120 @@ const AdminPositionDetail = () => {
     }
   };
 
-
   return (
     <>
       <NavBar />
-      {loading && <p>Veriler yükleniyor...</p>}
-      {error && <p>Hata: {error}</p>}
       {loading ? (
         <Loading />
       ) : (
         <div className="body">
-
-          <button
-            className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
-            onClick={() => navigate(-1)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+          <Button
+            type="link"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)} >
             Geri Dön
-          </button>
-          <Tabs>
-            <TabList>
-              <Tab>Pozisyon Detay</Tab>
-              <Tab>Aday İşlemleri<Badge className="ml-2 mb-1" count={requestedNominees.length} /></Tab>
-            </TabList>
-            <TabPanel>
-              {position && (
-                <div className="bg-white p-4 rounded border shadow">
-                  <div className="font-semibold text-lg text-center mb-2 border-b border-gray-200 pb-2">
-                    Pozisyon Detayı
+          </Button>
+          {/* TABS DİV */}
+          <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
+            <div className="flex flex- row justify-start items-center ml-2">
+              <button
+                className={`flex items-center justify-center m-2 ${selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                  } `}
+                onClick={() => handleTabChange(0)}
+              >
+                Pozisyon Detay
+              </button>
+              <button
+                className={`flex items-center justify-center m-2 ${selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                  } `}
+                onClick={() => handleTabChange(1)}
+              >
+                Aday İşlemleri
+                {requestedNominees.length !== 0 && (
+                  <Badge
+                    className="ml-2 mb-1"
+                    count={requestedNominees.length}
+                  />
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="w-full justify-between items-center ">
+            {selectedTab === 0 && (
+              <>
+                {" "}
+                <div className="flex relative">
+                  <div className="w-[255px] rounded-xl bg-white p-4">
+                    <div className="flex flex-col gap-2  text-sm font-thin">
+                      <p><strong className="font-semibold">Departman: </strong>{position?.department}</p>
+                      <p><strong className="font-semibold">İş Unvanı:</strong> {position?.jobtitle}</p>
+                      <p><strong className="font-semibold">Deneyim Süresi:</strong>{position?.experienceperiod}</p>
+                      <p><strong className="font-semibold">Çalışma Şekli:</strong> {position?.modeofoperation}</p>
+                      <p><strong className="font-semibold">Sözleşme Tipi:</strong> {position?.worktype}</p>
+                      <p><strong className="font-semibold">Tercih Edilen Sektörler:</strong> { position?.industry &&  position?.industry?.join(", ")}</p>
+                      <p><strong className="font-semibold">Yasaklı Şirketler:</strong>{" "}{position?.bannedCompanies && position?.bannedCompanies?.join(", ")} </p>
+                      <p><strong className="font-semibold">Tercih Edilen Şirketler:</strong>{" "}{position?.preferredCompanies && position?.preferredCompanies?.join(", ")} </p>
+                      <div className="w-[207px] h-[1px] bg-[#E8E8E8]"></div>
+                      <p><strong className="font-semibold">Beceriler:</strong>
+                        <ul className="list-disc ml-4 mt-1 grid grid-cols-2 font-thin ">
+                          {position?.skills.map((skill, index) => (
+                            <li key={index}>{skill}</li>
+                          ))}
+                        </ul>
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
+                  <div class="w-full rounded-xl bg-white p-4 ml-5">
                     <p>
-                      <strong>Departman:</strong> {position.department}
-                    </p>
-                    <p>
-                      <strong>İş Unvanı:</strong> {position.jobtitle}
-                    </p>
-                    <p>
-                      <strong>Deneyim Süresi:</strong> {position.experienceperiod}
-                    </p>
-                    <p>
-                      <strong>Çalışma Şekli:</strong>{" "}
-                      {position.modeofoperation}
-                    </p>
-
-                    <p>
-                      <strong>Sözleşme Tipi:</strong> {position.worktype}
-                    </p>
-
-                    <p>
-                      <strong>Sektör:</strong> {position.industry?.join(" ")}
-                    </p>
-                    <p>
-                      <strong>Yasaklı Şirketler:</strong>{" "}
-                      {position.bannedCompanies &&
-                        position.bannedCompanies?.join(",")}
-                    </p>
-
-                    <p>
-                      <strong>Tercih Edilen Şirketler:</strong>{" "}
-                      {position.preferredCompanies &&
-                        position.preferredCompanies?.join(",")}
-                    </p>
-                    <p>
-                      <strong>Beceriler:</strong>
-
-                      <ul className="list-disc ml-4 grid grid-cols-3">
-                        {position.skills.map((skill, index) => (
-                          <li key={index}>{skill}</li>
-                        ))}
-                      </ul>
-                    </p>
-                    <p>
-                      <strong>İş Tanımı:</strong>
                       <MarkdownEditor.Markdown
-                        source={position.description}
-                        className="bg-gray-300"
+                        source={position?.description}
                         style={{
-                          backgroundColor: "#0000000F",
+                          backgroundColor: "#00000000",
                           color: "black",
                           padding: 10,
+                          fontWeight: 200,
+                          fontSize: 14,
                           borderRadius: 10,
                         }}
                       />
                     </p>
                   </div>
                 </div>
-              )}
-
-            </TabPanel>
-            <TabPanel>
-              <div className="grid grid-cols-3 gap-7">
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <div className="w-full">
-                    <div className="bg-white  p-4 rounded border shadow">
-                      <h3 className="font-semibold text-lg text-center mb-4 border-b border-gray-200 pb-2">
-                        Atanan Adaylar
-                      </h3>
-                      {loading && <p>Veriler yükleniyor...</p>}
-                      {error && <p>Hata: {error}</p>}
-
-                      <Droppable droppableId="nominees">
-                        {(provided) => (
-                          <div ref={provided.innerRef} {...provided.droppableProps}>
-                            {nominees.map((nominee, index) => (
-                              <Draggable
-                                key={nominee.cv._id}
-                                draggableId={nominee.cv._id}
-                                index={index}
-                              >
-                                {(provided) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                  >
-                                    <div className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative">
-                                      <CircularBar nominee={nominee}></CircularBar>
-
-                                      <p>
-                                        <strong>Unvan:</strong> {nominee.cv.title}
-                                      </p>
-                                      {nominee.cv.education.map((edu, index) => (
-                                        <ul>
-                                          <li key={index}>
-                                            <div>
-                                              <strong>Degree:</strong> {edu.degree}
-                                            </div>
-                                          </li>
-                                        </ul>
-                                      ))}
-                                      <strong>Skills:</strong>
-                                      <ul className="list-disc ml-4">
-                                        {nominee.cv.skills.map((skill, index) => (
-                                          <li key={index}>{skill}</li>
-                                        ))}
-                                      </ul>
-                                      <div className="flex gap-5 mt-1 w-full h-[40px] items-center justify-end ">
-                                        <button
-                                          className="right-4 bottom-20 flex items-center text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                          onClick={() =>
-                                            moveNomineeToNominees(nominee.cv._id)
-                                          }
-                                        >
-                                          Çıkar
-                                        </button>
-                                        <button
-                                          className=" right-4 bottom-4   flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                                          onClick={() =>
-                                            handleNomineeDetail(nominee.cv, true)
-                                          }
-                                        >
-                                          Detaylar{" "}
-                                          {/* <FaInfoCircle className="ml-2 size-4" /> */}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </div>
+              </>
+            )}
+            {selectedTab === 1 && (
+              <>
+                {" "}
+                <div className="flex justify-around items-center ">
+                  <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 xl:grid-cols-3 xl:gap-12">
+                    <DragDropContext onDragEnd={onDragEnd}>
+                      <NomineeList
+                        currentNominees={nominees}
+                        removeNominee={moveNomineeToNominees}
+                        handleNomineeDetail={handleNomineeDetail}
+                        addNominee={moveNomineeToSuggested}
+                        droppableId={"nominees"}
+                      />
+                      <NomineeList
+                        currentNominees={suggestedNominees}
+                        removeNominee={moveNomineeToNominees}
+                        handleNomineeDetail={handleNomineeDetail}
+                        addNominee={moveNomineeToSuggested}
+                        isTarget={false}
+                        droppableId={"suggestedNominees"}
+                      />
+                      <RequestedNomineeList
+                        requestedNominees={requestedNominees}
+                        removeNomineeFromDemanded={removeNomineeFromDemanded}
+                        acceptNomineeFromDemanded={acceptNomineeFromDemanded}
+                        handleNomineeDetail={handleNomineeDetail}
+                      />
+                    </DragDropContext>
                   </div>
-                  <div className="col-span-1 ">
-                    <div className="bg-white p-4 rounded border shadow">
-                      <h3 className="font-semibold text-lg text-center mb-4 border-b border-gray-200 pb-2">
-                        CV Havuzu
-                      </h3>
-                      <Droppable droppableId="suggestedNominees">
-                        {(provided) => (
-                          <div ref={provided.innerRef} {...provided.droppableProps}>
-                            {suggestedNominees.map((nominee, index) => (
-                              <Draggable
-                                key={nominee.cv._id}
-                                draggableId={nominee.cv._id}
-                                index={index}
-                              >
-                                {(provided) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-                                  >
-                                    <CircularBar nominee={nominee}></CircularBar>
+                </div>
+              </>
+            )}
 
-                                    <p>
-                                      <strong>Unvan:</strong> {nominee.cv.title}
-                                    </p>
-                                    {nominee.cv.education.map((edu, index) => (
-                                      <ul key={index}>
-                                        <li>
-                                          <div>
-                                            <strong>Degree:</strong> {edu.degree}
-                                          </div>
-                                        </li>
-                                      </ul>
-                                    ))}
-                                    <strong>Skills:</strong>
-                                    <ul className="list-disc ml-4">
-                                      {nominee.cv.skills.map((skill, index) => (
-                                        <li key={index}>{skill}</li>
-                                      ))}
-                                    </ul>
-                                    <div className="flex gap-5 mt-1 w-full h-[40px] items-center justify-end ">
-                                      <button
-                                        className=" right-4 bottom-20 flex items-center text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                                        onClick={() =>
-                                          moveNomineeToSuggested(nominee.cv._id)
-                                        }
-                                      >
-                                        Ekle
-                                      </button>
-                                      <button
-                                        className=" right-4 bottom-4   flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                                        onClick={() =>
-                                          handleNomineeDetail(nominee.cv, false)
-                                        }
-                                      >
-                                        Detaylar{" "}
-                                        {/* <FaInfoCircle className="ml-2 size-4" /> */}
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-
-                    </div>
-                  </div>
-                  <div className="col-span-1 ">
-                    <div className="bg-white p-4 rounded border shadow">
-                      <h3 className="font-semibold text-lg text-center mb-4 border-b border-gray-200 pb-2">
-                        Talep Edilen Adaylar
-                      </h3>
-                      <div >
-                        {requestedNominees.map((nominee, index) => (
-                          <div
-
-                            className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-                          >
-                            <CircularBar nominee={nominee}></CircularBar>
-
-                            <p>
-                              <strong>Unvan:</strong> {nominee.cv?.title}
-                            </p>
-                            {nominee.cv?.education.map((edu, index) => (
-                              <ul key={index}>
-                                <li>
-                                  <div>
-                                    <strong>Degree:</strong> {edu.degree}
-                                  </div>
-                                </li>
-                              </ul>
-                            ))}
-                            <strong>Skills:</strong>
-                            <ul className="list-disc ml-4">
-                              {nominee.cv?.skills.map((skill, index) => (
-                                <li key={index}>{skill}</li>
-                              ))}
-                            </ul>
-                            <div className="flex gap-5 mt-1 w-full h-[40px] items-center justify-end ">
-                              <button
-                                className=" right-4 bottom-20 flex items-center text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                onClick={() =>
-                                  removeNomineeFromDemanded(nominee.cv._id)
-                                }
-                              >
-                                Sil
-                              </button>
-                              <button
-                                className=" right-4 bottom-20 flex items-center text-white bg-gradient-to-r from-green-500 to-green-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                                onClick={() =>
-                                  acceptNomineeFromDemanded(nominee.cv._id)
-                                }
-                              >
-                                Onayla
-                              </button>
-
-                              <button
-                                className="    flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                                onClick={() =>
-                                  handleNomineeDetail(nominee.cv, false)
-                                }
-                              >
-                                Detaylar{" "}
-                                {/* <FaInfoCircle className="ml-2 size-4" /> */}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </DragDropContext>
-              </div>
-
-            </TabPanel>
             {isNomineeDetailOpen && (
               <NomineeDetail
                 nominee={nomineeDetail}
@@ -698,8 +476,7 @@ const AdminPositionDetail = () => {
                 onClose={closeNomineeDetail}
               />
             )}
-
-          </Tabs>
+          </div>
         </div>
       )}
     </>

@@ -1,33 +1,21 @@
-
-export const validateForm = (email, password) => {
-
+export const validateForm = (email, password, t) => {
   const errors = {};
 
   if (!email) {
-
-    errors.email = 'Email alanı boş bırakılamaz';
-
+    errors.email = t("login.validate_email_empty");
   } else if (!/^\S+@\S+\.(com|net|org)$/i.test(email)) {
-    errors.email = 'Geçerli bir email girin';
+    errors.email = t("login.validate_email_error");
+  } else {
+    errors.email = false;
   }
-  else{
-    errors.email=false;
-  }
-
 
   if (!password) {
-
-    errors.password = 'Şifre alanı boş bırakılamaz';
-
+    errors.password = t("login.validate_password_empty");
   } else if (password.length < 6) {
-
-    errors.password = 'Geçersiz Şifre';
-
-  }
-  else{
-    errors.password=false;
+    errors.password = t("login.validate_password_error");
+  } else {
+    errors.password = false;
   }
 
   return errors;
-
 };

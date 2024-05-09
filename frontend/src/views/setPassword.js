@@ -15,6 +15,7 @@ import "../components/Login.css";
 import logo from "../assets/login.png";
 import logoIcon from "../assets/logoIcon.png";
 import logoText from "../assets/logoText.png";
+import { useTranslation } from "react-i18next";
 export default function SetPassword() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
@@ -26,7 +27,7 @@ export default function SetPassword() {
   const [confirm, setConfirm] = useState("");
   const { id } = useParams();
   const [isVisible, setIsVisible] = useState(true);
-
+  const {t,i18n}=useTranslation();
   useEffect(() => {
     if (id) {
       const token = jwtDecode(id);
@@ -86,8 +87,18 @@ export default function SetPassword() {
       );
     }
   };
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.cookie = `i18next=${lng}; path=/`;
+  };
   return (
     <div className="flex container-div">
+    <div className="flex flex-row absolute right-0 mr-3 mt-2 ">
+        <button className="mr-4" onClick={() => changeLanguage("en")}>
+          English
+        </button>
+        <button onClick={() => changeLanguage("tr")}>Türkçe</button>
+      </div>
     <div className="loginNone">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
         {isVisible && (
@@ -105,15 +116,15 @@ export default function SetPassword() {
       </div>
       <div className="flex flex-col justify-center items-center h-screen bg-white form-div p-5 mx-auto">
         <Form onSubmit={handleSubmit} className=" w-full mx-auto form ">
-          <p className="text-2xl  text-left font-medium">Şifre Belirle</p>
+          <p className="text-2xl  text-left font-medium">{t("set_password.header")}</p>
           <p className="text-sm text-left my-4  font-normal">
-            Lütfen şifre kurallarına uygun olarak şifrenizi belirleyiniz.
+          {t("set_password.message")}
           </p>
           <div className="flex flex-col">
-            <label className="text-gray-600 text-sm mb-1">Şifre</label>
+            <label className="text-gray-600 text-sm mb-1">{t("set_password.labels.password")}</label>
             <Form.Item name="password" rules={[password.length >= 8]} hasFeedback={{
               validateStatus: password.length < 8 ? 'error' : '',
-              help: password.length < 8 ? 'Şifre en az 8 karakter uzunluğunda olmalıdır.' : ''
+              help: password.length < 8 ? t("set_password.rules.first_rule") : ''
             }}>
               <ConfigProvider
                 theme={{
@@ -141,7 +152,7 @@ export default function SetPassword() {
                 <Space className={"block"}>
                   <Input
                     onBlur={handlePasswordChange}
-                    placeholder="Şifrenizi yazınız"
+                    placeholder={t("set_password.placeholders.password")}
                     disabled={loading}
                     className="h-[40px]"
                     suffix={
@@ -162,7 +173,7 @@ export default function SetPassword() {
           </div>
           <div className="flex flex-col ">
             <div className="relative">
-              <label className="text-gray-600 text-sm">Şifre Tekrar</label>
+              <label className="text-gray-600 text-sm">{t("set_password.labels.password_again")}</label>
               <Form.Item
                 name="confirm"
                 dependencies={["password"]}
@@ -207,7 +218,7 @@ export default function SetPassword() {
                     <Input
                       className="mt-1 h-[40px]"
                       onBlur={handleConfirmPasswordChange}
-                      placeholder="Şifrenizi tekrar yazınız"
+                      placeholder={t("set_password.placeholders.password_again")}
                       disabled={loading}
                       suffix={
                       (confirm.length < 8 || !(/[a-zA-Z]/.test(confirm)) ||confirm!==password||
@@ -226,7 +237,7 @@ export default function SetPassword() {
 
               </Form.Item>
               <Alert
-                message="Şifre Kuralları"
+                message={t("set_password.rules.title")}
                 className={`${password.length >= 8 &&
                   /[a-zA-Z]/.test(password) &&
                   /\d/.test(password) && confirm === password ? "hidden" : ""}  `}
@@ -234,17 +245,17 @@ export default function SetPassword() {
                   password.length >= 8 &&
                     /[a-zA-Z]/.test(password) &&
                     /\d/.test(password) && confirm !== password ? (
-                    <p>Lütfen belirlediğiniz şifreyi tekrar yazınız.</p>
+                    <p>{t("set_password.rules.again_message")}</p>
                   ) : (
                     <>
                       {password.length < 8 && (
-                        <p>En az 8 karakter olmalıdır.</p>
+                        <p>{t("set_password.rules.first_rule")}</p>
                       )}
                       {!/[a-zA-Z]/.test(password) && (
-                        <p>En az bir harf içermelidir.</p>
+                        <p>{t("set_password.rules.second_rule")}</p>
                       )}
                       {!/\d/.test(password) && (
-                        <p>En az bir rakam içermelidir.</p>
+                        <p>{t("set_password.rules.third_rule")}.</p>
                       )}
                     </>
                   )
@@ -274,16 +285,16 @@ export default function SetPassword() {
                   {loading ? (
                     <LoadingOutlined style={{ marginRight: "5px" }} spin />
                   ) : null}
-                  {loading ? "" : "Şifre Belirle"}
+                  {loading ? "" : t("set_password.button_text")}
                 </Button>
               ) : (
                 <Button disabled={true} className="h-9 w-full mt-5">
-                  Şifre Belirle
+                {t("set_password.button_text")}
                 </Button>
               )}
             </div>
             <a href="/" className="text-sm  text-center font-light mt-4">
-              Giriş sayfasına geri dön
+            {t("set_password.back_button_text")}
             </a>
           </div>
         </Form>

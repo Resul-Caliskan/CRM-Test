@@ -1,4 +1,4 @@
-import React, {useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../redux/authSlice';
@@ -14,6 +14,7 @@ import Notifications from "../views/notifications";
 import NavBar from '../components/adminNavBar';
 import DemandForm from './demand';
 import UserForm from './addUser';
+import Profile from './profile';
 
 const App = () => {
 
@@ -37,15 +38,18 @@ const App = () => {
         console.error(error);
       });
     }
-    
+
   }, [user]);
 
   let renderComponent;
   switch (selectedOption) {
+    case "profile":
+      renderComponent = <Profile />
+      break;
     case "add-customer":
       renderComponent = <CompanyForm />;
       break;
-      case "add-demand":
+    case "add-demand":
       renderComponent = <DemandForm />;
       break;
     case "list-demands":
@@ -57,7 +61,7 @@ const App = () => {
     case "list-positions":
       renderComponent = <AdminListPosition />;
       break;
-      case "add-position":
+    case "add-position":
       renderComponent = <AddPosition />;
       break;
     case "parameters":
@@ -66,21 +70,21 @@ const App = () => {
     case "edit-customer":
       renderComponent = <ListPosition />;
       break;
-      case "add-user":
-        renderComponent = <UserForm />;
-        break;
-        case "notifications":
-          renderComponent = <Notifications />;
-          break;
+    case "add-user":
+      renderComponent = <UserForm />;
+      break;
+    case "notifications":
+      renderComponent = <Notifications />;
+      break;
     default:
       renderComponent = <ListCustomers />;
   }
   return (
-    <>
-      <NavBar/>
-      {user && <div>{renderComponent }</div>}
-    </>
-    
+    <div className=''>
+      <NavBar />
+      {user && <div className='h-full'> {renderComponent}</div>}
+    </div>
+
 
   );
 };

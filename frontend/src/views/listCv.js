@@ -6,26 +6,21 @@ import NomineeDetail from "../components/nomineeDetail";
 import SearchInput from "../components/searchInput";
 import Highlighter from "react-highlight-words";
 import Loading from "../components/loadingComponent";
-import { FaRegStar } from "react-icons/fa";
 import Notification from "../utils/notification";
 
-import {
-  SearchOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  InfoCircleOutlined,
-  CheckCircleOutlined,
-  StarOutlined,
-} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "../components/style.css";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import { Button, Input, Rate, notification } from "antd";
+import { Button } from "antd";
 import FilterComponent from "../components/filterComponent";
 import filterFunction from "../utils/globalSearchFunction";
+import DemandNomineeModel from "../components/demandNomineeModel";
+import socket from "../config/config";
+import NomineeCard from "../components/CVNomineeCard";
+import { useTranslation } from "react-i18next";
 
 const CVList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [sharedItems, setSharedItems] = useState([]);
   const [cvs, setCvs] = useState([]);
@@ -33,19 +28,25 @@ const CVList = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const companyId = getIdFromToken(localStorage.getItem("token"));
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [isNomineeDetailOpen, setIsNomineeDetailOpen] = useState(false);
   const [nomineeDetail, setNomineeDetail] = useState();
   const [isKnown, setIsKnown] = useState(true);
   const [parameterOptions, setParameterOptions] = useState([]);
   const [favoriteSharedNominees, setFavoriteSharedNominees] = useState();
   const [favoriteCvs, setFavoriteCvs] = useState();
+  const [selectedTab, setSelectedTab] = useState(0);
   const [filters, setFilters] = useState({
     skills: [],
     jobtitle: [],
   });
-
+  const [open, setOpen] = useState(false);
+  const [selectedNominee, setSelectedNominee] = useState();
   const [favorites, setFavorites] = useState(false);
-
+  const handleTabChange = (index) => {
+    setSelectedTab(index);
+  };
+  const [positions, setPositions] = useState([]);
   const openNomineeDetail = () => {
     setIsNomineeDetailOpen(true);
   };
@@ -94,24 +95,10 @@ const CVList = () => {
       console.error(error);
     }
   };
-
-  const filterCandidates = (candidates, shared, searchTerm) => {
-    return cvs.filter((candidate) => {
-      const searchFields = ["title", "skills"];
-      const { jobtitle, skills } = filters;
-      return (
-        (jobtitle.length === 0 || jobtitle.includes(candidate.title)) &&
-        (skills.length === 0 || skills.includes(candidate.skills)) &&
-        (searchTerm === "" ||
-          filterFunction(searchFields, candidate, searchTerm.toLowerCase()))
-      );
-    });
-  };
-
   const filterCvs = (cvs, isNormal, searchTerm) => {
     return cvs.filter((candidate) => {
-      const searchFields = ["title", "skills"];
-      const searchTermFields = ["title", "skills", "name"];
+      const searchFields = ["title", "skills", "exprience"];
+      const searchTermFields = ["title", "skills", "name", "exprience"];
       const { jobtitle, skills } = filters;
       if (isNormal) {
         return (
@@ -149,6 +136,7 @@ const CVList = () => {
   useEffect(() => {
     fetchCVs();
     fetchParameterOptions();
+    fetchPositions();
   }, []);
   const fetchParameterOptions = async () => {
     try {
@@ -158,12 +146,26 @@ const CVList = () => {
       const filteredOptions = response.data.filter((option) => {
         return option.title === "Yetenekler" || option.title === "İş Unvanı";
       });
-      setParameterOptions(filteredOptions);
+
+      setParameterOptions(handleLocalization(filteredOptions));
     } catch (error) {
       console.error("Parameter options fetching failed:", error);
     }
   };
 
+  const fetchPositions = async () => {
+    try {
+      setLoading(true); // Set loading to true before making the request
+      const response = await axios.get(
+        `${apiUrl}/api/positions/get/${companyId}`
+      );
+      setPositions(response.data);
+    } catch (error) {
+      console.error("Positions fetching failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchCVs = async () => {
     setLoading(true);
     try {
@@ -184,18 +186,6 @@ const CVList = () => {
     setLoading(false);
   };
 
-  const handleNomineeDetail = (nominee, isKnown) => {
-    if (nominee && nominee._id) {
-      setIsKnown(isKnown);
-      setNomineeDetail(nominee);
-      openNomineeDetail();
-    } else {
-      console.error(
-        "Pozisyon detayları alınamadı: Pozisyon bilgileri eksik veya geçersiz."
-      );
-    }
-  };
-
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
@@ -208,603 +198,212 @@ const CVList = () => {
       );
     }
   };
-
-  const handleAddToFavorites = async (nominee, isShared) => {
+  const handleLocalization = (parameters) => {
+    return parameters.map((parameter) => {
+      if (parameter.title === "Yetenekler") {
+        parameter.title = t("listCandidates.skills");
+        return parameter;
+      }
+      if (parameter.title === "İş Unvanı") {
+        parameter.title = t("listCandidates.jobtitle");
+        return parameter;
+      }
+    });
+  };
+  const handleRequestNominee = (nominee) => {
+    setOpen(true);
+    setSelectedNominee(nominee._id);
+  };
+  const handleCancelRequest = async (nomineeId, positionId) => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/nominee/add-favorites/${companyId}`,
-
-        { nomineeId: nominee._id }
+        `${apiUrl}/api/positions/delete-request/${positionId}`,
+        { nomineeId: nomineeId }
       );
-      if (isShared) {
-       
-        setFavoriteSharedNominees([...favoriteSharedNominees, nominee]);
-      } else {
-        setFavoriteCvs([...favoriteCvs, nominee]);
-      }
 
-      Notification("success", "Aday Favorilere Eklendi.");
+      try {
+        const response2 = await axios.delete(
+          `${apiUrl}/api/notification/delete/${positionId}/${nomineeId}`
+        );
+        socket.emit("notificationDeleted", response2.data.notification);
+      } catch (error) {
+        console.error("Bildirim silinirken bir hata oluştu:", error);
+      }
+      setPositions((prevPositions) => {
+        // Seçilen pozisyonun index'ini bul
+        const positionIndex = prevPositions.findIndex(
+          (position) => position._id === positionId
+        );
+
+        // Eğer pozisyon bulunamazsa, mevcut pozisyon listesini geri döndür
+        if (positionIndex === -1) {
+          return prevPositions;
+        }
+
+        // Seçilen pozisyonu kopyala
+        const updatedPositions = [...prevPositions];
+
+        // Seçilen pozisyonun aday listesinden belirli adayı çıkar
+        updatedPositions[positionIndex] = {
+          ...updatedPositions[positionIndex],
+          requestedNominees: updatedPositions[
+            positionIndex
+          ].requestedNominees.filter((id) => id !== nomineeId),
+        };
+
+        // Güncellenmiş pozisyon listesini döndür
+        return updatedPositions;
+      });
+      socket.emit("notificationDeleted", positionId);
+      Notification("success", "Talep Başarıyla Silindi.");
     } catch (error) {
-      Notification("error", "Bu Aday Zaten Favorilere Eklendi.");
-      console.error("Favori aday eklenirken bir hata oluştu:", error.message);
+      console.error("Talep silinirken bir hata oluştu:", error);
     }
   };
-
-  const handleDeleteFavorites = async (nominee, isShared) => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/nominee/delete-favorites/${companyId}`,
-        { nomineeId: nominee._id }
-      );
-      if (isShared) {
-        const updatedFavorites = favoriteSharedNominees.filter(
-          (favNominee) => favNominee._id !== nominee._id
-        );
-
-        setFavoriteSharedNominees(updatedFavorites);
-      } else {
-        const updatedFavorites = favoriteCvs.filter(
-          (favNominee) => favNominee._id !== nominee._id
-        );
-
-        setFavoriteCvs(updatedFavorites);
+  const checkNomineeInPositions = (nomineeId, positions) => {
+    // positions içindeki her bir pozisyonu gez
+    for (let i = 0; i < positions.length; i++) {
+      console.log("sdklksjfsd" + positions[i].requestedNominees[0]);
+      for (let j = 0; j < positions[i].requestedNominees.length; j++) {
+        // Eğer nomineeId, mevcut talep edilen adayın ID'sine eşitse, true döndür
+        console.log(positions[i].requestedNominees[j] + "  " + nomineeId);
+        if (positions[i].requestedNominees[j] === nomineeId) {
+          console.log("girdiiii");
+          return positions[i];
+        }
       }
-      Notification("success", "Aday Favorilerden Silindi.");
-      console.log("Favori aday eklendi:", response.data);
-    } catch (error) {
-      console.error("Favori aday eklenirken bir hata oluştu:", error.message);
     }
+    return false;
   };
   return (
     <>
       {loading ? (
         <Loading />
       ) : (
-        <div className="body">
-          <div className="leftMenu">
+        <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
+          <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-auto  lg:w-[30%] p-2">
             <FilterComponent
               setFilters={setFilters}
               parameterOptions={parameterOptions}
               isHorizontal={false}
             />
           </div>
-          <div className="rightTab">
-            <div className="searchBar">
-              <SearchInput
-                searchTerm={searchTerm.toLowerCase()}
-                onSearch={handleSearch}
-              />
-            </div>
-            <div className="tabBar">
-              <Tabs className="">
-                <TabList className="pl-4">
-                  <Tab>Tümü</Tab>
-                  <Tab>Benimle Paylaşılanlar</Tab>
-                  <Tab>Cv Havuzu</Tab>
-                  <Tab>Favoriler</Tab>
-                </TabList>
-                <div className="contentPool">
-                  <TabPanel>
+
+          <div className="flex flex-col w-full contentCV overflow-hidden ">
+            <div className="justify-center items-center px-10">
+              <div className="flex flex-col h-max border   lg:flex-row bg-white lg:justify-between items-center rounded-2xl m-2">
+                <div className="flex flex-row justify-start items-center ml-2 p-2">
+                  <button
+                    className={`flex items-center justify-center m-2 ${
+                      selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                    } `}
+                    onClick={() => handleTabChange(0)}
+                  >
+                    {t("listCandidates.all_nominees")}
+                  </button>
+                  <button
+                    className={`flex items-center justify-center m-2 ${
+                      selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                    } `}
+                    onClick={() => handleTabChange(1)}
+                  >
+                    {t("listCandidates.shared_with_me")}
+                  </button>
+                  <button
+                    className={`flex items-center justify-center m-2 ${
+                      selectedTab === 2 ? "border-b-2 pb-1 border-blue-400" : ""
+                    } `}
+                    onClick={() => handleTabChange(2)}
+                  >
+                    {t("listCandidates.cv_pool")}
+                  </button>
+                </div>
+                <div className="hidden md:flex md:flex-row justify-end mr-2">
+                  <SearchInput
+                    searchTerm={searchTerm.toLowerCase()}
+                    onSearch={handleSearch}
+                  />
+                </div>
+              </div>
+              <div className="contentPool">
+                {selectedTab === 0 && (
+                  <>
                     <div className="cols-span-1 p-4 md:border-r-2">
                       <ul>
                         {filterCvs(sharedItems, true, searchTerm).map(
                           (nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox duration-150 p-4 rounded border shadow mb-4 relative"
-                            >
-                              <div className="flex justify-between">
-                                {" "}
-                                <h4 className="font-semibold text-lg mb-2 ">
-                                  <Highlighter
-                                    highlightClassName="highlighted"
-                                    searchWords={[searchTerm]}
-                                    autoEscape={true}
-                                    textToHighlight={
-                                      nominee.nomineeInfo?.name || ""
-                                    }
-                                  />{" "}
-                                  <FaStar
-                                    value={favorites}
-                                    style={{
-                                      fontSize: "24px",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() => {
-                                      handleAddToFavorites(
-                                        nominee.nomineeInfo,
-                                        true
-                                      );
-                                    }}
-                                  />
-                                </h4>
-                                <h4>
-                                  <div className="flex flex-col items-center ">
-                                    {" "}
-                                    <h4 className="font-semibold text-lg">
-                                      Adayın Önerildiği Pozisyon:{" "}
-                                    </h4>
-                                    <h4
-                                      className="font-semibold text-md mb-2 underline cursor-pointer"
-                                      onClick={() =>
-                                        handlePositionDetails(
-                                          nominee?.position?.id
-                                        )
-                                      }
-                                    >
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={
-                                          nominee?.position?.title || ""
-                                        }
-                                      />
-                                    </h4>
-                                  </div>
-                                </h4>
-                              </div>
-
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={
-                                    nominee.nomineeInfo?.title || ""
-                                  }
-                                />
-                              </p>
-                              {nominee.nomineeInfo?.education.map(
-                                (edu, index) => (
-                                  <ul>
-                                    <li key={index}>
-                                      <div>
-                                        <strong>Degree:</strong>
-                                        <Highlighter
-                                          highlightClassName="highlighted"
-                                          searchWords={[searchTerm]}
-                                          autoEscape={true}
-                                          textToHighlight={edu.degree || ""}
-                                        />
-                                      </div>
-                                    </li>
-                                  </ul>
-                                )
-                              )}
-
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.nomineeInfo?.skills.map(
-                                  (skill, index) => (
-                                    <li key={index}>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={skill || ""}
-                                      />
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee.nomineeInfo, true)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
+                            <NomineeCard
+                              nominee={nominee.nomineeInfo}
+                              companyId={companyId}
+                              searchTerm={searchTerm}
+                              positionRoute={nominee.position.id}
+                              known={true}
+                            
+                            />
                           )
                         )}
                       </ul>
-                      {isNomineeDetailOpen && (
-                        <NomineeDetail
-                          className="duration-1000"
-                          nominee={nomineeDetail}
-                          isKnown={isKnown}
-                          onClose={closeNomineeDetail}
-                        />
-                      )}
                     </div>
 
                     <div className="cols-span-1 p-4">
                       <div className="grid grid-cols-1">
                         {filterCvs(cvs, false, searchTerm).map(
                           (nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox p-4 rounded border shadow mb-4 relative"
-                            >
-                              <h4 className="font-semibold text-lg mb-2">
-                                Unknown{" "}
-                                {/* <FaStar
-                                  value={favorites}
-                                  style={{
-                                    fontSize: "24px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() => {
-                                    handleAddToFavorites(nominee, false);
-                                  }}
-                                /> */}
-                              </h4>
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={nominee.title || ""}
-                                />
-                              </p>
-                              {nominee.education.map((edu, index) => (
-                                <ul>
-                                  <li key={index}>
-                                    <div>
-                                      <strong>Degree:</strong>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={edu.degree || ""}
-                                      />
-                                    </div>
-                                  </li>
-                                </ul>
-                              ))}
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.skills.map((skill, index) => (
-                                  <li key={index}>
-                                    <Highlighter
-                                      highlightClassName="highlighted"
-                                      searchWords={[searchTerm]}
-                                      autoEscape={true}
-                                      textToHighlight={skill || ""}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee, false)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
+                            <NomineeCard
+                              nominee={nominee}
+                              companyId={companyId}
+                              searchTerm={searchTerm}
+                              known={false}
+                              position={positions}
+                            />
                           )
                         )}
                       </div>
                     </div>
-                  </TabPanel>
-                  <TabPanel>
+                  </>
+                )}
+                {selectedTab === 1 && (
+                  <>
+                    {" "}
                     <div className="cols-span-1 p-4 md:border-r-2">
                       <ul>
                         {filterCvs(sharedItems, true, searchTerm).map(
                           (nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox duration-150 p-4 rounded border shadow mb-4 relative"
-                            >
-                              <div className="flex justify-between">
-                                {" "}
-                                <h4 className="font-semibold text-lg mb-2 ">
-                                  <Highlighter
-                                    highlightClassName="highlighted"
-                                    searchWords={[searchTerm]}
-                                    autoEscape={true}
-                                    textToHighlight={
-                                      nominee.nomineeInfo.name || ""
-                                    }
-                                  />{" "}
-                                  <FaStar
-                                    value={favorites}
-                                    style={{
-                                      fontSize: "24px",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() => {
-                                      handleAddToFavorites(
-                                        nominee.nomineeInfo,
-                                        true
-                                      );
-                                    }}
-                                  />
-                                </h4>
-                                <h4>
-                                  <div className="flex flex-col items-center ">
-                                    {" "}
-                                    <h4 className="font-semibold text-lg">
-                                      Adayın Önerildiği Pozisyon:{" "}
-                                    </h4>
-                                    <h4
-                                      className="font-semibold text-md mb-2 underline cursor-pointer"
-                                      onClick={() =>
-                                        handlePositionDetails(
-                                          nominee?.position?.id
-                                        )
-                                      }
-                                    >
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={
-                                          nominee?.position?.title || ""
-                                        }
-                                      />
-                                    </h4>
-                                  </div>
-                                </h4>
-                              </div>
-
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={
-                                    nominee.nomineeInfo.title || ""
-                                  }
-                                />
-                              </p>
-                              {nominee.nomineeInfo.education.map(
-                                (edu, index) => (
-                                  <ul>
-                                    <li key={index}>
-                                      <div>
-                                        <strong>Degree:</strong>
-                                        <Highlighter
-                                          highlightClassName="highlighted"
-                                          searchWords={[searchTerm]}
-                                          autoEscape={true}
-                                          textToHighlight={edu.degree || ""}
-                                        />
-                                      </div>
-                                    </li>
-                                  </ul>
-                                )
-                              )}
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.nomineeInfo.skills.map(
-                                  (skill, index) => (
-                                    <li key={index}>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={skill || ""}
-                                      />
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee.nomineeInfo, true)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
+                            <NomineeCard
+                              nominee={nominee.nomineeInfo}
+                              companyId={companyId}
+                              searchTerm={searchTerm}
+                              positionRoute={nominee.position.id}
+                              known={true}
+                              
+                            />
                           )
                         )}
                       </ul>
                     </div>
-                    {isNomineeDetailOpen && (
-                      <NomineeDetail
-                        className="duration-1000"
-                        nominee={nomineeDetail}
-                        isKnown={isKnown}
-                        onClose={closeNomineeDetail}
-                      />
-                    )}
-                  </TabPanel>
-                  <TabPanel>
+                  </>
+                )}
+
+                {selectedTab === 2 && (
+                  <>
                     <div className="cols-span-1 p-4">
                       <div className="grid grid-cols-1 gap-4">
                         {filterCvs(cvs, false, searchTerm).map(
                           (nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox p-4 rounded border shadow mb-4 relative"
-                            >
-                              <h4 className="font-semibold text-lg mb-2">
-                                Unknown{" "}
-                                {/* <FaStar
-                                  value={favorites}
-                                  style={{
-                                    fontSize: "24px",
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={() => {
-                                    handleAddToFavorites(nominee, false);
-                                  }}
-                                /> */}
-                              </h4>
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={nominee.title || ""}
-                                />
-                              </p>
-                              {nominee.education.map((edu, index) => (
-                                <ul>
-                                  <li key={index}>
-                                    <div>
-                                      <strong>Degree:</strong>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={edu.degree || ""}
-                                      />
-                                    </div>
-                                  </li>
-                                </ul>
-                              ))}
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.skills.map((skill, index) => (
-                                  <li key={index}>
-                                    <Highlighter
-                                      highlightClassName="highlighted"
-                                      searchWords={[searchTerm]}
-                                      autoEscape={true}
-                                      textToHighlight={skill || ""}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee, false)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
+                            <NomineeCard
+                              nominee={nominee}
+                              companyId={companyId}
+                              searchTerm={searchTerm}
+                              known={false}
+                              position={positions}
+                            />
                           )
                         )}
                       </div>
                     </div>
-                    {isNomineeDetailOpen && (
-                      <NomineeDetail
-                        className="duration-1000"
-                        nominee={nomineeDetail}
-                        isKnown={isKnown}
-                        onClose={closeNomineeDetail}
-                      />
-                    )}
-                  </TabPanel>
-                  <TabPanel>
-                    <div className="cols-span-1 p-4 md:border-r-2">
-                      <ul>
-                      
-                        
-                       
-
-                        {favoriteSharedNominees &&
-                          favoriteSharedNominees.map((nominee, index) => (
-                            <div
-                              key={index}
-                              className="cvBox duration-150 p-4 rounded border shadow mb-4 relative"
-                            >
-                              <div className="flex justify-between">
-                                <h4 className="font-semibold text-lg mb-2 ">
-                                  <Highlighter
-                                    highlightClassName="highlighted"
-                                    searchWords={[searchTerm]}
-                                    autoEscape={true}
-                                    textToHighlight={nominee.name || ""}
-                                  />{" "}
-                                  <FaStar
-                                    value={favorites}
-                                    style={{
-                                      fontSize: "24px",
-                                      cursor: "pointer",
-                                    }}
-                                    onClick={() =>
-                                      handleDeleteFavorites(nominee,true)
-                                    }
-                                  />
-                                </h4>
-                                <h4>
-                                  <div className="flex flex-col items-center ">
-                                    <h4 className="font-semibold text-lg">
-                                      Adayın Önerildiği Pozisyon:{" "}
-                                    </h4>
-                                    <h4
-                                      className="font-semibold text-md mb-2 underline cursor-pointer"
-                                      onClick={() =>
-                                        handlePositionDetails(
-                                          nominee.position.id
-                                        )
-                                      }
-                                    >
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={
-                                          nominee.position?.title || ""
-                                        }
-                                      />
-                                    </h4>
-                                  </div>
-                                </h4>
-                              </div>
-
-                              <p>
-                                <strong>Unvan:</strong>
-                                <Highlighter
-                                  highlightClassName="highlighted"
-                                  searchWords={[searchTerm]}
-                                  autoEscape={true}
-                                  textToHighlight={nominee?.title || ""}
-                                />
-                              </p>
-                              {nominee.education.map((edu, index) => (
-                                <ul>
-                                  <li key={index}>
-                                    <div>
-                                      <strong>Degree:</strong>
-                                      <Highlighter
-                                        highlightClassName="highlighted"
-                                        searchWords={[searchTerm]}
-                                        autoEscape={true}
-                                        textToHighlight={edu.degree || ""}
-                                      />
-                                    </div>
-                                  </li>
-                                </ul>
-                              ))}
-                              <strong>Skills:</strong>
-                              <ul className="list-disc ml-4">
-                                {nominee.skills.map((skill, index) => (
-                                  <li key={index}>
-                                    <Highlighter
-                                      highlightClassName="highlighted"
-                                      searchWords={[searchTerm]}
-                                      autoEscape={true}
-                                      textToHighlight={skill || ""}
-                                    />
-                                  </li>
-                                ))}
-                              </ul>
-                              <button
-                                className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() =>
-                                  handleNomineeDetail(nominee, true)
-                                }
-                              >
-                                Detaylar{" "}
-                                <FaInfoCircle className="ml-2 size-4" />
-                              </button>
-                            </div>
-                          ))}
-                      </ul>
-                    </div>
-                  </TabPanel>
-                </div>
-              </Tabs>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

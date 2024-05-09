@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import "./style.css";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { Button, Input } from "antd";
-import VerticalFilterContainer from "./filterMenu"; 
- 
+import VerticalFilterContainer from "./filterMenu";
+import { useTranslation } from "react-i18next"; // i18n hook'u ekle
+
 const DropdownFilter = React.memo(
   ({
     title,
@@ -14,16 +15,17 @@ const DropdownFilter = React.memo(
     setIsClear,
     isOpenInitially,
   }) => {
+    const { t } = useTranslation(); // Tercüme için i18n hook'unu kullan
     const [isOpen, setIsOpen] = useState(false);
     const [checkedItems, setCheckedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const dropdownRef = useRef(null);
     const isHovered = useRef(false);
- 
+
     const toggleDropdown = () => {
       setIsOpen(!isOpen);
     };
- 
+
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (
@@ -34,18 +36,18 @@ const DropdownFilter = React.memo(
           setIsOpen(false);
         }
       };
- 
+
       document.addEventListener("mousedown", handleClickOutside);
- 
+
       return () => {
         document.removeEventListener("mousedown", handleClickOutside);
       };
     }, []);
- 
+
     useEffect(() => {
       onSelect(keyValue, checkedItems);
     }, [checkedItems]);
- 
+
     useEffect(() => {
       if (isClear) {
         setIsClear(false);
@@ -53,7 +55,7 @@ const DropdownFilter = React.memo(
         setSearchTerm("");
       }
     }, [isClear]);
- 
+
     const handleCheckboxChange = (value) => {
       let newCheckedItems = [];
       if (value === "__TUMU__") {
@@ -69,14 +71,14 @@ const DropdownFilter = React.memo(
       }
       setCheckedItems(newCheckedItems);
     };
- 
+
     const filteredOptions = options.filter((option) =>
       option.toLowerCase().includes(searchTerm.toLowerCase())
     );
- 
+
     const selectedCount =
       checkedItems.length > 0 ? `(${checkedItems.length})` : "";
- 
+
     return (
       <div
         ref={dropdownRef}
@@ -85,19 +87,19 @@ const DropdownFilter = React.memo(
         onMouseLeave={() => (isHovered.current = false)}
       >
         <button className="buttonDropdown" onClick={toggleDropdown}>
-          {title} {selectedCount}
+          {t(title)} {selectedCount} {/* Başlık metnini tercüme et */}
           {isOpen ? (
             <CaretUpOutlined className="ml-1" />
           ) : (
             <CaretDownOutlined className="ml-1" />
           )}
         </button>
- 
+
         {isOpen && (
           <div className="dropdown-content overflow-auto max-h-64">
             <Input
               allowClear={true}
-              placeholder="Ara..."
+              placeholder={t("search")} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-2 mt-2 h-8"
@@ -110,7 +112,7 @@ const DropdownFilter = React.memo(
                     checked={checkedItems.length === options.length}
                     onChange={() => handleCheckboxChange("__TUMU__")}
                   />
-                  Tümü
+                  {t("userListPosition.selectAll")} {/* Tümünü Seç metnini tercüme et */}
                 </label>
               </li>
               {filteredOptions.map((option) => (
@@ -132,15 +134,16 @@ const DropdownFilter = React.memo(
     );
   }
 );
- 
+
 const FilterComponent = ({
   parameterOptions,
   setFilters,
   isHorizontal = true,
 }) => {
+  const { t } = useTranslation(); // Tercüme için i18n hook'unu kullan
   const [isClear, setIsClear] = useState(false);
   const [openParameters, setOpenParameters] = useState({});
- 
+
   const handleSelect = (key, value) => {
     setFilters((prevFilters) => {
       const updatedFilters = { ...prevFilters };
@@ -148,7 +151,7 @@ const FilterComponent = ({
       return updatedFilters;
     });
   };
- 
+
   const handleClearAll = () => {
     setIsClear(true);
     parameterOptions.forEach((parameter) => {
@@ -160,21 +163,14 @@ const FilterComponent = ({
     });
     setOpenParameters({});
   };
- 
-  const toggleParameter = (title) => {
-    setOpenParameters((prevOpenParameters) => ({
-      ...prevOpenParameters,
-      [title]: !prevOpenParameters[title],
-    }));
-  };
- 
+
   return (
     <>
       {isHorizontal ? (
         <div
           className={`flex ${
             isHorizontal ? "flex-row" : "flex-col"
-          } gap-10 items-center justify-center mt-3`}
+          } gap-5 items-center justify-center mt-3`}
         >
           {!isHorizontal && (
             <Button
@@ -183,7 +179,7 @@ const FilterComponent = ({
               block={!isHorizontal}
               onClick={handleClearAll}
             >
-              Tümünü Temizle
+              {t("userListPosition.clearAll")}
             </Button>
           )}
           {parameterOptions.map((parameter) => (
@@ -205,7 +201,7 @@ const FilterComponent = ({
               block={!isHorizontal}
               onClick={handleClearAll}
             >
-              Tümünü Temizle
+              {t("userListPosition.clearAll")} {/* Tümünü Temizle metnini tercüme et */}
             </Button>
           )}
         </div>
@@ -220,5 +216,5 @@ const FilterComponent = ({
     </>
   );
 };
- 
+
 export default FilterComponent;

@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css"; // Tab stillerini ekleyin
+import "react-tabs/style/react-tabs.css";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { FaInfoCircle } from "react-icons/fa";
 import NomineeDetail from "../components/nomineeDetail";
 import UserNavbar from "../components/userNavbar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
-import { Empty } from "antd";
+import { Button, Empty } from "antd";
 import Notification from "../utils/notification";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
-import io from 'socket.io-client';
 import socket from "../config/config";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+
 const PositionDetail = () => {
+  const { t } = useTranslation();
   const [nominees, setNominees] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
@@ -27,33 +28,25 @@ const PositionDetail = () => {
   const [isNomineeDetailOpen, setIsNomineeDetailOpen] = useState(false);
   const [nomineeDetail, setNomineeDetail] = useState();
   const [isKnown, setIsKnown] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [position, setPosition] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
 
   useEffect(() => {
-
-    socket.on('demandCreated', (response) => {
-      // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
-      console.log('Yeni talep oluşturuldu:', response);
+    socket.on("demandCreated", (response) => {
       if (response.id === id) {
-        console.log("burayayda geldiidii");
         setRequestedNominees(response.allCVs.requestedNominees);
         setNominees(response.allCVs.sharedNominees);
         setSuggestedNominees(response.allCVs.suggestedAllCvs);
       }
-      // Örneğin, DOM manipülasyonu yaparak HTML içinde bu veriyi gösterebilirsiniz.
     });
-
-  }, [])
-
+  }, []);
 
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+  const handleTabChange = (index) => {
+    setSelectedTab(index);
   };
-
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const userSelectedOption = useSelector(
@@ -78,7 +71,7 @@ const PositionDetail = () => {
   }, [id]);
 
   const fetchRequestedNominees = async () => {
-    setLoading(true); // loading true olarak ayarlayın
+    setLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
@@ -90,15 +83,14 @@ const PositionDetail = () => {
       setNominees(nominees);
       setRequestedNominees(requested);
       setSuggestedNominees(suggested);
-      console.log(nominees + " sdsds" + "sdds" + suggested);
     } catch (error) {
       setError(error.message);
     }
-    setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
+    setLoading(false);
   };
 
   const fetchNominees = async () => {
-    setLoading(true); // loading true olarak ayarlayın
+    setLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
@@ -108,11 +100,10 @@ const PositionDetail = () => {
       const suggested = response.data.suggestedAllCvs;
       setNominees(nominees);
       setSuggestedNominees(suggested);
-      console.log(nominees + " sdsds" + "sdds" + suggested);
     } catch (error) {
       setError(error.message);
     }
-    setLoading(false); // Yükleme tamamlandıktan sonra loading false olarak ayarlayın
+    setLoading(false);
   };
 
   const handleNomineeDetail = (nominee, isKnown) => {
@@ -147,51 +138,45 @@ const PositionDetail = () => {
   };
 
   const handleRequestedNominee = async (nomineeId) => {
-    console.log("pozsition sid:" + id);
     try {
       const response2 = await axios.put(
         `${apiUrl}/api/positions/request/${id}`,
         { nomineeId: nomineeId }
       );
 
-
-
-      socket.emit('createDemand', id);
-      console.log("COMPAYID" + response2.data.updatedPosition.companyName);
-      console.log("NAMEEE" + position.companyName);
-      console.log("TİTTLLELELELE" + position.jobtitle);
+      socket.emit("createDemand", id);
       try {
-        const response = await axios.post(
-          `${apiUrl}/api/notification/add`,
-          {
-            message: response2.data.updatedPosition.companyName + " " + response2.data.updatedPosition.jobtitle + " pozisyonu için yeni aday talep etti",
-            type: "nomineeDemand",
-            url: `/admin-position-detail/${id}`,
-            companyId: response2.data.updatedPosition.companyId,
-            positionId: id,
-            nomineeId: nomineeId,
-            receiverCompanyId: "660688a38e88e341516e7acd"
-          }
-        )
-        console.log("BİLDİRİM GİTTTİİİ" + response);
-        socket.emit('notificationCreated', response.data.notificationId);
-
+        const response = await axios.post(`${apiUrl}/api/notification/add`, {
+          message:
+            response2.data.updatedPosition.companyName +
+            " " +
+            response2.data.updatedPosition.jobtitle +
+            " pozisyonu için yeni aday talep etti",
+          type: "nomineeDemand",
+          url: `/admin-position-detail/${id}`,
+          companyId: response2.data.updatedPosition.companyId,
+          positionId: id,
+          nomineeId: nomineeId,
+          receiverCompanyId: "660688a38e88e341516e7acd",
+        });
+        socket.emit("notificationCreated", response.data.notificationId);
       } catch (error) {
         console.error(error + "bildirim iletilemedi.");
       }
       setPosition(response2.data.updatedPosition);
       fetchNominees();
       fetchRequestedNominees();
-      // WebSocket bağlantısını oluştur
-
-      Notification("success", "Aday Başarıyla Talep Edildi.");
+      Notification("success", t("position_detail.request_success"));
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        Notification("error", "Bu Adayı Zaten Talep Ettiniz.");
+        Notification("error", t("position_detail.requested_already"));
       } else {
-        Notification("error", "Bir hata oluştu. Lütfen tekrar deneyin.");
+        Notification("error", t("position_detail.request_error"));
 
-        console.error("Aday talep edilirken bir hata oluştu:", error.message);
+        console.error(
+          t("position_detail.requestCandidate_error"),
+          error.message
+        );
       }
     }
   };
@@ -205,277 +190,349 @@ const PositionDetail = () => {
       setPosition(response.data);
       try {
         const response2 = await axios.delete(
-          `${apiUrl}/api/notification/delete/${id}/${nomineeId}`,
-        )
-        console.log("Bildirim silindi:", response2.data);
-        socket.emit('notificationDeleted', response2.data.notificationId);
+          `${apiUrl}/api/notification/delete/${id}/${nomineeId}`
+        );
+        socket.emit("notificationDeleted", response2.data.notification);
       } catch (error) {
-        console.error("Bildirim silinirken bir hata oluştu:", error);
+        console.error(t("position_detail.notification_error"), error);
       }
       setRequestedNominees((prevRequestedNominees) =>
         prevRequestedNominees.filter((item) => item._id !== nomineeId)
       );
       fetchNominees();
       fetchRequestedNominees();
-      socket.emit('createDemand', id);
-      Notification("success", "Talep Başarıyla Silindi.");
+      socket.emit("createDemand", id);
+      Notification("success", t("position_detail.requestCancel_success"));
     } catch (error) {
-      console.error("Talep silinirken bir hata oluştu:", error);
+      console.error(t("position_detail.requestCancel_error"), error);
     }
   };
 
-  console.log("POZİSYON BABA " + position);
-
   return (
-    <>
+    <div className="h-screen">
       <UserNavbar />
       {loading ? (
         <Loading />
       ) : (
         <div className="body">
-          <Tabs
-            selectedIndex={activeTab}
-            onSelect={(index) => setActiveTab(index)}
+          <Button
+            type="link"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
           >
-            <TabList>
-              <Tab>Pozisyon Detayı</Tab>
-              <Tab>Paylaşılan Adaylar</Tab>
-              <Tab>CV Havuzu</Tab>
-              <Tab>Talep Ettiğim Adaylar</Tab>
-            </TabList>
-
-            <TabPanel>
-              {position && (
-                <div className="bg-white p-4 rounded border shadow">
-                  <div className="font-semibold text-lg text-center mb-2 border-b border-gray-200 pb-2">
-                    Pozisyon Detayı
-                  </div>
-                  <div className="grid grid-cols-3">
-                    <p>
-                      <strong>Departman:</strong> {position.department}
-                    </p>
-                    <p>
-                      <strong>İş Unvanı:</strong> {position.jobtitle}
-                    </p>
-                    <p>
-                      <strong>Deneyim Süresi:</strong>{" "}
-                      {position.experienceperiod}
-                    </p>
-                    <p>
-                      <strong>Çalışma Şekli:</strong> {position.modeofoperation}
-                    </p>
-                    <p>
-                      <strong>Sözleşme Tipi:</strong> {position.worktype}
-                    </p>
-                    <p>
-                      <strong>İşe Başlama Tarihi:</strong>{" "}
-                      {position.dateOfStart}
-                    </p>
-                    <p>
-                      <strong className="mr-2">Tercih Edilen Sektörler:</strong>
-                      <div className="inline-flex flex-wrap">
-                        {position.industry &&
-                          position.industry.map((sector, index) => (
-                            <span key={index} className="mr-1">
-                              {sector},
-                            </span>
+            {t("position_detail.back")}
+          </Button>
+          <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
+            <div className="flex flex- row justify-start items-center ml-2">
+              <button
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
+                onClick={() => handleTabChange(0)}
+              >
+                {t("position_detail.tab_detail")}
+              </button>
+              <button
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
+                onClick={() => handleTabChange(1)}
+              >
+                {t("position_detail.tab_shared")}
+              </button>
+              <button
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 2 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
+                onClick={() => handleTabChange(2)}
+              >
+                {t("position_detail.tab_pool")}
+              </button>
+              <button
+                className={`flex items-center justify-center m-2 ${
+                  selectedTab === 3 ? "border-b-2 pb-1 border-blue-400" : ""
+                } `}
+                onClick={() => handleTabChange(3)}
+              >
+                {t("position_detail.tab_requested")}
+              </button>
+            </div>
+          </div>
+          <div className="h-screen w-full justify-center items-center ">
+            {selectedTab === 0 && (
+              <>
+                {" "}
+                <div className="flex relative">
+                  <div className="w-[255px] rounded-xl bg-white p-4">
+                    <div className="flex flex-col gap-2  text-sm font-thin">
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.department")}:{" "}
+                        </strong>
+                        {position?.department}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.job_title")}:
+                        </strong>{" "}
+                        {position?.jobtitle}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.experience_period")}:
+                        </strong>
+                        {position?.experienceperiod}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.work_mode")}:
+                        </strong>{" "}
+                        {position?.modeofoperation}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.contract_type")}:
+                        </strong>{" "}
+                        {position?.worktype}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.preferred_industries")}:
+                        </strong>{" "}
+                        {position?.industry && position?.industry?.join(", ")}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.banned_companies")}:
+                        </strong>{" "}
+                        {position?.bannedCompanies &&
+                          position?.bannedCompanies?.join(", ")}{" "}
+                      </p>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.preferred_companies")}:
+                        </strong>{" "}
+                        {position?.preferredCompanies &&
+                          position?.preferredCompanies?.join(", ")}{" "}
+                      </p>
+                      <div className="w-[207px] h-[1px] bg-[#E8E8E8]"></div>
+                      <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.skills")}:
+                        </strong>
+                        <ul className="list-disc ml-4 mt-1 grid grid-cols-2 font-thin ">
+                          {position?.skills.map((skill, index) => (
+                            <li key={index}>{skill}</li>
                           ))}
-                      </div>
-                    </p>
-                    <p>
-                      <strong>Adres:</strong> {position.positionAdress}{" "}
-                      {position.positionCity}/{position.positionCounty}
-                    </p>
-                    <p>
-                      <strong className="mr-2">Yasaklı Şirketler:</strong>
-                      <div className="inline-flex flex-wrap">
-                        {position.bannedCompanies &&
-                          position.bannedCompanies.map((sector, index) => (
-                            <span key={index} className="mr-2">
-                              {sector}
-                            </span>
-                          ))}
-                      </div>
-                    </p>
-                    <p>
-                      <strong className="mr-2">Tercih Edilen Şirketler:</strong>
-                      <div className="inline-flex flex-wrap">
-                        {position.preferredCompanies &&
-                          position.preferredCompanies.map((sector, index) => (
-                            <span key={index} className="mr-2">
-                              {sector}
-                            </span>
-                          ))}
-                      </div>
-                    </p>
-                    <div className="col-span-3 p-5">
-                      <MarkdownEditor.Markdown
-                        style={{
-                          backgroundColor: "#0000000F",
-                          color: "black",
-                          borderRadius: 8,
-                          padding: 20,
-                        }}
-                        source={position.description}
-                      ></MarkdownEditor.Markdown>
+                        </ul>
+                      </p>
                     </div>
                   </div>
+                  <div class="w-full rounded-xl bg-white p-4 ml-5">
+                    <p>
+                      <MarkdownEditor.Markdown
+                        source={position?.description}
+                        style={{
+                          backgroundColor: "#00000000",
+                          color: "black",
+                          padding: 10,
+                          fontWeight: 200,
+                          fontSize: 14,
+                          borderRadius: 10,
+                        }}
+                      />
+                    </p>
+                  </div>
                 </div>
-              )}
-            </TabPanel>
-            <TabPanel>
-              {loading && <p>Veriler yükleniyor...</p>}
-              {error && <p>Hata: {error}</p>}
-              <div className="grid grid-cols-3 gap-2">
-                {!nominees.length && (
+              </>
+            )}
+            {selectedTab === 1 && (
+              <>
+                <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-1 xl:grid-cols-4 gap-8 items-center justify-center">
+                  {!nominees.length && (
+                    <div className="flex w-screen  justify-center items-center">
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    </div>
+                  )}
+                  {nominees.map((nominee, index) => (
+                    <div className="flex flex-col bg-white  rounded-2xl border shadow relative  w-auto m-3 2xl:w-[339px] ">
+                      <div className=" p-4">
+                        <CircularBar nominee={nominee}></CircularBar>
+                        <strong className="text-sm font-semibold font-sans">
+                          {t("position_detail.matched_skills")}
+                        </strong>
+                        <div class="mb-2 flex flex-row justify-around gap-2">
+                          <ul className="w-full h-[88px]">
+                            {nominee.commonSkills.map((skill, index) => {
+                              if (index > 3) {
+                              } else if (index === 3) {
+                                return (
+                                  <li className="text-[#6D6D6D]" key={index}>
+                                    ....
+                                  </li>
+                                );
+                              } else {
+                                return (
+                                  <li className="text-[#6D6D6D]" key={index}>
+                                    {skill}
+                                  </li>
+                                );
+                              }
+                            })}
+                          </ul>
+
+                          <div className="flex items-end justify-end"></div>
+                        </div>
+                      </div>
+
+                      <button
+                        className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
+                        onClick={() => handleNomineeDetail(nominee.cv, true)}
+                      >
+                        {t("position_detail.details")}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {selectedTab === 2 && (
+              <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-1 xl:grid-cols-4 gap-8 items-center justify-center">
+                {!suggestedNominees.length && (
                   <div className="flex w-screen  justify-center items-center">
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                   </div>
                 )}
-                {nominees.map((nominee, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-                  >
-                    <CircularBar nominee={nominee}></CircularBar>
-                    <p>
-                      <strong>Unvan:</strong> {nominee.cv?.title}
-                    </p>
-                    {nominee.cv.education.map((edu, index) => (
-                      <ul key={index}>
-                        <li>
-                          <div>
-                            <strong>Eğitim:</strong> {edu.degree}
+                {suggestedNominees.map((nominee, index) => (
+                  <div className="flex flex-col bg-white  rounded-2xl border shadow relative  w-auto m-3 2xl:w-[339px] ">
+                    <div className=" p-4">
+                      <CircularBar
+                        nominee={nominee}
+                        isKnown={false}
+                      ></CircularBar>
+
+                      <strong className="text-sm font-semibold font-sans">
+                        {t("position_detail.matched_skills")}
+                      </strong>
+                      <div class="mb-2 flex flex-row justify-around gap-2">
+                        <ul className="w-full h-[88px]">
+                          {nominee.commonSkills.map((skill, index) => {
+                            if (index > 3) {
+                            } else if (index === 3) {
+                              return (
+                                <li className="text-[#6D6D6D]" key={index}>
+                                  ....
+                                </li>
+                              );
+                            } else {
+                              return (
+                                <li className="text-[#6D6D6D]" key={index}>
+                                  {skill}
+                                </li>
+                              );
+                            }
+                          })}
+                        </ul>
+
+                        <div className="flex items-end justify-end">
+                          <div className="w-[90px] flex items-center justify-center">
+                            <button
+                              className="w-auto px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
+                              onClick={() => {
+                                handleRequestedNominee(nominee.cv?._id);
+                              }}
+                            >
+                              {t("position_detail.request")}
+                            </button>
                           </div>
-                        </li>
-                      </ul>
-                    ))}
-                    <strong>Beceriler:</strong>
-                    <ul className="list-disc ml-4">
-                      {nominee.cv?.skills.map((skill, index) => (
-                        <li key={index}>{skill}</li>
-                      ))}
-                    </ul>
+                        </div>
+                      </div>
+                    </div>
+
                     <button
-                      className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                      onClick={() => handleNomineeDetail(nominee.cv, true)}
+                      className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
+                      onClick={() => handleNomineeDetail(nominee.cv, false)}
                     >
-                      Detaylar <FaInfoCircle className="ml-2 size-4" />
+                      {t("position_detail.details")}
                     </button>
                   </div>
                 ))}
               </div>
-            </TabPanel>
-            <TabPanel>
-              {loading && <p>Veriler yükleniyor...</p>}
-              {error && <p>Hata: {error}</p>}
-              {!suggestedNominees.length && (
-                <div className="flex w-screen  justify-center items-center">
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                </div>
-              )}
-              {suggestedNominees.map((nominee, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-                >
-                  <h4 className="font-semibold text-lg mb-2">Unknown</h4>
-                  <p>
-                    <strong>Unvan:</strong> {nominee.cv?.title}
-                  </p>
-                  {nominee.cv?.education.map((edu, index) => (
-                    <ul key={index}>
-                      <li>
-                        <div>
-                          <strong>Eğitim:</strong> {edu.degree}
+            )}
+            {selectedTab === 3 && (
+              <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-1 xl:grid-cols-4 gap-8 items-center justify-center">
+                {!requestedNominees.length && (
+                  <div className="flex w-screen  justify-center items-center">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  </div>
+                )}
+                {requestedNominees.map((nominee, index) => (
+                  <div className="flex flex-col bg-white  rounded-2xl border shadow relative  w-auto m-3 2xl:w-[339px] ">
+                    <div className=" p-4">
+                      <CircularBar
+                        nominee={nominee}
+                        isKnown={false}
+                      ></CircularBar>
+
+                      <strong className="text-sm font-semibold font-sans">
+                        {t("position_detail.matched_skills")}
+                      </strong>
+                      <div class="mb-2 flex flex-row justify-around gap-2">
+                        <ul className="w-full h-[88px]">
+                          {nominee.commonSkills.map((skill, index) => {
+                            if (index > 3) {
+                            } else if (index === 3) {
+                              return (
+                                <li className="text-[#6D6D6D]" key={index}>
+                                  ....
+                                </li>
+                              );
+                            } else {
+                              return (
+                                <li className="text-[#6D6D6D]" key={index}>
+                                  {skill}
+                                </li>
+                              );
+                            }
+                          })}
+                        </ul>
+
+                        <div className="flex items-end justify-end">
+                          <div className="w-[90px] flex items-center justify-center">
+                            <button
+                              className="w-auto px-2 text-base text-white py-1 rounded-lg  bg-[#ED4245] hover:bg-[#ff1e25]  text-center justify-center items-center"
+                              onClick={() => {
+                                handleCancelRequest(nominee.cv?._id);
+                              }}
+                            >
+                              {t("position_detail.cancel_request")}
+                            </button>
+                          </div>
                         </div>
-                      </li>
-                    </ul>
-                  ))}
-                  <strong>Beceriler:</strong>
-                  <ul className="list-disc ml-4">
-                    {nominee.cv?.skills.map((skill, index) => (
-                      <li key={index}>{skill}</li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
 
-                  <button
-                    className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-5"
-                    onClick={() => {
-                      handleRequestedNominee(nominee.cv?._id);
-                    }}
-                  >
-                    Talep Et
-                  </button>
-
-                  <button
-                    className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                    onClick={() => handleNomineeDetail(nominee.cv, false)}
-                  >
-                    Detaylar <FaInfoCircle className="ml-2 size-4" />
-                  </button>
-                </div>
-              ))}
-            </TabPanel>
-
-            <TabPanel>
-              {loading && <p>Veriler yükleniyor...</p>}
-              {error && <p>Hata: {error}</p>}
-              {!requestedNominees.length && (
-                <div className="flex w-screen  justify-center items-center">
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                </div>
-              )}
-              {requestedNominees.map((nominee, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-100 hover:bg-gray-200 p-4 rounded border shadow mb-4 relative"
-                >
-                  <h4 className="font-semibold text-lg mb-2">Unknown</h4>
-                  <p>
-                    <strong>Unvan:</strong> {nominee.cv?.title}
-                  </p>
-                  {nominee.cv?.education.map((edu, index) => (
-                    <ul key={index}>
-                      <li>
-                        <div>
-                          <strong>Eğitim:</strong> {edu.degree}
-                        </div>
-                      </li>
-                    </ul>
-                  ))}
-                  <strong>Beceriler:</strong>
-                  <ul className="list-disc ml-4">
-                    {nominee.cv?.skills.map((skill, index) => (
-                      <li key={index}>{skill}</li>
-                    ))}
-                  </ul>
-                  <button
-                    className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center my-2"
-                    onClick={() => handleCancelRequest(nominee?.cv._id)}
-                  >
-                    İptal Et
-                  </button>
-                  <button
-                    className="absolute right-4 bottom-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                    onClick={() => handleNomineeDetail(nominee.cv, false)}
-                  >
-                    Detaylar <FaInfoCircle className="ml-2 size-4" />
-                  </button>
-                </div>
-              ))}
-            </TabPanel>
-          </Tabs>
-          {isNomineeDetailOpen && (
-            <NomineeDetail
-              nominee={nomineeDetail}
-              isKnown={isKnown}
-              onClose={closeNomineeDetail}
-            />
-          )}
+                    <button
+                      className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
+                      onClick={() => handleNomineeDetail(nominee.cv, false)}
+                    >
+                      {t("position_detail.details")}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </>
+      {isNomineeDetailOpen && (
+        <NomineeDetail
+          nominee={nomineeDetail}
+          isKnown={isKnown}
+          onClose={closeNomineeDetail}
+        />
+      )}
+    </div>
   );
 };
 

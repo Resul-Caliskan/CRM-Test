@@ -6,12 +6,14 @@ import ListComponent from "../components/listComponent";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import { useSelector, useDispatch } from "react-redux";
 import Notification from "../utils/notification";
-import FilterComponent from "../components/filterComponent"
+import FilterComponent from "../components/filterComponent";
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
-import Loading from '../components/loadingComponent';
-import socket from '../config/config';
+import Loading from "../components/loadingComponent";
+import socket from "../config/config";
+import { useTranslation } from "react-i18next";
 
 const AdminListPosition = () => {
+  const { t } = useTranslation();
   const [positions, setPositions] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,7 +22,7 @@ const AdminListPosition = () => {
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
- 
+
   const [filters, setFilters] = useState({
     companyName: [],
     jobtitle: [],
@@ -32,43 +34,45 @@ const AdminListPosition = () => {
   });
   const columns = [
     {
-      title: "Şirket Adı",
-      dataIndex: "companyName",
-      key: "companyName",
-      render: (text) => highlightSearchTerm(text, searchTerm),
+      title: t("userListPosition.job_title"),
+      dataIndex: "jobtitle",
+      key: "jobtitle",
+      render: (text, record) => (
+        <span
+          style={{ cursor: "pointer", textDecoration: "underline" }}
+          onClick={() => handlePositionDetails(record.id)}
+        >
+          {highlightSearchTerm(text, searchTerm)}
+        </span>
+      ),
     },
     {
-      title: "Departman",
+      title: t("userListPosition.department"),
       dataIndex: "department",
       key: "department",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
+
     {
-      title: "İş Ünvanı",
-      dataIndex: "jobtitle",
-      key: "jobtitle",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
-    {
-      title: "Deneyim Süresi",
+      title: t("userListPosition.experience_period"),
       dataIndex: "experienceperiod",
       key: "experienceperiod",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
-    // {
-    //   title: "İşyeri Politikası",
-    //   dataIndex: "modeofoperation",
-    //   key: "modeofoperation",
-    //   render: (text) => highlightSearchTerm(text, searchTerm),
-    // },
     {
-      title: "Çalışma Şekli",
+      title: t("userListPosition.mode_of_operation"),
       dataIndex: "modeofoperation",
       key: "modeofoperation",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Yetenekler",
+      title: t("userListPosition.work_type"),
+      dataIndex: "worktype",
+      key: "worktype",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
+      title: t("userListPosition.skills"),
       dataIndex: "skills",
       key: "skills",
       render: (text) => {
@@ -98,7 +102,7 @@ const AdminListPosition = () => {
       "companyName",
       "skills",
     ];
- 
+
     const {
       companyName,
       jobtitle,
@@ -108,7 +112,7 @@ const AdminListPosition = () => {
       worktype,
       skills,
     } = filters;
- 
+
     return (
       (companyName.length === 0 ||
         companyName.includes(position.companyName)) &&
@@ -143,71 +147,90 @@ const AdminListPosition = () => {
   const [companyNames, setCompanyNames] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
-    
     fetchPositions();
     fetchParameterOptions();
     fetchCompanyNames();
   }, []);
 
   useEffect(() => {
-    socket.on('positionListUpdated', (positions) => {
+    socket.on("positionListUpdated", (positions) => {
       // Burada requestedNominees verisini istediğiniz şekilde görüntüleyebilirsiniz
-      console.log('Yeni talep oluşturuldu:', positions);
+      console.log("Yeni talep oluşturuldu:", positions);
       setPositions(positions);
-  });
+    });
   }, []);
-  
+
   const fetchPositions = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/positions`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/positions`
+      );
       setPositions(response.data);
       setRequestedNominees(response.data.requestedNominees);
-      console.log("SAY",requestedNominees);
+      console.log("SAY", requestedNominees);
     } catch (error) {
       console.error("Positions fetching failed:", error);
     }
   };
- 
+
   const fetchCompanyNames = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/customers`
+      );
       setCompanyNames(response.data);
     } catch (error) {
       console.error("Positions fetching failed:", error);
     }
   };
- 
+
   const fetchParameterOptions = async () => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
-      const filteredOptions = response.data.filter(option => {
-        return option.title === "Departman" ||  option.title === "İş Unvanı" || option.title === "Deneyim Süresi" || option.title === "Çalışma Şekli" || option.title === "Yetenekler";
+
+      const filteredOptions = response.data.filter((option) => {
+        return (
+          (option.title === "İş Unvanı" &&
+            (option.title = t("userListPosition.job_title"))) ||
+          (option.title === "Departman" &&
+            (option.title = t("userListPosition.department"))) ||
+          (option.title === "Deneyim Süresi" &&
+            (option.title = t("userListPosition.experience_period"))) ||
+          (option.title === "Sözleşme Tipi" &&
+            (option.title = t("userListPosition.work_type"))) ||
+          (option.title === "Yetenekler" &&
+            (option.title = t("userListPosition.skills"))) ||
+          (option.title === "Çalışma Şekli" &&
+            (option.title = t("userListPosition.mode_of_operation")))
+        );
       });
+
       setParameterOptions(filteredOptions);
       setLoading(false);
     } catch (error) {
       console.error("Parameter options fetching failed:", error);
     }
   };
- 
+
   const handleDeletePosition = async (positionId) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/positions/${positionId}`);
-      setPositions(positions.filter(position => position.positionId !== positionId));
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/positions/${positionId}`
+      );
+      setPositions(
+        positions.filter((position) => position.positionId !== positionId)
+      );
       Notification("success", "Pozisyon başarıyla silindi.", "");
       fetchPositions();
       fetchParameterOptions();
       fetchCompanyNames();
- 
     } catch (error) {
       Notification("error", "Pozisyon silinirken bir hata oluştu.", "");
     }
   };
- 
- 
- 
+
   const handlePositionDetails = (positionId) => {
     if (positionId) {
       navigate(`/admin-position-detail/${positionId}`);
@@ -220,33 +243,36 @@ const AdminListPosition = () => {
   const handleAddPosition = () => {
     dispatch(setSelectedOption("add-position"));
   };
- 
- 
+
   const handleEditPosition = (positionId) => {
     navigate(`/edit-position/${positionId}`);
   };
   return (
     <>
-    {loading ? <Loading />
-       : (
-    <ListComponent
-      handleAdd={handleAddPosition}
-      handleUpdate={handleEditPosition}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      dropdowns={<FilterComponent
-        setFilters={setFilters}
-        parameterOptions={parameterOptions}
-      />}
-      handleDelete={handleDeletePosition}
-      handleDetail={handlePositionDetails}
-      columns={columns}
-      data={data}
-      name={"Pozisyon Listesi"}
-      notification={true}
-    />)}
+      {loading ? (
+        <Loading />
+      ) : (
+        <ListComponent
+          handleAdd={handleAddPosition}
+          handleUpdate={handleEditPosition}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          dropdowns={
+            <FilterComponent
+              setFilters={setFilters}
+              parameterOptions={parameterOptions}
+            />
+          }
+          handleDelete={handleDeletePosition}
+          handleDetail={handlePositionDetails}
+          columns={columns}
+          data={data}
+          name={"Pozisyon Listesi"}
+          notification={true}
+        />
+      )}
     </>
   );
 };
- 
+
 export default AdminListPosition;

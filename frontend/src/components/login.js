@@ -18,8 +18,10 @@ import { LoadingOutlined } from "@ant-design/icons";
 import VHlogo from "../assets/vhlogo.png";
 import Notification from "../utils/notification";
 import "./Login.css";
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -52,12 +54,16 @@ export default function Login() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.cookie = `i18next=${lng}; path=/`;
+  };
 
   const handleEmailChange = (e) => {
     const { value } = e.target;
     setEmail(value);
     setEmailError("");
-    const { email } = validateForm(value, password);
+    const { email } = validateForm(value, password, t);
     setErrors(email);
     setEmailError(email);
   };
@@ -66,7 +72,7 @@ export default function Login() {
     const { value } = e.target;
     setPassword(value);
     setPasswordError("");
-    const { password } = validateForm(email, value);
+    const { password } = validateForm(email, value, t);
     setErrors(password);
     setPasswordError(password);
   };
@@ -75,7 +81,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    const errors = validateForm(email, password);
+    const errors = validateForm(email, password, t);
 
     if (errors.email === false && errors.password === false) {
       try {
@@ -116,16 +122,16 @@ export default function Login() {
         }
         Notification(
           "success",
-          "HRHUB'a Hoş Geldiniz",
-          "Giriş işlemi başarılı"
+          t("login.notification_success_title"),
+          t("login.notification_success_content")
         );
       } catch (error) {
         setPassword("");
         setEmail("");
         Notification(
           "error",
-          "Geçersiz Kullanıcı Bilgileri",
-          "E-posta veya Şifreniz yanlış Lütfen Tekrar Giriniz"
+          t("login.notification_error_title"),
+          t("login.notification_error_content")
         );
         setLoading(false);
         console.error(error.response.data.message);
@@ -140,35 +146,40 @@ export default function Login() {
 
   return (
     <div className="flex container-div">
-    <div className="loginNone">
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
-    
-        {isVisible && (
-          <div className="loginFirst">
-            <div className="loginSecond">
-              <img src={logo} alt="Resim" className="h-screen" />
+      <div className="loginNone">
+        <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
+          {isVisible && (
+            <div className="loginFirst">
+              <div className="loginSecond">
+                <img src={logo} alt="Resim" className="h-screen" />
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-      <div className="loginLogo">
-        <img src={logoIcon} alt="Logo" className="logoIcon" />
-        <img src={logoText} alt="Logo" className="logoText" />
-      </div>
+          )}
         </div>
-      <div className="flex flex-col justify-center items-center h-screen bg-white form-div mx-auto p-5">
+        <div className="loginLogo">
+          <img src={logoIcon} alt="Logo" className="logoIcon" />
+          <img src={logoText} alt="Logo" className="logoText" />
+        </div>
+      </div>
+      <div className="flex flex-row absolute right-0 mr-3 mt-2 ">
+        <button className="mr-4" onClick={() => changeLanguage("en")}>
+          English
+        </button>
+        <button onClick={() => changeLanguage("tr")}>Türkçe</button>
+      </div>
+      <div className="flex flex-col   justify-center items-center h-screen form-div mx-auto p-5">
         <form
           onSubmit={handleSubmit}
           className={`max-w-[458px] w-full mx-auto  form`}
         >
           <p className="text-3xl  text-left font-semibold">
-            İnsan Kaynaklarında Dijital Adımınız!
+            {t("login.content")}
           </p>
-          <h4 className="text-sm text-left my-6">
-            Başlamak için lütfen giriş yapın
-          </h4>
+          <h4 className="text-sm text-left my-6">{t("login.start_content")}</h4>
           <div className="flex flex-col py-2">
-            <label className="mb-2 text-gray-600 text-sm">Mail</label>
+            <label className="mb-2 text-gray-600 text-sm">
+              {t("login.mail")}
+            </label>
             <ConfigProvider
               theme={{
                 components: {
@@ -190,13 +201,13 @@ export default function Login() {
                 <Input
                   value={email}
                   disabled={loading}
-                  placeholder="Mail adresinizi yazınız"
+                  placeholder={t("login.mail_placeholder")}
                   rules={[
                     {
                       required: true,
-                      message: "Email giriniz!",
+                      message: t("login.mail_message"),
                       type: "email",
-                      message: "Geçerli bir email adresi giriniz!",
+                      message: t("login.mail_message_error"),
                     },
                   ]}
                   className={`focus:custom-blue text-sm border pl-3 p-2   ${
@@ -257,7 +268,9 @@ export default function Login() {
           </div>
           <div className="flex flex-col py-2">
             <div className="relative">
-              <label className="text-gray-600 text-sm ">Şifre</label>
+              <label className="text-gray-600 text-sm ">
+                {t("login.password")}
+              </label>
               <ConfigProvider
                 theme={{
                   components: {
@@ -278,12 +291,12 @@ export default function Login() {
                 <Space className="block">
                   <Input
                     value={password}
-                    placeholder="Şifrenizi yazınız"
+                    placeholder={t("login.password_placeholder")}
                     rules={[
                       {
                         required: true,
                         type: "password",
-                        message: "Geçerli bir şifre giriniz!",
+                        message: t("login.password_message_error"),
                       },
                     ]}
                     className={`focus:custom-blue text-sm mt-2 border pl-3 p-2 ${
@@ -363,11 +376,11 @@ export default function Login() {
                   setRememberMe(!rememberMe);
                 }}
               >
-                Beni hatırla
+                {t("login.rememberme")}
               </Checkbox>
               <a href="/reset-password">
                 <p className="text-[#133163] font-light text-sm">
-                  Şifremi unuttum
+                  {t("login.forgot_password")}
                 </p>
               </a>
             </div>
@@ -390,16 +403,17 @@ export default function Login() {
             </button>
           ) : (
             <Button disabled={true} className="h-9 w-full mt-5">
-              Giriş yap
+              {t("login.login")}
             </Button>
           )}
 
           <div className="mt-2">
             <p className="text-xs  text-center font-thin mt-6">
-              Kullanıcı bilgileriniz her zaman güvende!
+              {t("login.end_content")}
             </p>
           </div>
         </form>
+
         <div class="fixed bottom-0 right-0 mb-6 mr-4 vh-logo">
           <img src={VHlogo} alt="Resim" class="w-[156px] h-[22px]" />
         </div>

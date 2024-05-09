@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
-import { Button, Popconfirm } from 'antd';
-import { CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons';
-const ConfirmPopUp = ({ handleDelete, handleConfirm, isConfirm, id, record }) => {
+import React, { useState } from "react";
+import { Button, Popconfirm, Tooltip } from "antd";
+import { CheckCircleOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+
+const ConfirmPopUp = ({
+  handleDelete,
+  handleConfirm,
+  isConfirm,
+  id,
+  record,
+}) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
+
   const showPopconfirm = () => {
     setOpen(true);
   };
+
   const handleOk = () => {
     setConfirmLoading(true);
     setTimeout(() => {
@@ -14,48 +25,48 @@ const ConfirmPopUp = ({ handleDelete, handleConfirm, isConfirm, id, record }) =>
       setConfirmLoading(false);
       if (isConfirm) {
         handleConfirm(record);
-      }
-      else {
+      } else {
         handleDelete(id);
       }
-
     }, 2000);
   };
+
   const handleCancel = () => {
     setOpen(false);
   };
+
   return (
     <>
       {isConfirm ? (
         <Popconfirm
-          title="Kaydı Onayla ve Mail Gönder"
-          description="Bu kaydı onaylamak istediğinize emin misiniz?"
+          title={t("areUSure.confirm_and_send_email")}
+          description={t("confirm_record_message")}
           open={open}
-          okText="Onayla"
-          cancelText="İptal"
+          okText={t("areUSure.confirm")}
+          cancelText={t("areUSure.cancel")}
           onConfirm={handleOk}
-
           okButtonProps={{
             loading: confirmLoading,
             danger: false,
-            style: { backgroundColor: 'green' }
+            style: { backgroundColor: "green" },
           }}
-
           onCancel={handleCancel}
         >
-          <Button
-            type="link"
-            icon={<CheckCircleOutlined />}
-            onClick={showPopconfirm}
-          />
+          <Tooltip placement={"top"} title={t("approve")}>
+            <Button
+              type="link"
+              icon={<CheckCircleOutlined />}
+              onClick={showPopconfirm}
+            />
+          </Tooltip>
         </Popconfirm>
       ) : (
         <Popconfirm
-          title="Kaydı Sil"
-          description="Bu kaydı silmek istediğinize emin misiniz?"
+          title={t("areUSure.delete_record")}
+          description={t("areUSure.delete_record_message")}
           open={open}
-          okText="Sil"
-          cancelText="İptal"
+          okText={t("areUSure.delete")}
+          cancelText={t("areUSure.cancel")}
           onConfirm={handleOk}
           okButtonProps={{
             loading: confirmLoading,
@@ -63,15 +74,17 @@ const ConfirmPopUp = ({ handleDelete, handleConfirm, isConfirm, id, record }) =>
           }}
           onCancel={handleCancel}
         >
-          <Button
-            type="link"
-            icon={<DeleteOutlined />}
-            onClick={showPopconfirm}
-          />
+          <Tooltip placement={"top"} title={t("delete")}>
+            <Button
+              type="link"
+              icon={<DeleteOutlined />}
+              onClick={showPopconfirm}
+            />
+          </Tooltip>
         </Popconfirm>
       )}
     </>
-
   );
 };
+
 export default ConfirmPopUp;

@@ -37,8 +37,11 @@ router.put("/delete-industry/:id", customerController.industryRemoveFromCustomer
 
 router.get("/get-industry/:id", customerController.getCustomerIndustries);
 
+router.put("/add-company/:id", customerController.companyAddToCustomer);
 
-// router.put("/edit-industry/:id", customerController.editParameter);
+router.put("/delete-company/:id", customerController.companyRemoveFromCustomer);
+
+router.get("/get-companies/:id", customerController.getCustomerCompanies);
 
 router.get(
   "/get/:name",

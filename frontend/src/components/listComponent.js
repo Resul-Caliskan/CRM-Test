@@ -1,16 +1,47 @@
 import React, { useState } from "react";
-import { Avatar, Badge, Button, Input, Popconfirm, Space, Table } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Input,
+  Popconfirm,
+  Space,
+  Table,
+  Tooltip,
+} from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
-import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined, CheckCircleOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ConfirmPopUp from "./areUSure";
 import "./style.css";
+import { useTranslation } from "react-i18next";
 
-
-const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handleUpdate, handleDelete, handleDetail, handleApprove, data, columns, name, notification, checkbox }) => {
+const ListComponent = ({
+  dropdowns,
+  searchTerm,
+  setSearchTerm,
+  handleAdd,
+  handleUpdate,
+  handleDelete,
+  handleDetail,
+  handleApprove,
+  data,
+  columns,
+  name,
+  notification,
+  checkbox,
+}) => {
   const [selectedItems, setSelectedItems] = useState([]);
-
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [selectionType, setSelectionType] = useState("checkbox");
@@ -53,7 +84,6 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
     dispatch(setSelectedOption(option));
   };
 
-
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRowKeys(selectedRowKeys);
@@ -70,87 +100,104 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
         <div className="search">
           <div className="searchButtonContainer">
             <Input
-              placeholder="Ara"
+              placeholder={t("search_placeholder")}
               className="searchButton"
               onChange={handleSearch}
-
               suffix={<SearchOutlined />}
             ></Input>
           </div>
-          <div className="filterSearch">
-            {dropdowns}
-
-          </div>
+          <div className="filterSearch">{dropdowns}</div>
         </div>
         <div className="crudButtons">
-          {/* <Button
-            size="large"
-            onClick={() => handleOptionClick(handleUpdate)}
-            className="buttonEdit"
-          >
-            Sil
-          </Button> */}
-          {handleAdd && <Button
-            type="primary"
-            onClick={() => handleAdd()}
-            icon={<PlusOutlined />}
-            size="large"
-            className="buttonAdd"
-          >
-            Yeni Kayıt
-          </Button>}
+          {handleAdd && (
+            <Button
+              type="primary"
+              onClick={() => handleAdd()}
+              icon={<PlusOutlined />}
+              size="large"
+              className="buttonAdd"
+            >
+              {t("new_record")}
+            </Button>
+          )}
         </div>
       </div>
       <div className="listContent">
         <div className="title">
           <h4 className="titleLabel">{name}</h4>
           <p className="titleContent">
-            Toplam {data.length} sonuç listelendi
+            {t("total_results", { count: data.length })}
           </p>
         </div>
         <div className="listData">
           <div className="onlyData">
-
             <Table
               columns={[
                 ...columns,
                 {
-                  title: '',
-                  key: 'action',
+                  title: t("actions"),
+                  key: "action",
                   render: (text, record) => (
-                    <Space size="small" className="flex justify-center items-center">
-
+                    <Space
+                      size="small"
+                      className="flex justify-center items-center"
+                    >
                       {handleDelete && (
-                        <ConfirmPopUp handleDelete={handleDelete} id={record.id} isConfirm={false} />
+                        <ConfirmPopUp
+                          handleDelete={handleDelete}
+                          id={record.id}
+                          isConfirm={false}
+                        />
                       )}
-                      {handleUpdate && <Button
-                        type="link"
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          handleUpdate(record.id);
-
-                        }}
-                      >
-                      </Button>}
-
-                      {handleApprove &&
-                        <ConfirmPopUp handleConfirm={handleApprove} record={record} isConfirm={true} />
-                      }
-                      {notification ?
-                        <button onClick={() => handleDetail(record.id)}>
-                          {console.log("idfaf:", record)}
-                          <Badge count={record.requestedNominees?.length} className="" size="small">
-                            <Avatar className="bg-white text-blue-500" shape="square" icon={<InfoCircleOutlined />} size="medium" />
-                          </Badge>
-                        </button> :
-                        handleDetail && <Button
-                          type="link"
-                          icon={<InfoCircleOutlined />}
-                          onClick={() => handleDetail(record.id)}
+                      {handleUpdate && (
+                        <Tooltip
+                          placement={"top"}
+                          title={t("profile.buttons.edit")}
                         >
-                        </Button>}
-
-
+                          <Button
+                            type="link"
+                            icon={<EditOutlined />}
+                            onClick={() => {
+                              handleUpdate(record.id);
+                            }}
+                          ></Button>
+                        </Tooltip>
+                      )}
+                      {handleApprove && (
+                        <ConfirmPopUp
+                          handleConfirm={handleApprove}
+                          record={record}
+                          isConfirm={true}
+                        />
+                      )}
+                      {notification ? (
+                        <Tooltip placement={"top"} title={t("details")}>
+                          <button onClick={() => handleDetail(record.id)}>
+                            <Badge
+                              count={record.requestedNominees?.length}
+                              className=""
+                              size="small"
+                            >
+                              <Avatar
+                                className="bg-white text-blue-500"
+                                shape="square"
+                                icon={<InfoCircleOutlined />}
+                                size="medium"
+                              />
+                            </Badge>
+                          </button>
+                        </Tooltip>
+                      ) : (
+                        handleDetail && (
+                          <Tooltip placement={"top"} title={t("details")}>
+                            <Button
+                              type="link"
+                              icon={<InfoCircleOutlined />}
+                              onClick={() => handleDetail(record.id)}
+                            ></Button>
+                          </Tooltip>
+                        )
+                      )}
                     </Space>
                   ),
                 },
@@ -159,14 +206,11 @@ const ListComponent = ({ dropdowns, searchTerm, setSearchTerm, handleAdd, handle
               scroll={{ y: 600 }}
               mobileBreakPoint={768}
               pagination={{
-                locale: { items_per_page: '/ Sayfa', jump_to: 'Git', page: '' },
+                locale: { items_per_page: "/ Sayfa", jump_to: "Git", page: "" },
                 total: data.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
-
-
-                pageSizeOptions: ['10', '20', '30', '40', '50'],
-
+                pageSizeOptions: ["10", "20", "30", "40", "50"],
               }}
             />
           </div>

@@ -15,9 +15,13 @@ import logo from "../assets/login.png";
 import logoIcon from "../assets/logoIcon.png";
 import logoText from "../assets/logoText.png";
 import { IoCloseCircleSharp } from "react-icons/io5";
+import { useTranslation } from "react-i18next";
+import { resetWarned } from "antd/es/_util/warning";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  
+  const { t, i18n } = useTranslation();
   const [errors, setErrors] = useState({});
   const [emailError, setEmailError] = useState(false);
   const [email, setEmail] = useState("");
@@ -66,8 +70,8 @@ export default function ResetPassword() {
     } catch (error) {
       Notification(
         "error",
-        "Böyle Bir Kullanıcı Bulunamadı",
-        "Girmiş Olduğunuz E-Posta Adresinizi Kontrol Ediniz"
+        t("reset_password.user_not_found"),
+        t("reset_password.check_mail")
       );
       setLoading(false);
       setEmail("");
@@ -84,9 +88,20 @@ export default function ResetPassword() {
     setErrors(email);
     setEmailError(email);
   };
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    document.cookie = `i18next=${lng}; path=/`;
+  };
 
   return (
+    
     <div className="flex container-div">
+      <div className="flex flex-row absolute right-0 mr-3 mt-2 ">
+        <button className="mr-4" onClick={() => changeLanguage("en")}>
+          English
+        </button>
+        <button onClick={() => changeLanguage("tr")}>Türkçe</button>
+      </div>
     <div className="loginNone">
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 login-image">
         {isVisible && (
@@ -105,24 +120,24 @@ export default function ResetPassword() {
       <div className="flex flex-col justify-center items-center h-screen bg-white form-div mx-auto">
         <Form className="flex flex-col  w-full mx-auto form p-5">
           <div>
-            <h1 className="text-4xl font-semibold mb-2">Şifre Yenile</h1>
+            <h1 className="text-4xl font-semibold mb-2">{t("reset_password.reset_password")}</h1>
             <p className="text-base">
-              Şifrenizi sıfırlamak için kayıtlı e-posta adresinizi yazın
+            {t("reset_password.mail_password_input")}
             </p>
           </div>
           <div className="flex flex-col py-2">
-            <label className="mb-1 text-gray-600 text-xs">Mail</label>
+            <label className="mb-1 text-gray-600 text-xs">{t("reset_password.mail")}</label>
             <Form.Item
               hasFeedback
               name="mail"
               rules={[
                 {
                   required: true,
-                  message: "Lütfen mail adresinizi giriniz.",
+                  message: t("reset_password.enter_mail"),
                 },
                 {
                   pattern: /^\S+@\S+\.(com|net|org|edu|gov)$/i,
-                  message: "Lütfen geçerli bir mail adresi giriniz.",
+                  message: t("reset_password.enter_valid_mail"),
                 },
               ]}
             >
@@ -147,13 +162,13 @@ export default function ResetPassword() {
                   <Input
                     value={email}
                     disabled={loading}
-                    placeholder="Mail adresinizi yazınız"
+                    placeholder= {t("reset_password.mail_placeholder")}
                     rules={[
                       {
                         required: true,
-                        message: "Email giriniz!",
+                        message: t("reset_password.mail_rule_message1"),
                         type: "email",
-                        message: "Geçerli bir email adresi giriniz!",
+                        message: t("reset_password.mail_rule_message2"),
                       },
                     ]}
                     className={`focus:custom-blue text-sm border pl-3 p-2   ${
@@ -218,12 +233,12 @@ export default function ResetPassword() {
             {loading ? (
               <LoadingOutlined style={{ marginRight: "5px" }} spin />
             ) : (
-              "İlerle"
+              t("reset_password.move_button")
             )}
           </Button>
 
           <a href="/">
-            <p className="text-center text-base ">Giriş sayfasına geri dön</p>
+            <p className="text-center text-base ">{t("reset_password.back_login")}</p>
           </a>
         </Form>
         <div class="fixed bottom-0 right-0 mb-6 mr-4">

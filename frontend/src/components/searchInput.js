@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FaTimes, FaSearch } from "react-icons/fa";
 import Highlighter from "react-highlight-words"; 
-
+import { useTranslation } from "react-i18next";
 const SearchInput = ({ searchTerm, onSearch }) => {
     const [inputValue, setInputValue] = useState(searchTerm);
-
+    const { t } = useTranslation();
     const handleChange = (event) => {
         const value = event.target.value;
         setInputValue(value);
@@ -17,14 +17,14 @@ const SearchInput = ({ searchTerm, onSearch }) => {
     };
 
     return (
-        <div className="relative flex justify-center items-center py-5 ">
+        <div className=" flex justify-center items-center py-5 ">
             <div className="relative">
                 <input
                     type="text"
-                    placeholder="Arama yapın..."
+                    placeholder={t("nomineeDetail.search")}
                     value={inputValue}
                     onChange={handleChange}
-                    className="p-2 border border-gray-500 rounded-md w-80 pr-10"
+                    className="p-2 border border-gray-300 rounded-md w-80 pr-10"
                 />
                 {inputValue && (
                     <FaTimes

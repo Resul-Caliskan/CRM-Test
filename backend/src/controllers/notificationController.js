@@ -13,10 +13,9 @@ exports.addNotification = async (req, res) => {
       receiverCompanyId: req.body.receiverCompanyId,
     });
     await newNotification.save();
-   
+
     res.status(201).json({ message: "Bildirim başarıyla eklendi.", notificationId: newNotification._id });
   } catch (error) {
-    console.log("kaydededieldemd");
     res.status(500).json({ error: error.message });
   }
 };
@@ -35,14 +34,16 @@ exports.deleteNotification = async (req, res) => {
 
     const positionId = req.params.positionId;
     const nomineeId = req.params.nomineeId;
-    console.log("iddd:" + req.params.positionId);
+
     const deletedNotification = await Notification.findOneAndDelete({ positionId: positionId, nomineeId: nomineeId });
-    console.log(deletedNotification);
     if (!deletedNotification) {
       return res.status(404).json({ message: "Bildirim bulunamadı." });
     }
-    res.status(200).json({ message: "Bildirim başarıyla silindi.", notificationId: deletedNotification._id });
+    console.log(deletedNotification);
+    res.status(200).json({ message: "Bildirim başarıyla silindi.", notification: deletedNotification });
+    console.log("başarıyla silindi");
   } catch (error) {
+    console.error("Error deleting notification:", error);
     res.status(500).json({ error: error.message });
   }
 };

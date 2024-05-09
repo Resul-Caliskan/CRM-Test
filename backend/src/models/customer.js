@@ -15,6 +15,7 @@ const customerSchema = new mongoose.Schema({
   contactmail: { type: String, required: true },
   contactnumber: { type: String, required: true },
   industries: [{type: String}],
+  companies: [{type: String}],
   users: [{ type: mongoose.Schema.Types.String, ref: "User" }],
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
   notificationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Notification" }],

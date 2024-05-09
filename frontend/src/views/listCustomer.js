@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedOption } from '../redux/selectedOptionSlice';
-import ListComponent from '../components/listComponent';
-import Notification from '../utils/notification';
-import { highlightSearchTerm } from '../utils/highLightSearchTerm';
-import FilterComponent from '../components/filterComponent';
-import filterFunction from '../utils/globalSearchFunction';
-import Loading from '../components/loadingComponent';
-import { fetchData } from '../utils/fetchData';
-import { login } from '../redux/authSlice';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setSelectedOption } from "../redux/selectedOptionSlice";
+import ListComponent from "../components/listComponent";
+import Notification from "../utils/notification";
+import { highlightSearchTerm } from "../utils/highLightSearchTerm";
+import FilterComponent from "../components/filterComponent";
+import filterFunction from "../utils/globalSearchFunction";
+import Loading from "../components/loadingComponent";
+import { fetchData } from "../utils/fetchData";
+import { login } from "../redux/authSlice";
+import { useTranslation } from "react-i18next";
 
 const ListCustomers = () => {
+  const { t, i18n } = useTranslation();
   const [customers, setCustomers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [parameterOptions, setParameterOptions] = useState([]);
   const [isDelete, setIsDelete] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ const ListCustomers = () => {
   const { user } = useSelector((state) => state.auth);
   const [filters, setFilters] = useState({
     sector: [],
-    companytype: []
+    companytype: [],
   });
   useEffect(() => {
     if (user?.role === "admin") {
@@ -31,114 +33,100 @@ const ListCustomers = () => {
       fetchRolesFromDatabase();
       setIsDelete(false);
     }
-    // else {
-    //   fetchData().then(data => {
-    //     dispatch(login(data.user));
-    //     if (data.user.role !== 'admin') {
-    //       navigate('/forbidden');
-    //     }
-    //   }).catch(error => {
-    //     console.error(error);
-    //   });
-    // }
   }, [isDelete]);
 
   const columns = [
     {
-      title: 'Şirket Adı',
-      dataIndex: 'companyname',
-      key: 'companyname',
+      title: () => t("listCustomer.company_name"),
+      dataIndex: "companyname",
+      key: "companyname",
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
     },
     {
-      title: 'Türü',
-      dataIndex: 'companytype',
-      key: 'companytype',
+      title: () => t("listCustomer.company_type"),
+      dataIndex: "companytype",
+      key: "companytype",
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companytype.localeCompare(b.companytype),
     },
     {
-      title: 'Sektör',
-      dataIndex: 'companysector',
-      key: 'companysector',
+      title: () => t("listCustomer.company_sector"),
+      dataIndex: "companysector",
+      key: "companysector",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Ülke',
-      dataIndex: 'companycountry',
-      key: 'companycountry',
+      title: () => t("listCustomer.company_country"),
+      dataIndex: "companycountry",
+      key: "companycountry",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'İl',
-      dataIndex: 'companycity',
-      key: 'companycity',
+      title: () => t("listCustomer.company_city"),
+      dataIndex: "companycity",
+      key: "companycity",
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companycity.localeCompare(b.companycity),
     },
     {
-      title: 'İlçe',
-      dataIndex: 'companycounty',
-      key: 'companycounty',
+      title: () => t("listCustomer.company_county"),
+      dataIndex: "companycounty",
+      key: "companycounty",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Adres',
-      dataIndex: 'companyadress',
-      key: 'companyadress',
+      title: () => t("listCustomer.company_address"),
+      dataIndex: "companyadress",
+      key: "companyadress",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'Website',
-      dataIndex: 'companyweb',
-      key: 'companyweb',
+      title: () => t("listCustomer.company_web"),
+      dataIndex: "companyweb",
+      key: "companyweb",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'İlgili Kişi İsim',
-      dataIndex: 'contactname',
-      key: 'contactname',
+      title: () => t("listCustomer.company_contactName"),
+      dataIndex: "contactname",
+      key: "contactname",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'İlgili Kişi Mail',
-      dataIndex: 'contactmail',
-      key: 'contactmail',
+      title: () => t("listCustomer.company_contactMail"),
+      dataIndex: "contactmail",
+      key: "contactmail",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: 'İlgili Kişi Numara',
-      dataIndex: 'contactnumber',
-      key: 'contactnumber',
+      title: () => t("listCustomer.company_contactNumber"),
+      dataIndex: "contactnumber",
+      key: "contactnumber",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
   ];
   const filteredCustomers = customers.filter((customer, index) => {
     const searchFields = [
-      'companyname',
-      'companytype',
-      'companysector',
-      'companyadress',
-      'companycity',
-      'companycountry',
-      'companycounty',
-      'companyweb',
-      'contactname',
-      'contactmail',
-      'contactnumber',
+      "companyname",
+      "companytype",
+      "companysector",
+      "companyadress",
+      "companycity",
+      "companycountry",
+      "companycounty",
+      "companyweb",
+      "contactname",
+      "contactmail",
+      "contactnumber",
     ];
 
-    const {
-      sector,
-      companytype
-    } = filters;
+    const { sector, companytype } = filters;
 
     return (
-      (sector.length === 0 ||
-        sector.includes(customer.companysector)) &&
-      (companytype.length === 0 || companytype.includes(customer.companytype)) &&
-
+      (sector.length === 0 || sector.includes(customer.companysector)) &&
+      (companytype.length === 0 ||
+        companytype.includes(customer.companytype)) &&
       (searchTerm === "" ||
         filterFunction(searchFields, customer, searchTerm.toLowerCase()))
     );
@@ -160,22 +148,27 @@ const ListCustomers = () => {
   }));
   const fetchRolesFromDatabase = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/customers`
+      );
       setCustomers(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Roles fetching failed:', error);
-
+      console.error("Roles fetching failed:", error);
     }
-
   };
   const fetchParameterOptions = async () => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/parameters`
       );
-      const filteredOptions = response.data.filter(option => {
-        return option.title === "Sektör" || option.title === "Firma Türü";
+      const filteredOptions = response.data.filter((option) => {
+        return (
+          (option.title === "Sektör" &&
+            (option.title = t("userListPosition.sector"))) ||
+          (option.title === "Firma Türü" &&
+            (option.title = t("userListPosition.company_type")))
+        );
       });
       setParameterOptions(filteredOptions);
     } catch (error) {
@@ -183,50 +176,54 @@ const ListCustomers = () => {
     }
   };
 
-
   const handleEditCustomer = (customerId) => {
     navigate(`/edit-customer/${customerId}`);
   };
-
 
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
 
   const handleAddCustomer = () => {
-    dispatch(setSelectedOption('add-customer'));
+    dispatch(setSelectedOption("add-customer"));
   };
   const handleDelete = async (customerId) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/customers/${customerId}`);
-      setCustomers(customers.filter(customer => customer.companyId !== customerId));
-      Notification("success", "Müşteri başarıyla silindi.", "");
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/customers/${customerId}`
+      );
+      setCustomers(
+        customers.filter((customer) => customer.companyId !== customerId)
+      );
+      Notification("success", t("customer_deleted_success"), "");
       setIsDelete(true);
-
     } catch (error) {
-      Notification("error", "Müşteri silinirken bir hata oluştu.", "");
+      Notification("error", t("customer_deletion_error"), "");
     }
   };
 
   return (
     <>
-      {loading ? <Loading />
-        : (
-          <ListComponent
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            dropdowns={
-              <FilterComponent
-                setFilters={setFilters}
-                parameterOptions={parameterOptions}
-              />}
-            handleAdd={handleAddCustomer}
-            handleUpdate={handleEditCustomer}
-            handleDelete={handleDelete}
-            columns={columns}
-            data={data}
-            name={"Müşteri Listesi"}
-          />)}
+      {loading ? (
+        <Loading />
+      ) : (
+        <ListComponent
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          dropdowns={
+            <FilterComponent
+              setFilters={setFilters}
+              parameterOptions={parameterOptions}
+            />
+          }
+          handleAdd={handleAddCustomer}
+          handleUpdate={handleEditCustomer}
+          handleDelete={handleDelete}
+          columns={columns}
+          data={data}
+          name={t("listCustomer.company_list")}
+        />
+      )}
     </>
   );
 };

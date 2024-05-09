@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import axios from "axios";
 import showNotification from "../utils/showNotification";
 import { fetchData } from "../utils/fetchData";
@@ -16,6 +16,7 @@ import ListComponent from "../components/listComponent";
 import Loading from "../components/loadingComponent";
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
+import { useTranslation } from "react-i18next";
 
 const ListDemand = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +27,7 @@ const ListDemand = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {i18n,t}=useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalEmail, setModalEmail] = useState("");
   const { user } = useSelector((state) => state.auth);
@@ -130,32 +132,32 @@ const ListDemand = () => {
   };
   const columns = [
     {
-      title: "Şirket Adı",
+      title: ()=> t("userDemands.company_name"),
       dataIndex: "companyname",
       key: "companyname",
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "İsim",
+      title:()=> t("userDemands.name"),
       dataIndex: "name",
       key: "name",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Soyisim",
+      title: ()=> t("userDemands.surname"),
       dataIndex: "surname",
       key: "surname",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "Telefon",
+      title: ()=> t("userDemands.phone"),
       dataIndex: "number",
       key: "number",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: "E-mail",
+      title: ()=> t("userDemands.email"),
       dataIndex: "email",
       key: "email",
       render: (text) => highlightSearchTerm(text, searchTerm),
@@ -218,7 +220,7 @@ const ListDemand = () => {
           data={filterDemands(data)}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          name={"Talep Listesi"}
+          name={t("userDemands.page_name")}
         />
       )}
     </>

@@ -14,6 +14,8 @@ import { City, Country, State } from "country-state-city";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
 import "react-country-state-city/dist/react-country-state-city.css";
 import Loading from "../components/loadingComponent";
+import { useTranslation } from "react-i18next";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -26,7 +28,7 @@ const isPhoneValid = (phone) => {
 };
 const CompanyForm = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
-
+  const { t ,i18n} = useTranslation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -161,7 +163,7 @@ const CompanyForm = () => {
       });
 
       if (response.status === 201) {
-        Notification("success", "Müşteri başarıyla eklendi.");
+        Notification("success", t("customerAdd.customer_add_success"));
         setTimeout(() => {
           dispatch(setSelectedOption("list-customers"));
         }, 500);
@@ -177,7 +179,7 @@ const CompanyForm = () => {
         errorMessage = error.response.data.error;
       }
       console.error("Error occurred while adding customer:", error);
-      Notification("error", errorMessage);
+      Notification("error",  t("customerAdd.customer_add_error"));
     }
   };
 
@@ -189,57 +191,46 @@ const CompanyForm = () => {
           <div className="body">
             <div className="flex justify-center items-center w-full ">
               <div className="w-full">
-                <h2 className="text-center text-2xl">Müşteri Ekle</h2>
-                <button
-                  className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
-                  onClick={() => dispatch(setSelectedOption("list-customer"))}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  Geri Dön
-                </button>
+                <Button 
+                type="link"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => dispatch(setSelectedOption("list-customer"))} >
+                  {t("addCustomer.back")}
+                </Button>
+   
+                <h2 className="text-center text-2xl">{t("addCustomer.add_customer")}</h2>
+
+                
 
                 <Form
                   form={form}
                   onFinish={handleSubmit}
                   layout="vertical"
-                  className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+                  className="bg-white shadow-md rounded px-8 pt-6 pb-8 mt-4"
                 >
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Form.Item
-                      label="Firma Adı"
+                      label= {t("addCustomer.company_name_label")}
                       name="companyName"
-                      rules={[{ required: true, message: "Firma adını giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.company_name_message") }]}
                     >
                       <Input
-                        placeholder="Firma Adı"
+                        placeholder={t("addCustomer.company_name_placeholder")}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       />
                     </Form.Item>
                     <Form.Item
-                      label="Firma Türü"
+                      label={t("addCustomer.company_type_label")}
                       name="companyType"
-                      rules={[{ required: true, message: "Firma türünü giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.company_type_message") }]}
                     >
                       <Select
                         showSearch
                         optionFilterProp="children"
-                        placeholder="Firma Türü Seç"
+                        placeholder={t("addCustomer.company_type_placeholder")}
                       >
                         {parameters.map((parameter, index) => {
-                          if (parameter.title === "Firma Türü") {
+                          if (parameter.title === "Firma Türü" ) {
                             return parameter.values.map((value, idx) => (
                               <Option key={`${parameter._id}-${idx}`} value={value}>
                                 {value}
@@ -254,14 +245,14 @@ const CompanyForm = () => {
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Form.Item
-                      label="Sektör"
+                      label={t("addCustomer.industry_label")}
                       name="industry"
-                      rules={[{ required: true, message: "Sektör giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.industry_message") }]}
                     >
                       <Select
                         showSearch
                         optionFilterProp="children"
-                        placeholder="Sektör Seç"
+                        placeholder={t("addCustomer.industry_placeholder")}
                       >
                         {parameters.map((parameter, index) => {
                           if (parameter.title === "Sektör") {
@@ -276,58 +267,58 @@ const CompanyForm = () => {
                       </Select>
                     </Form.Item>
                     <Form.Item
-                      label="Web Sitesi"
+                      label={t("addCustomer.website_label")}
                       name="website"
-                      rules={[{ required: true, message: "Web sitesi giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.website_message") }]}
                     >
                       <Input
-                        placeholder="Web Sitesi"
+                        placeholder={t("addCustomer.website_placeholder")}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       />
                     </Form.Item>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Form.Item
-                      label="İlgili Kişi"
+                      label={t("addCustomer.contact_person_label")}
                       name="contactPerson"
-                      rules={[{ required: true, message: "İlgili kişi giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.contact_person_message") }]}
                     >
                       <Input
-                        placeholder="İlgili Kişi"
+                        placeholder={t("addCustomer.contact_person_placeholder")}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       />
                     </Form.Item>
                     <Form.Item
-                      label="İlgili Kişi Email"
+                      label={t("addCustomer.contact_email_label")}
                       name="contactEmail"
                       rules={[
                         {
                           required: true,
                           message: "Email giriniz!",
                           type: "email",
-                          message: "Geçerli bir email adresi giriniz!",
+                          message: t("addCustomer.contact_email_message"),
                         },
                       ]}
                     >
                       <Input
-                        placeholder="İlgili Kişi Email"
+                        placeholder={t("addCustomer.contact_email_placeholder")}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       />
                     </Form.Item>
                   </div>
                   <div className="grid sm:grid-cols-2  gap-4">
                     <Form.Item
-                      label="İlgili Kişi Telefon numarası"
+                      label={t("addCustomer.contact_phone_label")}
                       name="contactPhoneNumber"
                       rules={[
                         {
                           required: true,
                           type: number,
-                          message: "Geçerli bir telefon numarası giriniz.",
+                          message: t("addCustomer.contact_phone_message"),
                           validator: (_, value) => {
                             if (value && !isPhoneValid(value) && value.length > 3) {
                               return Promise.reject(
-                                "Geçerli bir telefon numarası giriniz!"
+                                t("addCustomer.company_name_label")
                               );
                             }
                             return Promise.resolve();
@@ -342,15 +333,15 @@ const CompanyForm = () => {
                       />
                     </Form.Item>
                     <Form.Item
-                      label="Ülke"
+                      label={t("addCustomer.country_label")}
                       name="country"
-                      rules={[{ required: true, message: "Ülke giriniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.country_message") }]}
                     >
                       <Select
                         showSearch
                         style={{ width: "100%" }}
                         value={country ? country.isoCode : undefined}
-                        placeholder="Ülke seç"
+                        placeholder={t("addCustomer.country_placeholder")}
                         optionFilterProp="children"
                         onChange={(value) => {
                           handleCountryChange(value);
@@ -372,15 +363,15 @@ const CompanyForm = () => {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Form.Item
-                      label="Şehir"
+                      label={t("addCustomer.city_label")}
                       name=" "
-                      rules={[{ required: true, message: "İl seçiniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.city_message") }]}
                     >
                       <Select
                         showSearch
                         style={{ width: "100%" }}
                         value={state ? state.isoCode : undefined}
-                        placeholder="Şehir seç"
+                        placeholder={t("addCustomer.city_placeholder")}
                         optionFilterProp="children"
                         onChange={(value) => {
                           handleCityChange(value);
@@ -416,15 +407,15 @@ const CompanyForm = () => {
 
 
                     <Form.Item
-                      label="İlçe"
+                      label={t("addCustomer.county_label")}
                       name="ilce"
-                      rules={[{ required: true, message: "İlçe seçiniz!" }]}
+                      rules={[{ required: true, message: t("addCustomer.county_message") }]}
                     >
                       <Select
                         showSearch
                         style={{ width: "100%" }}
                         value={county ? county.name : undefined}
-                        placeholder="İlçe seç"
+                        placeholder={t("addCustomer.county_placeholder")}
                         optionFilterProp="children"
                         onChange={(value) => {
                           handleCountyChange(value);
@@ -456,12 +447,12 @@ const CompanyForm = () => {
                     </Form.Item>
                   </div>
                   <Form.Item
-                    label="Adres"
+                    label={t("addCustomer.address_label")}
                     name="address"
-                    rules={[{ required: true, message: "Adres giriniz!" }]}
+                    rules={[{ required: true, message: t("addCustomer.address_message") }]}
                   >
                     <Input.TextArea
-                      placeholder="Adres"
+                      placeholder={t("addCustomer.address_placeholder")}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </Form.Item>
@@ -472,7 +463,7 @@ const CompanyForm = () => {
                       loading={loading}
                       className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                     >
-                      Kaydet
+                     {t("addCustomer.save_button")}
                     </Button>
                   </Form.Item>
                 </Form>

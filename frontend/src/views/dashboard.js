@@ -2,15 +2,18 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserSelectedOption } from '../redux/userSelectedOptionSlice';
 import { Button } from 'antd';
+import { useTranslation } from "react-i18next";
 export default function Dashboard() {
 
     useSelector(state => state.userSelectedOption.userSelectedOption);
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const handleNewPosition = () => {
         dispatch(setUserSelectedOption('add-position'));
     };
     const handleCVlist = () => {
         dispatch(setUserSelectedOption('candidates'));
+        
     }
     return (
         <div className="body">
@@ -22,7 +25,7 @@ export default function Dashboard() {
                     className="rounded-md shadow-md"
                   
                 >
-                    Yeni Pozisyon Ekle
+                    {t("user_home.add_position")}
                 </Button>
                 <Button
                     block
@@ -30,7 +33,7 @@ export default function Dashboard() {
                     className="rounded-md shadow-md mt-2"
                     
                 >
-                    CV Havuzunu Görüntüle
+                      {t("user_home.view_pool")}
                 </Button>
 
             </div>

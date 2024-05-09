@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, Spin, DatePicker, Modal } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  Spin,
+  DatePicker,
+  Modal,
+  Tooltip,
+} from "antd";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedOption } from "../redux/selectedOptionSlice";
@@ -14,17 +23,18 @@ import Loading from "../components/loadingComponent";
 import NavBar from "../components/adminNavBar";
 import { City, Country, State } from "country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { useTranslation } from "react-i18next";
 
 import dayjs from "dayjs";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 dayjs.extend(customParseFormat);
-const dateFormat = 'DD-MM-YYYY';
+const dateFormat = "DD-MM-YYYY";
 const today = dayjs();
 const { Option } = Select;
 
 const EditPosition = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -95,7 +105,6 @@ const EditPosition = () => {
       setcontentValue(data.description);
       setIsFetch(false);
       setLoading(false);
-
     } catch (error) {
       setLoading(false);
       console.error("Müşteri bilgileri alınırken bir hata oluştu:", error);
@@ -111,17 +120,15 @@ const EditPosition = () => {
   };
 
   const handlePreferredCompaniesChange = (value) => {
-
     if (!Array.isArray(value)) {
-      value = value.split('\n');
+      value = value.split("\n");
     }
     setPreferredCompanies(value);
   };
 
   const handleIndustryChange = (value) => {
-
     if (!Array.isArray(value)) {
-      value = value.split('\n');
+      value = value.split("\n");
     }
     setIndustry(value);
   };
@@ -148,9 +155,9 @@ const EditPosition = () => {
       );
       setAiResponse(response.data.message);
       setcontentValue(response.data.message);
-      Notification("success", "İş Tanımı Başarıyla Oluşturuldu.");
+      Notification("success", t("edit_position.job_description_success"));
     } catch (error) {
-      Notification("error", "İş Tanımı Oluşturulurken Hata Oluştu.");
+      Notification("error", t("edit_position.job_description_error"));
       console.error("Form gönderilirken bir hata oluştu:", error);
     } finally {
       setLoadingAi(false);
@@ -221,8 +228,8 @@ const EditPosition = () => {
       });
       Notification(
         "success",
-        "Başarıyla güncellendi.",
-        "Pozisyon Talebiniz Başarıyla Güncellenmiştir"
+        t("edit_position.update_success1"),
+        t("edit_position.update_success2")
       );
 
       setTimeout(() => {
@@ -238,8 +245,8 @@ const EditPosition = () => {
       console.error("Form gönderilirken bir hata oluştu:", error);
       Notification(
         "error",
-        "Bir hata oluştu.",
-        "Pozisyon Talebiniz Güncellenirken Bir Hata Oluştu."
+        t("edit_position.update_error1"),
+        t("edit_position.update_error2")
       );
       setLoading(false);
       setSubmitLoading(false);
@@ -257,7 +264,6 @@ const EditPosition = () => {
   };
   return (
     <>
-
       {user?.role === "admin" && <NavBar />}
       {user?.role === "user" && <UserNavbar />}
       {loading ? (
@@ -265,9 +271,9 @@ const EditPosition = () => {
       ) : (
         <div className="body">
           <div className="w-full">
-            <h2 className="text-center text-2xl">Pozisyonu Düzenle</h2>
-            <button
-              className="text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-500/30 font-medium rounded-lg text-sm px-3 py-2.5 text-center flex items-center justify-center me-2 mb-2"
+            <Button
+              type="link"
+              icon={<ArrowLeftOutlined />}
               onClick={() => {
                 if (user?.role === "admin") {
                   navigate("/adminhome");
@@ -278,39 +284,34 @@ const EditPosition = () => {
                 }
               }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Geri Dön
-            </button>
+              {t("edit_position.back")}
+            </Button>
+            <h2 className="text-center text-2xl">
+              {t("edit_position.edit_position")}
+            </h2>
+
             {positionData && (
               <Form
                 form={form}
                 initialValues={positionData}
                 onFinish={handleSubmit}
                 layout="vertical"
-                className="bg-white grid grid-cols-1 sm:grid-cols-2 gap-4 shadow-md rounded px-8 pt-6 pb-8 mb-4"
+                className="bg-white grid grid-cols-1 sm:grid-cols-2 gap-4 shadow-md rounded px-8 pt-6 pb-8 mt-4"
               >
                 <Form.Item
-                  label="İş Unvanı"
+                  label={t("edit_position.job_title")}
                   name="jobtitle"
-                  rules={[{ required: true, message: "İş Unvanını Giriniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_job_title"),
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="İş Unvanı Seç"
+                    placeholder={t("edit_position.select_job_title")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "İş Unvanı") {
@@ -325,14 +326,19 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="Departman"
+                  label={t("edit_position.department")}
                   name="department"
-                  rules={[{ required: true, message: "Departmanı Giriniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_department"),
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Departman Seç"
+                    placeholder={t("edit_position.select_department")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "Departman") {
@@ -348,16 +354,19 @@ const EditPosition = () => {
                 </Form.Item>
 
                 <Form.Item
-                  label="Deneyim Süresi"
+                  label={t("edit_position.experience_period")}
                   name="experienceperiod"
                   rules={[
-                    { required: true, message: "Deneyim Süresini Giriniz!" },
+                    {
+                      required: true,
+                      message: t("edit_position.enter_experience_period"),
+                    },
                   ]}
                 >
                   <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Deneyim Süresi Seç"
+                    placeholder={t("edit_position.select_experience_period")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "Deneyim Süresi") {
@@ -372,16 +381,19 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="Çalışma Şekli"
+                  label={t("edit_position.mode_of_operation")}
                   name="modeofoperation"
                   rules={[
-                    { required: true, message: "İşyeri Politikasını Giriniz!" },
+                    {
+                      required: true,
+                      message: "edit_position.enter_mode_of_operation",
+                    },
                   ]}
                 >
                   <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="İşyeri Politikası Seç"
+                    placeholder={t("edit_position.select_mode_of_operation")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "Çalışma Şekli") {
@@ -396,14 +408,19 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="Sözleşme Tipi"
+                  label={t("edit_position.work_type")}
                   name="worktype"
-                  rules={[{ required: true, message: "İş Türünü Giriniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_work_type"),
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
                     optionFilterProp="children"
-                    placeholder="İş Türü Seç"
+                    placeholder={t("edit_position.select_work_type")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "Sözleşme Tipi") {
@@ -420,19 +437,21 @@ const EditPosition = () => {
 
                 <Form.Item
                   label={
-                  <span>
-                    Tercih Edilen Sektörler <InfoCircleOutlined className="text-blue-500" onClick={infoSector} />
-                  </span>
-                }
+                    <span>
+                      {t("edit_position.preferred_industries")}{" "}
+                      <InfoCircleOutlined
+                        className="text-blue-500"
+                        onClick={infoSector}
+                      />
+                    </span>
+                  }
                   name="industry"
-                  
-
                 >
                   <Select
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Sektör Seç"
+                    placeholder={t("edit_position.select_industries")}
                     onChange={handleIndustryChange}
                     defaultValue={positionData.industry}
                   >
@@ -449,34 +468,34 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Modal
-                title="Tercih Edilen Sektörler"
-                visible={visible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                cancelText="Kapat"
-                okText="Tamam"
-                okButtonProps={{ className: 'bg-blue-500' }}
-                cancelButtonProps={{className: 'hidden'}}
-              >
-                <p>Bu alana tercih ettiğiniz sektörleri ekleyebilirsiniz.</p>
-                <p>Burada belirtilen sektörler, profilinizdeki tercihlerinizin bir parçasıdır ve belirli özelliklere göre size önerilerde bulunmamıza yardımcı olur.</p>
-              </Modal>
-
-
-
+                  title={t("edit_position.preferred_industries")}
+                  visible={visible}
+                  onOk={handleOk}
+                  onCancel={handleCancel}
+                  cancelText="Kapat"
+                  okText="Tamam"
+                  okButtonProps={{ className: "bg-blue-500" }}
+                  cancelButtonProps={{ className: "hidden" }}
+                >
+                  <p>{t("edit_position.industry_description_1")} </p>
+                  <p>{t("edit_position.industry_description_2")} </p>
+                </Modal>
 
                 <Form.Item
-                  label="Teknik Beceriler"
+                  label={t("edit_position.technical_skills")}
                   name="skills"
                   rules={[
-                    { required: true, message: "Teknik Becerileri Giriniz!" },
+                    {
+                      required: true,
+                      message: t("edit_position.enter_technical_skills"),
+                    },
                   ]}
                 >
                   <Select
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Departman Seç"
+                    placeholder={t("edit_position.select_technical_skills")}
                   >
                     {parameters.map((parameter, index) => {
                       if (parameter.title === "Yetenekler") {
@@ -492,16 +511,18 @@ const EditPosition = () => {
                 </Form.Item>
 
                 {positionData.bannedCompanies && (
-                  <Form.Item label="Yasaklı Şirketler" name="bannedcompanies">
+                  <Form.Item
+                    label={t("edit_position.banned_companies")}
+                    name="bannedcompanies"
+                  >
                     <Select
                       mode="tags"
                       showSearch
                       optionFilterProp="children"
-                      placeholder="Yasaklı Şirket Seç"
+                      placeholder={t("edit_position.add_banned_companies")}
                       onChange={handleBannedCompaniesChange}
                       defaultValue={positionData.bannedCompanies}
                     >
-
                       {positionData.bannedCompanies.map((company, index) => (
                         <Option key={index} value={company}>
                           {company}
@@ -511,14 +532,15 @@ const EditPosition = () => {
                   </Form.Item>
                 )}
 
-                <Form.Item label="Tercih Edilen Şirketler" 
-                name="preferredcompanies">
-                
+                <Form.Item
+                  label={t("edit_position.preferred_companies")}
+                  name="preferredcompanies"
+                >
                   <Select
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Tercih Edilen Şirket Seç"
+                    placeholder={t("edit_position.add_preferred_companies")}
                     onChange={handlePreferredCompaniesChange}
                     defaultValue={positionData.preferredCompanies}
                   >
@@ -535,48 +557,60 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
 
-
-
-                <Form.Item name="date" label="İşe Başlama Tarihi" className="">
+                <Form.Item
+                  name="date"
+                  label={t("edit_position.start_date")}
+                  className=""
+                >
                   <DatePicker
                     className="w-full"
                     onChange={handleDateChange}
-                    placeholder="İşe başlama tarihini seçiniz"
+                    placeholder={t("edit_position.enter_start_date")}
                     defaultValue={selectedDate}
                     format={dateFormat}
                     minDate={dayjs(today, dateFormat)}
                   />
                 </Form.Item>
                 <Form.Item
-                  label="Şehir"
+                  label={t("edit_position.city")}
                   name="positionCity"
-                  rules={[{ required: true, message: "Şehir seçiniz!" }]}
+                  rules={[
+                    { required: true, message: t("edit_position.enter_city") },
+                  ]}
                 >
                   <Select
                     showSearch
                     style={{ width: "100%" }}
                     value={state ? state.isoCode : undefined}
-                    placeholder="Şehir seç"
+                    placeholder={t("edit_position.enter_city")}
                     optionFilterProp="children"
                     onChange={(value) => {
                       handleCityChange(value);
                     }}
                     filterOption={(input, option) => {
                       if (isoCode === "TR") {
-                            const normalizedInput = input
-                              .toString()
-                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
-                              .toLowerCase();
-                            const normalizedOption = option.children
-                              .toString()
-                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
-                              .toLowerCase();
-                            return normalizedOption.includes(normalizedInput);
-                          }
-                          else {
-                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
-                          }
-                        }}
+                        const normalizedInput = input
+                          .toString()
+                          .replace(/[İIı]/g, (match, offset) =>
+                            offset === 0 ? "i" : "i"
+                          )
+                          .toLowerCase();
+                        const normalizedOption = option.children
+                          .toString()
+                          .replace(/[İIı]/g, (match, offset) =>
+                            offset === 0 ? "i" : "i"
+                          )
+                          .toLowerCase();
+                        return normalizedOption.includes(normalizedInput);
+                      } else {
+                        return (
+                          option.children
+                            .toString()
+                            .toLowerCase()
+                            .indexOf(input.toString().toLowerCase()) >= 0
+                        );
+                      }
+                    }}
                   >
                     {stateData &&
                       stateData.map((state, index) => (
@@ -587,35 +621,48 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="İlçe"
+                  label={t("edit_position.county")}
                   name="positionCounty"
-                  rules={[{ required: true, message: "İlçe seçiniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_county"),
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
                     style={{ width: "100%" }}
                     value={county ? county.name : undefined}
-                    placeholder="İlçe seç"
+                    placeholder={t("edit_position.enter_county")}
                     optionFilterProp="children"
                     onChange={(value) => {
                       handleCountyChange(value);
                     }}
                     filterOption={(input, option) => {
                       if (isoCode === "TR") {
-                            const normalizedInput = input
-                              .toString()
-                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
-                              .toLowerCase();
-                            const normalizedOption = option.children
-                              .toString()
-                              .replace(/[İIı]/g, (match, offset) => offset === 0 ? "i" : "i")
-                              .toLowerCase();
-                            return normalizedOption.includes(normalizedInput);
-                          }
-                          else {
-                            return option.children.toString().toLowerCase().indexOf(input.toString().toLowerCase()) >= 0;
-                          }
-                        }}
+                        const normalizedInput = input
+                          .toString()
+                          .replace(/[İIı]/g, (match, offset) =>
+                            offset === 0 ? "i" : "i"
+                          )
+                          .toLowerCase();
+                        const normalizedOption = option.children
+                          .toString()
+                          .replace(/[İIı]/g, (match, offset) =>
+                            offset === 0 ? "i" : "i"
+                          )
+                          .toLowerCase();
+                        return normalizedOption.includes(normalizedInput);
+                      } else {
+                        return (
+                          option.children
+                            .toString()
+                            .toLowerCase()
+                            .indexOf(input.toString().toLowerCase()) >= 0
+                        );
+                      }
+                    }}
                   >
                     {countyData &&
                       countyData.map((county, index) => (
@@ -626,21 +673,31 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
                 <Form.Item
-                  label="Adres"
+                  label={t("edit_position.address")}
                   name="positionAdress"
-                  rules={[{ required: true, message: "Adres giriniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_address"),
+                    },
+                  ]}
                 >
                   <Input.TextArea
-                    placeholder="Adres"
+                    placeholder={t("edit_position.enter_address")}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   />
                 </Form.Item>
 
                 <Form.Item
-                  label="İş Tanımı"
+                  label={t("edit_position.job_description")}
                   name="description"
                   value={contentValue}
-                  rules={[{ required: true, message: "İş Tanımını Giriniz!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("edit_position.enter_job_description"),
+                    },
+                  ]}
                   className="col-start-1 col-end-3"
                 >
                   <EditableContent
@@ -649,6 +706,7 @@ const EditPosition = () => {
                     setContent={setcontentValue}
                     handleAskAi={handleAskAi}
                     isLoading={loadingAi}
+                    t={t}
                   />
                 </Form.Item>
                 <Form.Item className="col-start-1 col-end-3 text-center">
@@ -658,7 +716,7 @@ const EditPosition = () => {
                     loading={submitLoading}
                     className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                   >
-                    {submitLoading ? <Spin /> : "Güncelle"}{" "}
+                    {submitLoading ? <Spin /> : t("edit_position.update")}{" "}
                   </Button>
                 </Form.Item>
               </Form>
