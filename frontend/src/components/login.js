@@ -399,7 +399,7 @@ export default function Login() {
               {loading ? (
                 <LoadingOutlined style={{ marginRight: "5px" }} spin />
               ) : null}
-              {loading ? "" : "Giriş Yap"}
+              {loading ? "" :  t("login.login")}
             </button>
           ) : (
             <Button disabled={true} className="h-9 w-full mt-5">
