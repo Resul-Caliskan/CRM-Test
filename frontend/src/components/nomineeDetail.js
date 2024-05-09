@@ -8,40 +8,40 @@ import logo from "../assets/link.png";
 import phoneIcon from "../assets/phone.png";
 import mailIcon from "../assets/email.png";
 import degreeIcon from "../assets/school.png";
-
+ 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-
+ 
 export default function NomineeDetail({ nominee, onClose, isKnown }) {
   const [activeTab, setActiveTab] = useState("experience");
   const { t } = useTranslation();
   if (!nominee) {
     return null;
   }
-
+ 
   const censorMail = (text) => {
     const parts = text.split("@");
     const censoredUsername = parts[0].charAt(0) + "*****"; // Sadece ilk harf ve beş yıldız göster
     const censoredEmail = censoredUsername + "@" + parts[1];
     return censoredEmail;
   };
-
+ 
   const censorText = (text) => {
     const words = text.split(" ");
-
+ 
     let censoredText = "";
-
+ 
     words.forEach((word) => {
       const wordLength = word.length;
-
+ 
       const censoredWord = word.charAt(0) + "*".repeat(wordLength - 1);
-
+ 
       censoredText += censoredWord + " ";
     });
-
+ 
     return censoredText.trim();
   };
-
+ 
   const censorPhoneNumber = (phoneNumber) => {
     const censored = phoneNumber.replace(
       /(\d{3})-(\d{3})-(\d{4})/,
@@ -49,14 +49,14 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
     );
     return censored;
   };
-
+ 
   const censorLinkedInUrl = (url) => {
     const parts = url.split("/");
     const username = parts[parts.length - 1];
     const censoredUrl = url.replace(username, "*****");
     return censoredUrl;
   };
-
+ 
   return (
     <div
       className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-gray-400 bg-opacity-90"
@@ -85,25 +85,31 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
           </div>
         </div>
         <div className="flex flex-col rounded-md p-2 mt-2">
-          <div className="flex flex-row justify-between">
-            <div className="flex flex-wrap">
-              <div className="text-xs font-sans pl-2">
-                {t("nomineeDetail.tags")}
+          <div className="grid grid-cols-2 w-auto">
+            <div className=" w-full min-w-[265px]">
+              <div className="flex flex-wrap">
+                <div className="text-xs font-sans">
+                  {t("nomineeDetail.tags")}
+                  <div className="mb-4 mt-2 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55]">
+                    Junior
+                  </div>
+                </div>
+              </div>
+ 
+            </div>
+            <div className="w-[100px]">
+              <div className="text-xs font-sans w-auto">
+                {t("nomineeDetail.source")}
                 <div className="mb-4 mt-2 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55]">
-                  Junior
+                  Referans
                 </div>
               </div>
             </div>
-            <div className="text-xs font-sans pr-2">
-              {t("nomineeDetail.source")}
-              <div className="mb-4 mt-2 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55]">
-                Referans
-              </div>
-            </div>
+ 
           </div>
-
+ 
           <div className="flex flex-col md:flex-row w-full">
-            <div className="grid grid-rows-4-4 py-1 bg-white rounded-lg ring-1 ring-[#C7C7C7] w-auto h-auto lg:w-[450px] xl:h-[145px]">
+            <div className="grid grid-rows-4-4 py-1 bg-white rounded-lg ring-1 ring-[#C7C7C7] w-full h-auto  xl:h-[145px]">
               {isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200">
                   <div className="flex items-center px-1 py-1 rounded-t-sm ml-2">
@@ -117,7 +123,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               )}
-
+ 
               {isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200 ml-2">
                   <div className="flex items-center">
@@ -135,7 +141,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               )}
-
+ 
               {isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200 ml-2">
                   <div className="flex items-center">
@@ -168,7 +174,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               )}
-
+ 
               {!isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200">
                   <div className="flex items-center px-1 py-1 rounded-t-sm ml-2">
@@ -182,7 +188,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               )}
-
+ 
               {!isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200 ml-2">
                   <div className="flex items-center">
@@ -200,7 +206,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               )}
-
+ 
               {!isKnown && (
                 <div className="flex flex-row bg-white border-b-2 border-gray-200 ml-2">
                   <div className="flex items-center">
@@ -234,7 +240,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                 </div>
               )}
             </div>
-            <div className="bg-white rounded-lg p-1 ring-1 ring-[#C7C7C7] mt-5 md:mt-0 md:ml-2 w-auto h-auto lg:w-[450px] xl:h-[145px] overflow-auto">
+            <div className="bg-white rounded-lg p-1 ring-1 ring-[#C7C7C7] mt-5 md:mt-0 md:ml-2 w-full h-auto  xl:h-[145px] overflow-auto">
               <strong className="text-[#494949] ml-2">
                 {t("nomineeDetail.skills")}
               </strong>
@@ -249,32 +255,30 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
               </div>
             </div>
           </div>
-
+ 
           <div className="bg-gray-100 my-2">
             <div className="bg-white rounded-lg border-b-2 ">
               <div className="mt-4 mr-16 border-b-2 border-gray-200 w-full">
                 <button
-                  className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
-                    activeTab === "experience"
-                      ? "border-blue-500 tab text-[#383838]"
-                      : "tab text-[#ADADAD]"
-                  }`}
+                  className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "experience"
+                    ? "border-blue-500 tab text-[#383838]"
+                    : "tab text-[#ADADAD]"
+                    }`}
                   onClick={() => setActiveTab("experience")}
                 >
                   {t("nomineeDetail.experience")}
                 </button>
                 <button
-                  className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
-                    activeTab === "cv"
-                      ? "border-blue-500 tab text-[#383838]"
-                      : "tab text-[#ADADAD]"
-                  }`}
+                  className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "cv"
+                    ? "border-blue-500 tab text-[#383838]"
+                    : "tab text-[#ADADAD]"
+                    }`}
                   onClick={() => setActiveTab("cv")}
                 >
                   {t("nomineeDetail.resume")}
                 </button>
               </div>
-
+ 
               {activeTab === "experience" && (
                 <div className="ml-2 mt-3 h-[200px] overflow-y-auto">
                   <ul className="list-disc ml-4">
@@ -302,7 +306,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                 </div>
               )}
             </div>
-
+ 
             {activeTab === "cv" && (
               <div className="">
                 <strong className="text-center">
@@ -310,7 +314,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                 </strong>
               </div>
             )}
-
+ 
             {/* {!isKnown && activeTab === "cv" && (
               <div className="text-center mt-4">
                 <strong>{t("nomineeDetail.resume_page")}</strong>
