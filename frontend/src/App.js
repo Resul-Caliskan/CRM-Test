@@ -20,9 +20,10 @@ import AdminPositionDetail from "./views/adminPositionDetail";
 import ResetPassword from "./views/resetPassword";
 import SetPassword from "./views/setPassword";
 import SentPassword from "./views/sentPassword";
-import DetailCustomer from './views/detailCustomer';
+import DetailCustomer from "./views/detailCustomer";
 import { Toaster } from "react-hot-toast";
 import i18n from "./localization/i18n";
+import { t } from "i18next";
 
 function App() {
   const [initialized, setInitialized] = useState(false);
@@ -46,6 +47,7 @@ function App() {
     if (i18n.language === undefined) {
       i18n.changeLanguage("tr");
     }
+    document.title = "HRHUB | " + t("customer_relationship_management");
   };
 
   return (
@@ -87,7 +89,7 @@ function App() {
             path="/edit-position/:id"
             element={<PrivateRoute Component={EditPosition} />}
           />
-           <Route
+          <Route
             path="/detail-customer/:id"
             element={<PrivateRoute Component={DetailCustomer} />}
           />

@@ -14,7 +14,7 @@ const NomineeList = ({
   droppableId,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const nomineesPerPage = 1;
+  const nomineesPerPage = 2;
   const { t } = useTranslation();
  
   useEffect(() => {

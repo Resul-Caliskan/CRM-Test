@@ -466,6 +466,7 @@
     "select_role_popover": "Bu alandan çalışanlara veya yöneticilere yetkilendirme yapabilirsiniz.Yetki seviyesine dikkat ediniz."
   },
   "admin_detail": {
+    "company_name":"Şirket Adı",
     "position_detail": "Pozisyon Detayı",
     "department": "Departman",
     "job_title": "İş Ünvanı",
@@ -500,6 +501,7 @@
     "approve": "Onayla"
   },
   "admin_detail": {
+    "company_name":"Şirket Adı",
     "position_detail": "Pozisyon Detayı",
     "department": "Departman",
     "job_title": "İş Ünvanı",

@@ -10,6 +10,7 @@ const DemandNomineeModel = ({
   setOpen,
   nomineeId,
   positions,
+  setIsRequested,
   setPositions,
 }) => {
   const { t } = useTranslation();
@@ -42,6 +43,22 @@ const DemandNomineeModel = ({
         { nomineeId: nomineeId }
       );
       socket.emit("createDemand", id);
+      setPositions((prevPositions) => {
+        // Seçilen pozisyonu kopyala
+        const updatedPositions = [...prevPositions];
+
+        // Seçilen pozisyonun aday listesine yeni adayı ekle
+        updatedPositions[selectedPositionIndex] = {
+          ...updatedPositions[selectedPositionIndex],
+          requestedNominees: [
+            ...updatedPositions[selectedPositionIndex].requestedNominees,
+            nomineeId,
+          ],
+        };
+
+        // Güncellenmiş pozisyon listesini döndür
+        return updatedPositions;
+      });
       try {
         const response = await axios.post(`${apiUrl}/api/notification/add`, {
           message:
@@ -57,25 +74,10 @@ const DemandNomineeModel = ({
           receiverCompanyId: "660688a38e88e341516e7acd",
         });
         socket.emit("notificationCreated", response.data.notificationId);
-        setPositions((prevPositions) => {
-          // Seçilen pozisyonu kopyala
-          const updatedPositions = [...prevPositions];
-
-          // Seçilen pozisyonun aday listesine yeni adayı ekle
-          updatedPositions[selectedPositionIndex] = {
-            ...updatedPositions[selectedPositionIndex],
-            requestedNominees: [
-              ...updatedPositions[selectedPositionIndex].requestedNominees,
-              nomineeId,
-            ],
-          };
-
-          // Güncellenmiş pozisyon listesini döndür
-          return updatedPositions;
-        });
       } catch (error) {
         console.error(error + "bildirim iletilemedi.");
       }
+      setIsRequested(false);
       Notification("success", t("position_detail.request_success"));
     } catch (error) {
       if (error.response && error.response.status === 400) {

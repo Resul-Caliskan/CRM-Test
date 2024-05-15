@@ -478,6 +478,7 @@
     "select_role_popover": "You can authorize employees or managers from this field. Please pay attention to the level of authority."
   },
   "admin_detail": {
+    "company_name":"Company Name",
     "position_detail": "Position Detail",
     "department": "Department",
     "job_title": "Job Title",
@@ -514,6 +515,7 @@
   },
   
     "admin_detail": {
+      "company_name":"Company Name",
       "position_detail": "Position Detail",
       "department": "Department",
       "job_title": "Job Title",

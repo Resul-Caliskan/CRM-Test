@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaStar, FaInfoCircle } from "react-icons/fa";
 import Highlighter from "react-highlight-words";
 import axios from "axios"; // Import axios for API requests
@@ -28,8 +28,14 @@ const NomineeCard = ({
   const [isKnown, setIsKnown] = useState(known);
   const [open, setOpen] = useState(false);
   const [selectedNominee, setSelectedNominee] = useState();
+  const [isRequested, setIsRequested] = useState();
   const [favoriteSharedNominees, setFavoriteSharedNominees] = useState([]);
   const [positions, setPositions] = useState(position);
+  useEffect(() => {
+    if (position) {
+      checkNomineeInPositions(nominee._id, positions);
+    }
+  }, [positions]);
 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
@@ -93,8 +99,12 @@ const NomineeCard = ({
 
         return updatedPositions;
       });
+
       socket.emit("notificationDeleted", positionId);
       Notification("success", t("position_detail.requestCancel_success"));
+      if (response) {
+        setIsRequested(true);
+      }
     } catch (error) {
       console.error("Talep silinirken bir hata oluştu:", error);
     }
@@ -103,10 +113,12 @@ const NomineeCard = ({
     for (let i = 0; i < positions.length; i++) {
       for (let j = 0; j < positions[i].requestedNominees.length; j++) {
         if (positions[i].requestedNominees[j] === nomineeId) {
+          setIsRequested(false);
           return positions[i];
         }
       }
     }
+    setIsRequested(true);
     return false;
   };
 
@@ -119,6 +131,7 @@ const NomineeCard = ({
           nomineeId={selectedNominee}
           positions={positions}
           setPositions={setPositions}
+          setIsRequested={setIsRequested}
         />
       )}
       <div
@@ -262,7 +275,7 @@ const NomineeCard = ({
             {!isKnown && (
               <>
                 {" "}
-                {!checkNomineeInPositions(nominee._id, positions) ? (
+                {isRequested ? (
                   <Tooltip placement={"top"} title={t("request_position")}>
                     <button
                       className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"

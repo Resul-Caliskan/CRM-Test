@@ -91,6 +91,7 @@ export default function ResetPassword() {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     document.cookie = `i18next=${lng}; path=/`;
+    document.title = "HRHUB | " + t("customer_relationship_management");
   };
 
   return (
