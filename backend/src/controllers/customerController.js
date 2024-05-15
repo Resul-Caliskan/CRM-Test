@@ -263,6 +263,7 @@ exports.companyAddToCustomer = async (req, res) => {
       },
       { new: true }
     );
+   
     res.status(200).json(updatedCustomer);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -305,5 +306,19 @@ exports.getCustomerCompanies = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+exports.updateCompanyByName = async (req, res) => {
+  try {
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      req.params.id,
+      {
+       
+        companies: req.body.companies,
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedCustomer);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 

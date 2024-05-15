@@ -15,6 +15,7 @@ import NavBar from '../components/adminNavBar';
 import DemandForm from './demand';
 import UserForm from './addUser';
 import Profile from './profile';
+import DetailCustomer from './detailCustomer';
 
 const App = () => {
 
@@ -44,7 +45,7 @@ const App = () => {
   let renderComponent;
   switch (selectedOption) {
     case "profile":
-      renderComponent = <Profile />
+      renderComponent = <Profile  />
       break;
     case "add-customer":
       renderComponent = <CompanyForm />;
@@ -76,13 +77,16 @@ const App = () => {
     case "notifications":
       renderComponent = <Notifications />;
       break;
+      case "detail-customer":
+        renderComponent = <DetailCustomer />;
+        break;
     default:
       renderComponent = <ListCustomers />;
   }
   return (
-    <div className=''>
+    <div className='w-screen h-screen  bg-[#F9F9F9]'>
       <NavBar />
-      {user && <div className='h-full'> {renderComponent}</div>}
+      {user && <div className='test'> {renderComponent}</div>}
     </div>
 
 

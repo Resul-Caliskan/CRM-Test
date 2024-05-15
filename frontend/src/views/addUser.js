@@ -106,33 +106,21 @@ const UserForm = () => {
   };
 
   return (
-    <div className="body">
-      <div className="w-full">
-        <Button
-          icon={<ArrowLeftOutlined />}
-          type="link"
-          onClick={() => {
-            if (user.role === "admin") {
-              dispatch(setSelectedOption("list-demands"));
-            } else {
-              dispatch(setUserSelectedOption("position"));
-            }
-          }}
-        >
-          {t("addUser.back")}
-        </Button>
-        <h2 className="text-center text-2xl mb-6">{t("addUser.title")}</h2>
-        <div className="w-full flex justify-center items-center bg-white shadow-md rounded pt-6 pb-8 mb-4">
-          <div className="w-full max-w-md">
+    
+      <div className="w-full b rounded-lg ">
+        <h2 className="text-center text-2xl my-5 ">{t("addUser.title")}</h2>
+        <div className="w-full flex justify-center items-center rounded-lg  ">
+          <div className="w-full">
             <Form
               form={form}
               onFinish={handleFormSubmit}
               layout="vertical"
-              className="bg-white shadow-sm rounded px-8 pt-6 pb-8 mb-4 w-full"
+              className="pb-5 my-1 px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-5"
             >
               <Form.Item
                 label={t("addUser.company_name_label")}
                 name="companyName"
+                className="w-full"
                 rules={[
                   {
                     required: true,
@@ -140,7 +128,7 @@ const UserForm = () => {
                   },
                 ]}
               >
-                <Select placeholder={t("addUser.company_name_placeholder")}>
+                <Select className="h-9" placeholder={t("addUser.company_name_placeholder")}>
                   {companies.map((company, index) => (
                     <Option key={company._id} value={index}>
                       {company.companyname}
@@ -165,7 +153,7 @@ const UserForm = () => {
                 name="role"
                 rules={[{ required: true, message: t("addUser.role_message") }]}
               >
-                <Select placeholder={t("addUser.role_placeholder")}>
+                <Select className="h-9" placeholder={t("addUser.role_placeholder")}>
                   <Option value="user">{t("addUser.user")}</Option>
                   <Option value="user-admin">{t("addUser.system_user")}</Option>
                 </Select>
@@ -176,7 +164,7 @@ const UserForm = () => {
                 name="firstName"
                 rules={[{ required: true, message: t("addUser.name_message") }]}
               >
-                <Input placeholder={t("addUser.name")} />
+                <Input className="h-9" placeholder={t("addUser.name")} />
               </Form.Item>
               <Form.Item
                 label={t("addUser.surname")}
@@ -185,7 +173,7 @@ const UserForm = () => {
                   { required: true, message: t("addUser.surname_message") },
                 ]}
               >
-                <Input placeholder={t("addUser.surname")} />
+                <Input className="h-9" placeholder={t("addUser.surname")} />
               </Form.Item>
               <Form.Item
                 label={t("addUser.email")}
@@ -198,11 +186,12 @@ const UserForm = () => {
                   },
                 ]}
               >
-                <Input placeholder={t("addUser.email")} />
+                <Input className="h-9" placeholder={t("addUser.email")} />
               </Form.Item>
               <Form.Item
                 label={t("addUser.phone")}
                 name="phone"
+                className="w-full"
                 rules={[
                   {
                     required: true,
@@ -218,18 +207,18 @@ const UserForm = () => {
                 ]}
               >
                 <PhoneInput
+                 style={{ width: '500px important!'  }}
                   className=""
                   defaultCountry="tr"
                   value={phone}
                   onChange={(phone) => setPhone(phone)}
                 />
               </Form.Item>
-
-              <Form.Item>
+              <Form.Item className="lg:col-span-2">
                 <Button
                   type="primary"
                   htmlType="submit"
-                  className="border w-full my-8 bg-indigo-600 hover:bg-indigo-500 text-white flex justify-center"
+                  className="border w-full  bg-indigo-600 hover:bg-indigo-500 text-white flex justify-center"
                   style={{ borderRadius: "0.375rem" }}
                   loading={loading}
                 >
@@ -240,7 +229,6 @@ const UserForm = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

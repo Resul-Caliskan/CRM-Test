@@ -96,7 +96,7 @@ const DropdownFilter = React.memo(
         </button>
 
         {isOpen && (
-          <div className="dropdown-content overflow-auto max-h-64">
+          <div className="dropdown-content max-h-64">
             <Input
               allowClear={true}
               placeholder={t("search")} 

@@ -20,6 +20,7 @@ import AdminPositionDetail from "./views/adminPositionDetail";
 import ResetPassword from "./views/resetPassword";
 import SetPassword from "./views/setPassword";
 import SentPassword from "./views/sentPassword";
+import DetailCustomer from './views/detailCustomer';
 import { Toaster } from "react-hot-toast";
 import i18n from "./localization/i18n";
 
@@ -85,6 +86,10 @@ function App() {
           <Route
             path="/edit-position/:id"
             element={<PrivateRoute Component={EditPosition} />}
+          />
+           <Route
+            path="/detail-customer/:id"
+            element={<PrivateRoute Component={DetailCustomer} />}
           />
           <Route
             path="/viewpdf"

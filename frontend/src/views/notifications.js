@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Checkbox, Radio } from "antd";
+import { Table, Button, Checkbox, Radio, message } from "antd";
 import "../components/style.css";
 import { CheckOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -146,6 +146,17 @@ const NotificationPage = () => {
     }
   };
 
+  const getLanguageCookie = () => {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+
+      if (name === "i18next") {
+       return value;
+      }
+    }
+  };
+
   const columns = [
     {
       title: (
@@ -179,7 +190,7 @@ const NotificationPage = () => {
           }}
           onClick={() => handleNotificationClick(record._id, record.url)}
         >
-          {text}
+          {getLanguageCookie() === "en" ? text.en_message : text.tr_message}
         </span>
       ),
     },

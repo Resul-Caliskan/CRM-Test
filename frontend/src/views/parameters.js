@@ -147,8 +147,8 @@ const Parameters = () => {
       setEdit(true);
       setTimeout(() => {
         const list = document.getElementById("editedValuesList");
-        const lastItem = list.lastElementChild;
-        lastItem.scrollIntoView({ behavior: "smooth", block: "end" });
+        // const lastItem = list.lastElementChild;
+        // lastItem.scrollIntoView({ behavior: "smooth", block: "end" });
       }, 100);
     }
   };

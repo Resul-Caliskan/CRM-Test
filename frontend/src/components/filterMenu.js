@@ -95,25 +95,25 @@ const VerticalFilterContainer = ({
 
   return (
     <div
-      className={`border filter-container  ${
+      className={`filter-container  ${
         isHorizontal ? "horizontal" : "vertical"
       }`}
     >
       {!isHorizontal && (
+
         <Button
-          type="link"
-          className="bg-[#0057D9] text-center text-white rounded-md mb-2"
-          block={!isHorizontal}
-          onClick={handleClearAll}
-        >
-           {t("nomineeDetail.clearAll")}
-        </Button>
+                    type="primary"
+                    onClick={handleClearAll}
+                    className="w-full bg-[#0057D9] mb-2"
+                  >
+                   {t("nomineeDetail.clearAll")}
+                  </Button>
       )}
       <ul className="filter-list">
         {parameterOptions.map((parameter) => (
           <li key={parameter.title}>
             <span
-              className="border filterTitle"
+              className="border filterTitle "
               onClick={() => toggleParameter(parameter.title)}
             >
               {parameter.title}{" "}

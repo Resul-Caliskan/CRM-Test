@@ -26,7 +26,6 @@ import "./style.css";
 import { useTranslation } from "react-i18next";
 
 const ListComponent = ({
-  dropdowns,
   searchTerm,
   setSearchTerm,
   handleAdd,
@@ -95,7 +94,7 @@ const ListComponent = ({
   };
 
   return (
-    <div className="body">
+    <div className="bodyContainer">
       <div className="searchFilterButton">
         <div className="search">
           <div className="searchButtonContainer">
@@ -106,7 +105,6 @@ const ListComponent = ({
               suffix={<SearchOutlined />}
             ></Input>
           </div>
-          <div className="filterSearch">{dropdowns}</div>
         </div>
         <div className="crudButtons">
           {handleAdd && (
@@ -142,13 +140,6 @@ const ListComponent = ({
                       size="small"
                       className="flex justify-center items-center"
                     >
-                      {handleDelete && (
-                        <ConfirmPopUp
-                          handleDelete={handleDelete}
-                          id={record.id}
-                          isConfirm={false}
-                        />
-                      )}
                       {handleUpdate && (
                         <Tooltip
                           placement={"top"}
@@ -163,11 +154,20 @@ const ListComponent = ({
                           ></Button>
                         </Tooltip>
                       )}
+
                       {handleApprove && (
                         <ConfirmPopUp
                           handleConfirm={handleApprove}
                           record={record}
                           isConfirm={true}
+                        />
+                      )}
+
+                      {handleDelete && (
+                        <ConfirmPopUp
+                          handleDelete={handleDelete}
+                          id={record.id}
+                          isConfirm={false}
                         />
                       )}
                       {notification ? (
@@ -203,7 +203,7 @@ const ListComponent = ({
                 },
               ]}
               dataSource={data}
-              scroll={{ y: 600 }}
+              
               mobileBreakPoint={768}
               pagination={{
                 locale: { items_per_page: "/ Sayfa", jump_to: "Git", page: "" },

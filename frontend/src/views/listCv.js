@@ -187,7 +187,10 @@ const CVList = () => {
         <Loading />
       ) : (
         <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
-          <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-auto  lg:w-[30%] p-2">
+          <div
+            className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]
+             p-2"
+          >
             <FilterComponent
               setFilters={setFilters}
               parameterOptions={parameterOptions}
@@ -196,35 +199,35 @@ const CVList = () => {
           </div>
 
           <div className="flex flex-col w-full contentCV overflow-hidden ">
-            <div className="justify-center items-center px-10">
-              <div className="flex flex-col h-max border   lg:flex-row bg-white lg:justify-between items-center rounded-2xl m-2">
+            <div className="justify-center items-center pt-6">
+              <div className="flex flex-col h-max border   lg:flex-row bg-white lg:justify-between items-center rounded-xl m-2">
                 <div className="flex flex-row justify-start items-center ml-2 p-2">
                   <button
-                    className={`flex items-center justify-center m-2 ${
-                      selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                    className={`flex items-center border-b-2  justify-center m-2 ${
+                      selectedTab === 0 ? "border-b-2  border-blue-400" : "border-white"
                     } `}
                     onClick={() => handleTabChange(0)}
                   >
                     {t("listCandidates.all_nominees")}
                   </button>
                   <button
-                    className={`flex items-center justify-center m-2 ${
-                      selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                    className={`flex items-center border-b-2 justify-center m-2 ${
+                      selectedTab === 1 ? "border-b-2  border-blue-400" : "border-white"
                     } `}
                     onClick={() => handleTabChange(1)}
                   >
                     {t("listCandidates.shared_with_me")}
                   </button>
                   <button
-                    className={`flex items-center justify-center m-2 ${
-                      selectedTab === 2 ? "border-b-2 pb-1 border-blue-400" : ""
+                    className={`flex items-center border-b-2 justify-center m-2 ${
+                      selectedTab === 2 ? "border-b-2  border-blue-400" : "border-white"
                     } `}
                     onClick={() => handleTabChange(2)}
                   >
                     {t("listCandidates.cv_pool")}
                   </button>
                 </div>
-                <div className="hidden md:flex md:flex-row justify-end mr-2">
+                <div className="hidden md:flex md:flex-row justify-end mr-2 h-[50px]">
                   <SearchInput
                     searchTerm={searchTerm.toLowerCase()}
                     onSearch={handleSearch}
@@ -234,7 +237,7 @@ const CVList = () => {
               <div className="contentPool">
                 {selectedTab === 0 && (
                   <>
-                    <div className="cols-span-1 p-4 md:border-r-2">
+                    <div className="cols-span-1  s:mp-4 md:border-r-2">
                       <ul>
                         {filterCvs(sharedItems, true, searchTerm).map(
                           (nominee, index) => (
@@ -250,8 +253,8 @@ const CVList = () => {
                       </ul>
                     </div>
 
-                    <div className="cols-span-1 p-4">
-                      <div className="grid grid-cols-1">
+                    <div className="cols-span-1  s:mp-4 md:border-r-2">
+                      
                         {filterCvs(cvs, false, searchTerm).map(
                           (nominee, index) => (
                             <NomineeCard
@@ -263,14 +266,14 @@ const CVList = () => {
                             />
                           )
                         )}
-                      </div>
+                     
                     </div>
                   </>
                 )}
                 {selectedTab === 1 && (
                   <>
                     {" "}
-                    <div className="cols-span-1 p-4 md:border-r-2">
+                    <div className="cols-span-1  mp-4 md:border-r-2">
                       <ul>
                         {filterCvs(sharedItems, true, searchTerm).map(
                           (nominee, index) => (
@@ -287,11 +290,10 @@ const CVList = () => {
                     </div>
                   </>
                 )}
-
                 {selectedTab === 2 && (
                   <>
-                    <div className="cols-span-1 p-4">
-                      <div className="grid grid-cols-1 gap-4">
+                  {" "}
+                  <div className="cols-span-1 mp-4 md:border-r-2">
                         {filterCvs(cvs, false, searchTerm).map(
                           (nominee, index) => (
                             <NomineeCard
@@ -302,8 +304,7 @@ const CVList = () => {
                               position={positions}
                             />
                           )
-                        )}
-                      </div>
+                        )}   
                     </div>
                   </>
                 )}

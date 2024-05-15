@@ -14,7 +14,7 @@ const roleRoutes = require('./src/routes/roleRoutes');
 const demandRoutes = require('./src/routes/demandRoutes');
 const positionRoutes = require('./src/routes/positionRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
-const cvRoutes = require('./src/routes/cvRoutes');
+
 const parameterRoutes = require('./src/routes/parameterRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const nomineeRoutes = require('./src/routes/nomineeRoutes');
@@ -37,7 +37,7 @@ app.use('/api',roleRoutes);
 app.use('/api',demandRoutes);
 app.use('/api',positionRoutes);
 app.use('/api',emailRoutes);
-app.use('/api',cvRoutes);
+
 app.use('/api',parameterRoutes);
 app.use('/api',nomineeRoutes);
 app.use('/api',userRoutes);

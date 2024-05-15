@@ -289,7 +289,7 @@
     "banned_companies_placeholder": "Select Banned Companies",
     "preferred_sector_info": "You can add the sectors you prefer to this field. The sectors mentioned here are part of your profile.",
     "preferred_company_info": "You can add information about your preferred companies here.",
-    "banned_company_info": "You can list the companies you prefer not to be associated with in this field."
+    "banned_company_info": "You can add the companies you prefer not to be associated with in this field."
   },
 
   "position_detail": {
@@ -399,7 +399,7 @@
   },
   "profile": {
     "user_info": "User Information",
-    "settings": "Settings",
+    "add_user": "Add User",
     "logout": "Log Out",
     "labels": {
       "name": "Name",
@@ -511,5 +511,68 @@
     "reject":"Refuse",
     "approve":"Confirm"
 
-  }
+  },
+  
+    "admin_detail": {
+      "position_detail": "Position Detail",
+      "department": "Department",
+      "job_title": "Job Title",
+      "experience_period": "Experience Period",
+      "work_mode": "Work Mode",
+      "contract_type": "Contract Type",
+      "preferred_industries": "Preferred Industries",
+      "banned_companies": "Banned Companies",
+      "preferred_companies": "Preferred Companies",
+      "skills": "Skills",
+      "nominee_operations":"Candidate Operations",
+      "working_mode":"Type Of Work",
+      "description": "Description",
+      "back": "Back",
+      "candidate_banned_company":"candidate has a banned company on his CV.",
+      "added_success":"Successfully Added.",
+      "removed_success":"Successfully Deleted",
+      "removed_error":" An error occurred during the transaction.",
+      "candidate_rejected":"Requested Candidate Was Rejected",
+      "candidate_accepted":"Requested Candidate Was Accepted",
+      "approve":"Successfully Approved.",
+      "approve_error":"an error occurred while confirming."
+    },
+
+    "nominee_list": {
+      "assigned_nominees": "Assigned Candidates",
+      "cv_pool": "CV Pool",
+      "remove": "Remove",
+      "add": "Add",
+      "details": "Details",
+      "matched_skills":"Matching Skills",
+      "requested_nominees":"Requested Candidates",
+      "reject":"Refuse",
+      "approve":"Confirm"
+
+    },
+    "customer_detail": {
+      "company_info": "Company Information",
+      "type": "Type",
+      "sector": "Sector",
+      "website": "Website",
+      "country": "Country",
+      "city": "City",
+      "county": "County",
+      "address": "Address",
+      "contact_info": "Contact Information",
+      "name_surname": "Name Surname",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "customer_parameter":{
+      "title":"Parametreler",
+      "search":"Search",
+      "sectors":"Sectors",
+      "companies":"Companies",
+      "save_message":"Null value cannot be entered",  
+      "null_value":"Please do not add an empty value.",
+      "edit_success":"Edit Successful"
+    }
+  
+  
 }

@@ -43,6 +43,8 @@ router.put("/delete-company/:id", customerController.companyRemoveFromCustomer);
 
 router.get("/get-companies/:id", customerController.getCustomerCompanies);
 
+router.put("/edit-companies/:id", customerController.updateCompanyByName);
+
 router.get(
   "/get/:name",
   authenticationMiddleware.authenticateToken,

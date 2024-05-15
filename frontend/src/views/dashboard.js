@@ -17,7 +17,7 @@ export default function Dashboard() {
     }
     return (
         <div className="body">
-            <div className="flex flex-col items-center justify-center h-screen m-auto">
+            <div className="flex flex-col items-center justify-center h-[800px] m-auto">
 
                 <Button
                     block

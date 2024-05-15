@@ -7,7 +7,7 @@ import UserNavbar from "../components/userNavbar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
-import { Button, Empty } from "antd";
+import { Button, Empty, Spin } from "antd";
 import Notification from "../utils/notification";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ const PositionDetail = () => {
   const [requestedNominees, setRequestedNominees] = useState([]);
   const [suggestedNominees, setSuggestedNominees] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [buttonLoadingList, setButtonLoadingList] = useState([]);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [isNomineeDetailOpen, setIsNomineeDetailOpen] = useState(false);
@@ -137,7 +138,10 @@ const PositionDetail = () => {
     setIsNomineeDetailOpen(false);
   };
 
-  const handleRequestedNominee = async (nomineeId) => {
+  const handleRequestedNominee = async (nomineeId, index) => {
+    const newButtonLoadingList = [...buttonLoadingList];
+    newButtonLoadingList[index] = true;
+    setButtonLoadingList(newButtonLoadingList);
     try {
       const response2 = await axios.put(
         `${apiUrl}/api/positions/request/${id}`,
@@ -147,11 +151,15 @@ const PositionDetail = () => {
       socket.emit("createDemand", id);
       try {
         const response = await axios.post(`${apiUrl}/api/notification/add`, {
-          message:
-            response2.data.updatedPosition.companyName +
+          message:{tr_message: response2.data.updatedPosition.companyName +
             " " +
             response2.data.updatedPosition.jobtitle +
             " pozisyonu için yeni aday talep etti",
+          en_message:response2.data.updatedPosition.companyName+" has requested new candidate for "
+          +response2.data.updatedPosition.jobtitle+" position"
+          
+          },
+           
           type: "nomineeDemand",
           url: `/admin-position-detail/${id}`,
           companyId: response2.data.updatedPosition.companyId,
@@ -178,10 +186,18 @@ const PositionDetail = () => {
           error.message
         );
       }
+    } finally {
+      // Yükleme durumunu sıfırla
+      newButtonLoadingList[index] = false;
+      setButtonLoadingList(newButtonLoadingList);
     }
+
   };
 
-  const handleCancelRequest = async (nomineeId) => {
+  const handleCancelRequest = async (nomineeId, index) => {
+    const newButtonLoadingList = [...buttonLoadingList];
+    newButtonLoadingList[index] = true;
+    setButtonLoadingList(newButtonLoadingList);
     try {
       const response = await axios.put(
         `${apiUrl}/api/positions/delete-request/${id}`,
@@ -205,7 +221,12 @@ const PositionDetail = () => {
       Notification("success", t("position_detail.requestCancel_success"));
     } catch (error) {
       console.error(t("position_detail.requestCancel_error"), error);
+    } finally {
+      // Yükleme durumunu sıfırla
+      newButtonLoadingList[index] = false;
+      setButtonLoadingList(newButtonLoadingList);
     }
+
   };
 
   return (
@@ -223,48 +244,43 @@ const PositionDetail = () => {
             {t("position_detail.back")}
           </Button>
           <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
-            <div className="flex flex- row justify-start items-center ml-2">
+            <div className="flex flex-row justify-start items-center ml-2">
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
-                } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 0 ? "border-b-2  border-blue-400" : "border-white"
+                  } `}
                 onClick={() => handleTabChange(0)}
               >
                 {t("position_detail.tab_detail")}
               </button>
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
-                } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 1 ? "border-b-2  border-blue-400" : "border-white"
+                  } `}
                 onClick={() => handleTabChange(1)}
               >
                 {t("position_detail.tab_shared")}
               </button>
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 2 ? "border-b-2 pb-1 border-blue-400" : ""
-                } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 2 ? "border-b-2  border-blue-400" : "border-white"
+                  } `}
                 onClick={() => handleTabChange(2)}
               >
                 {t("position_detail.tab_pool")}
               </button>
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 3 ? "border-b-2 pb-1 border-blue-400" : ""
-                } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 3 ? "border-b-2  border-blue-400" : "border-white"
+                  } `}
                 onClick={() => handleTabChange(3)}
               >
                 {t("position_detail.tab_requested")}
               </button>
             </div>
           </div>
-          <div className="h-screen w-full justify-center items-center ">
+          <div className="h-screen w-full justify-center items-cente">
             {selectedTab === 0 && (
               <>
-                {" "}
-                <div className="flex relative">
+                <div className="flex absolute">
                   <div className="w-[255px] rounded-xl bg-white p-4">
-                    <div className="flex flex-col gap-2  text-sm font-thin">
+                    <div className="flex flex-col gap-2 text-sm font-thin">
                       <p>
                         <strong className="font-semibold">
                           {t("position_detail.department")}:{" "}
@@ -273,54 +289,54 @@ const PositionDetail = () => {
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.job_title")}:
-                        </strong>{" "}
+                          {t("position_detail.job_title")}:{" "}
+                        </strong>
                         {position?.jobtitle}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.experience_period")}:
+                          {t("position_detail.experience_period")}:{" "}
                         </strong>
                         {position?.experienceperiod}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.work_mode")}:
-                        </strong>{" "}
+                          {t("position_detail.work_mode")}:{" "}
+                        </strong>
                         {position?.modeofoperation}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.contract_type")}:
-                        </strong>{" "}
+                          {t("position_detail.contract_type")}:{" "}
+                        </strong>
                         {position?.worktype}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.preferred_industries")}:
-                        </strong>{" "}
+                          {t("position_detail.preferred_industries")}:{" "}
+                        </strong>
                         {position?.industry && position?.industry?.join(", ")}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.banned_companies")}:
-                        </strong>{" "}
+                          {t("position_detail.banned_companies")}:{" "}
+                        </strong>
                         {position?.bannedCompanies &&
-                          position?.bannedCompanies?.join(", ")}{" "}
+                          position?.bannedCompanies?.join(", ")}
                       </p>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.preferred_companies")}:
-                        </strong>{" "}
+                          {t("position_detail.preferred_companies")}:{" "}
+                        </strong>
                         {position?.preferredCompanies &&
-                          position?.preferredCompanies?.join(", ")}{" "}
+                          position?.preferredCompanies?.join(", ")}
                       </p>
                       <div className="w-[207px] h-[1px] bg-[#E8E8E8]"></div>
                       <p>
                         <strong className="font-semibold">
-                          {t("position_detail.skills")}:
+                          {t("position_detail.skills")}:{" "}
                         </strong>
-                        <ul className="list-disc ml-4 mt-1 grid grid-cols-2 font-thin ">
+                        <ul className="list-disc ml-4 mt-1 grid grid-cols-2 font-thin">
                           {position?.skills.map((skill, index) => (
                             <li key={index}>{skill}</li>
                           ))}
@@ -328,7 +344,7 @@ const PositionDetail = () => {
                       </p>
                     </div>
                   </div>
-                  <div class="w-full rounded-xl bg-white p-4 ml-5">
+                  <div className="w-full rounded-xl bg-white p-4 ml-5">
                     <p>
                       <MarkdownEditor.Markdown
                         source={position?.description}
@@ -437,12 +453,12 @@ const PositionDetail = () => {
                         <div className="flex items-end justify-end">
                           <div className="w-[90px] flex items-center justify-center">
                             <button
-                              className="w-auto px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
+                              className="w-20 px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
                               onClick={() => {
-                                handleRequestedNominee(nominee.cv?._id);
+                                handleRequestedNominee(nominee.cv?._id, index);
                               }}
                             >
-                              {t("position_detail.request")}
+                              {buttonLoadingList[index] ? <Spin color="white" className="text-white" /> : t("position_detail.request")}
                             </button>
                           </div>
                         </div>
@@ -500,12 +516,14 @@ const PositionDetail = () => {
                         <div className="flex items-end justify-end">
                           <div className="w-[90px] flex items-center justify-center">
                             <button
-                              className="w-auto px-2 text-base text-white py-1 rounded-lg  bg-[#ED4245] hover:bg-[#ff1e25]  text-center justify-center items-center"
+
+                              className="w-20 px-2 text-base text-white py-1 rounded-lg   bg-[#ED4245] hover:bg-[#ff1e25]  text-center "
+
                               onClick={() => {
-                                handleCancelRequest(nominee.cv?._id);
+                                handleCancelRequest(nominee.cv?._id, index);
                               }}
                             >
-                              {t("position_detail.cancel_request")}
+                              {buttonLoadingList[index] ? <Spin className="text-white" /> : t("position_detail.cancel_request")}
                             </button>
                           </div>
                         </div>
@@ -513,7 +531,7 @@ const PositionDetail = () => {
                     </div>
 
                     <button
-                      className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
+                      className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl text-sm text-[#0057D9] font-semibold"
                       onClick={() => handleNomineeDetail(nominee.cv, false)}
                     >
                       {t("position_detail.details")}

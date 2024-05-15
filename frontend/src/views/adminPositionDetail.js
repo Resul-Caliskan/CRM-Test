@@ -297,11 +297,16 @@ const AdminPositionDetail = () => {
           `${process.env.REACT_APP_API_URL}/api/notification/add`,
           {
             message:
-              position.companyName +
-              " " +
-              position.jobtitle +
-              " " +
-              t("admin_detail.candidate_rejected"),
+             {
+              tr_message:
+                position.jobtitle +
+                " pozisyonu için talep ettiğiniz aday reddedildi.",
+
+              en_message:
+                "The candidate that you requested for " +
+                position.jobtitle +
+                " was rejected.",
+            },
             type: "nomineeDemand",
             url: `/position-detail/${id}`,
             companyId: "660688a38e88e341516e7acd",
@@ -345,12 +350,16 @@ const AdminPositionDetail = () => {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/notification/add`,
           {
-            message:
-              position.companyName +
-              " " +
-              position.jobtitle +
-              " " +
-              t("admin_detail.candidate_rejected"),
+            message: {
+              tr_message:
+                position.jobtitle +
+                " pozisyonu için talep ettiğiniz aday onaylandı.",
+
+              en_message:
+                "The candidate that you requested for " +
+                position.jobtitle +
+                " was approved ",
+            },
             type: "nomineeDemand",
             url: `/position-detail/${id}`,
             companyId: "660688a38e88e341516e7acd",

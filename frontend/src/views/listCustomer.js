@@ -43,13 +43,7 @@ const ListCustomers = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companyname.localeCompare(b.companyname),
     },
-    {
-      title: () => t("listCustomer.company_type"),
-      dataIndex: "companytype",
-      key: "companytype",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-      sorter: (a, b) => a.companytype.localeCompare(b.companytype),
-    },
+
     {
       title: () => t("listCustomer.company_sector"),
       dataIndex: "companysector",
@@ -68,24 +62,6 @@ const ListCustomers = () => {
       key: "companycity",
       render: (text) => highlightSearchTerm(text, searchTerm),
       sorter: (a, b) => a.companycity.localeCompare(b.companycity),
-    },
-    {
-      title: () => t("listCustomer.company_county"),
-      dataIndex: "companycounty",
-      key: "companycounty",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
-    {
-      title: () => t("listCustomer.company_address"),
-      dataIndex: "companyadress",
-      key: "companyadress",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
-    {
-      title: () => t("listCustomer.company_web"),
-      dataIndex: "companyweb",
-      key: "companyweb",
-      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: () => t("listCustomer.company_contactName"),
@@ -179,7 +155,9 @@ const ListCustomers = () => {
   const handleEditCustomer = (customerId) => {
     navigate(`/edit-customer/${customerId}`);
   };
-
+  const handleDetailCustomer = (customerId) => {
+    navigate(`/detail-customer/${customerId}`);
+  };
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
@@ -207,22 +185,35 @@ const ListCustomers = () => {
       {loading ? (
         <Loading />
       ) : (
-        <ListComponent
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          dropdowns={
+        <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
+          <div
+            className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]">
             <FilterComponent
               setFilters={setFilters}
               parameterOptions={parameterOptions}
+              isHorizontal={false}
             />
-          }
-          handleAdd={handleAddCustomer}
-          handleUpdate={handleEditCustomer}
-          handleDelete={handleDelete}
-          columns={columns}
-          data={data}
-          name={t("listCustomer.company_list")}
-        />
+          </div>
+          <div className="flex flex-col w-full contentCV overflow-y-auto ">
+            <ListComponent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              dropdowns={
+                <FilterComponent
+                  setFilters={setFilters}
+                  parameterOptions={parameterOptions}
+                />
+              }
+              handleAdd={handleAddCustomer}
+              handleUpdate={handleEditCustomer}
+              handleDelete={handleDelete}
+              handleDetail={handleDetailCustomer}
+              columns={columns}
+              data={data}
+              name={t("listCustomer.company_list")}
+            />
+          </div>
+        </div>
       )}
     </>
   );

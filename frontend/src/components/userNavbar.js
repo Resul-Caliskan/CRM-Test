@@ -79,6 +79,11 @@ export default function UserNavbar() {
         prev.filter((notification) => notification._id !== notificationId)
       );
     });
+    socket.on("createdPositionNot", (notification) => {
+      if (notification.receiverCompanyId === companyId) {
+        setNotifications((prev) => [notification, ...prev]);
+      }
+    });
   }, []);
 
   const fetchNotifications = async () => {
@@ -141,6 +146,18 @@ export default function UserNavbar() {
   const handleProfile = () => {
     navigate("/home");
     dispatch(setUserSelectedOption("profile"));
+    setIsOpen(false);
+  };
+
+  const getLanguageCookie = () => {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+
+      if (name === "i18next") {
+       return value;
+      }
+    }
   };
   return (
     <>
@@ -215,7 +232,7 @@ export default function UserNavbar() {
                           className="mr-2"
                           style={{ dotSize: 16 }}
                         />
-                        {notification.message}
+                        {getLanguageCookie() === "en" ? notification.message.en_message : notification.message.tr_message}
                       </p>
                     </div>
                   ))}
@@ -243,19 +260,14 @@ export default function UserNavbar() {
               <p className="letter">{user?.email.charAt(0).toUpperCase()}</p>
             </div>
             {isOpen && (
-              <ul className="user-dropdown-menu py-2 px-4" ref={dropdownRef}>
+              <ul className="user-dropdown-menu flex flex-col py-1 px-2 items-center" ref={dropdownRef}>
                 <li
-                  className="flex flex-row  px items-center cursor-pointer text-base  gap-1 mb-2"
-                  onClick={handleLogout}
-                >
-                  {t("logout")} <LogoutOutlined />
+                  className="w-full rounded-md hover:bg-[#0000000F] flex flex-col items-center">
+                  <a href="#" onClick={handleProfile} className="menu-link "> {t("profile_menu")}</a>
                 </li>
                 <li
-                  className="flex flex-row z-30 px items-center cursor-pointer text-base gap-1"
-                  onClick={handleProfile}
-                >
-                  {t("profile_menu")}{" "}
-                  <IoPersonCircleOutline size={19} className="" />
+                  className="w-full rounded-md hover:bg-[#0000000F] flex flex-col items-center">
+                  <a href="#" onClick={handleLogout} className="menu-link "> {t("logout")}</a>
                 </li>
               </ul>
             )}

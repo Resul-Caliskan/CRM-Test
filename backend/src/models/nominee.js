@@ -25,7 +25,8 @@ const nomineeSchema = new mongoose.Schema({
     contact: contactSchema,
     skills: [{ type: String, required: true }],
     experience: [experienceSchema],
-    education: [educationSchema]
+    education: [educationSchema],
+    cvUrl: { type: String }
 });
 
 const NomineeModel = mongoose.model('Nominee', nomineeSchema);

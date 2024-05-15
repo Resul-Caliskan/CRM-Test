@@ -15,7 +15,14 @@
     line-height: 22px;
     padding: 0 10px;
 }
-
+.react-international-phone-input {
+    width: 100%;
+    text-align: start;
+    
+}
+.react-international-phone-country-selector{
+    width: 50px;
+}
 .dropdownButton:hover,
 .dropdownButton.selected {
     color: #000000;
@@ -53,17 +60,19 @@
 }
 
 .user-dropdown-menu {
+    width: 120px;
+    height: 90px;
     position: absolute;
     top: calc(100% + 5px);
     right: 0;
     list-style: none;
-    margin-top: 10px;
-    background-color: #f0f0f0;
+    background-color:#FFFFFF;
     color: black;
     border: 1px solid rgba(0, 0, 0, 0.09);
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 12px;
+    z-index: 1;
 }
 
 .logout-button {
@@ -81,7 +90,7 @@
 
 .body {
 
-    height: auto;
+    height:100%;
     width: auto;
     display: flex;
     padding: 24px;
@@ -93,12 +102,26 @@
     background-color: #F9F9F9;
 
 }
+.bodyContainer {
 
+    height:100%;
+    width: auto;
+    display: flex;
+    padding: 24px 24px 24px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    align-self: stretch;
+    font-family: 'SF Pro Text', sans-serif;
+    background-color: #F9F9F9;
+
+}
 .filterTitle {
-    font-size: 16px;
+    
+    font-size: 13px;
     padding: 4px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 4px;
     cursor: pointer;
@@ -113,10 +136,12 @@
 
 .filter-container {
     flex:1;
-    width: 100%;
-    background-color: #FFFFFF;
-    padding: 16px;
-    border-radius: 16px;
+    width: auto;
+    background-color: #F9F9F9;
+    padding: 16px 10px 16px 6px;
+    border-radius: 4px;
+    border:none;
+    margin-top: 10px;
 }
 
 .filter-values {
@@ -132,6 +157,7 @@
 
 .filter-list {
     list-style-type: none;
+
 
 }
 
@@ -206,16 +232,11 @@
     overflow-x: auto;
 
 }
-.profile {
-    margin-top: 5px;
-    height: calc(100vh/1.27);
-    
-
-}
 .sideFilter{
     height: calc(100vh - 147px);
     overflow-y: auto;
     margin-top: 4px;
+    width: 350px;
 }
 
 
@@ -526,7 +547,7 @@
     height: auto;
     gap: 24px;
     opacity: 1px;
-    margin-top: 12px;
+
 }
 
 .onlyData {
@@ -837,7 +858,19 @@
     height: auto;
 
 }
+.user-link {
+    font-family: 'SF Pro Text', sans-serif;
+    display: contents;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #000000E0;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
 
+
+}
 .submenu-link {
     font-family: 'SF Pro Text', sans-serif;
     display: contents;
@@ -885,21 +918,29 @@
 }
 
 /* Tablet */
-@media (min-width: 496px) and (max-width: 768px) {
+@media (min-width: 540px) and (max-width: 768px) {
     .labels{
         display: none;
     }
+    .avatar-container {
+        
+        align-items: right;
+        gap: 28px;
+        position: absolute;
+        right: 23px;
+        top: 25px;
 
-    .hidden-sm {
-        display: none;
+
     }
+
     .hidden-dot {
         display: block;
     }
-
+    .hidden-sm{
+        display: none;
+    }
     .hidden-sm-dropdown {
         display: contents;
-        
     }
 
     .filterSearch {
@@ -979,11 +1020,10 @@
 }
 
 /* Mobil */
-@media ( max-width: 495px) {
+@media ( max-width: 540px) {
     .hidden-sm {
         display: none;
     }
-
     .filterSearch {
         display: none;
     }
@@ -997,14 +1037,13 @@
     }
 
     .logo {
-        position: relative;
-        margin-right: auto;
+        display: none;
 
 
     }
 
     .navbar {
-        height: 70px;
+        height: 78px;
         flex-direction: column;
         padding: 12px;
 
@@ -1023,14 +1062,14 @@
 
     .rectangleContainer {
 
-
-        margin-top: auto;
+        position: absolute;
+        margin-top: 8px;
         background-color: #E6F4FF;
         width: 268px;
         height: 60px;
         top: 10px;
         left: 0;
-        margin-left: 50px;
+
         border-bottom-right-radius: 10px;
     }
 
@@ -1078,16 +1117,18 @@
     }
 
     .avatar-container {
+        
+        align-items: right;
+        gap: 14px;
         position: absolute;
-        top: 10px;
-        align-self: flex-end;
-        width: auto;
+        right: 23px;
+        top: 25px;
+
 
     }
+    
 
-    .avatar-icon {
-        margin: 0 10px;
-    }
+
 
     .labels {
         margin: 0;
@@ -1099,15 +1140,7 @@
         margin-bottom: 12px;
     }
 
-    .menu {
-        flex-direction: column;
-        padding: 0;
-    }
-
-    .menu-item {
-        margin: 6px 0;
-    }
-
+   
     .submenu {
   
         width: auto;
@@ -1141,10 +1174,82 @@
     .submenu.open {
         display: block;
     }
+    .ant-table td {
+        display: block;
+        text-align: left; 
+        border-bottom: 1px solid #ddd; 
+        padding: 10px 0; 
+      }
+    
+      .ant-table th {
+        display: none;
+      }
+
+      .ant-table-row:not(:last-child) {
+        border-bottom: 1px solid #ddd;
+      }
+    
+     
+      .ant-table-wrapper {
+        background-color: #fff; 
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        overflow: hidden; 
+      }
+
+      .ant-table-row > td {
+
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ant-table-th > td {
+
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
 }
 @media (min-width: 769px) and (max-width: 1200px) {
+
     .filterSearch {
         display: none;
     }
+    .ant-table td {
+        display: block;
+        text-align: left; 
+        border-bottom: 1px solid #ddd; 
+        padding: 10px 0; 
+      }
+    
+      .ant-table th {
+        display: none;
+      }
+
+      .ant-table-row:not(:last-child) {
+        border-bottom: 1px solid #ddd;
+      }
+    
+     
+      .ant-table-wrapper {
+        background-color: #fff; 
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        overflow: hidden; 
+      }
+
+      .ant-table-row > td {
+
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ant-table-th > td {
+
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
 }

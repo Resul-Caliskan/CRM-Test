@@ -13,6 +13,7 @@ import { getIdFromToken } from "../utils/getIdFromToken";
 import socket from "../config/config";
 import { useTranslation } from "react-i18next";
 import { AiFillLeftCircle } from "react-icons/ai";
+import { getLineHeight } from "antd/es/theme/internal";
 
 export default function NavBar() {
   const { t, i18n } = useTranslation();
@@ -30,6 +31,14 @@ export default function NavBar() {
   const companyId = getIdFromToken(localStorage.getItem("token"));
   let renderComponent;
   const [notifications, setNotifications] = useState([]);
+  const [initialized, setInitialized] = useState(false);
+  let language; 
+  useEffect(() => {
+    if (!initialized) {
+      getLanguageCookie();
+      setInitialized(true);
+    }
+  }, [initialized]);
 
   useEffect(() => {
     if (!localStorage.getItem("token")) navigate("/");
@@ -136,9 +145,22 @@ export default function NavBar() {
   const handleProfile = () => {
     navigate("/adminhome");
     dispatch(setSelectedOption("profile"));
+    setIsOpen(false);
   };
+
+  const getLanguageCookie = () => {
+    const cookies = document.cookie.split(";");
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split("=");
+
+      if (name === "i18next") {
+       return value;
+      }
+    }
+  };
+  
   return (
-    <>
+    <div className="">
       <div className="header">
         <div className="navbar">
           <div className="logo">
@@ -197,9 +219,8 @@ export default function NavBar() {
                   {notifications.slice(0, 15).map((notification, index) => (
                     <div
                       key={index}
-                      className={`notification-item ${
-                        notification.state ? "read" : "unread"
-                      }`}
+                      className={`notification-item ${notification.state ? "read" : "unread"
+                        }`}
                     >
                       <p
                         className={notification.state ? "text-gray-500" : ""}
@@ -210,7 +231,7 @@ export default function NavBar() {
                           className="mr-2"
                           style={{ dotSize: 16 }}
                         />
-                        {notification.message}
+                       {getLanguageCookie() === "en" ? notification.message.en_message : notification.message.tr_message}
                       </p>
                     </div>
                   ))}
@@ -238,19 +259,14 @@ export default function NavBar() {
               <p className="letter">{user?.email.charAt(0).toUpperCase()}</p>
             </div>
             {isOpen && (
-              <ul className="user-dropdown-menu py-2 px-4" ref={dropdownRef}>
+              <ul className="user-dropdown-menu flex flex-col py-1 px-2 items-center" ref={dropdownRef}>
                 <li
-                  className="flex flex-row  px items-center cursor-pointer text-base  gap-1 mb-2"
-                  onClick={handleLogout}
-                >
-                  {t("logout")} <LogoutOutlined />
+                  className="w-full rounded-md hover:bg-[#0000000F] flex flex-col items-center ">
+                  <a href="#" onClick={handleProfile} className="menu-link "> {t("profile_menu")}</a>
                 </li>
                 <li
-                  className="flex flex-row  px items-center cursor-pointer text-base gap-1"
-                  onClick={handleProfile}
-                >
-                  {t("profile_menu")}
-                  <IoPersonCircleOutline size={19} className="" />
+                  className="w-full rounded-md hover:bg-[#0000000F] flex flex-col items-center">
+                  <a href="#" onClick={handleLogout} className="menu-link "> {t("logout")}</a>
                 </li>
               </ul>
             )}
@@ -258,9 +274,8 @@ export default function NavBar() {
         </div>
         <ul className="menu">
           <li
-            className={`menu-item ${
-              selectedOption === "dashboard" ? "selected" : ""
-            }`}
+            className={`menu-item ${selectedOption === "dashboard" ? "selected" : ""
+              }`}
           >
             <a
               href="#"
@@ -271,9 +286,8 @@ export default function NavBar() {
             </a>
           </li>
           <li
-            className={`menu-item ${
-              selectedOption === "list-costumers" ? "selected" : ""
-            }`}
+            className={`menu-item ${selectedOption === "list-costumers" ? "selected" : ""
+              }`}
           >
             <a
               href="#"
@@ -283,10 +297,9 @@ export default function NavBar() {
               {t("customer_operations")}
             </a>
           </li>
-          <li
-            className={`menu-item ${
-              selectedOption === "list-demands" ? "selected" : ""
-            }`}
+          {/* <li
+            className={`menu-item ${selectedOption === "list-demands" ? "selected" : ""
+              }`}
           >
             <a
               href="#"
@@ -295,11 +308,10 @@ export default function NavBar() {
             >
               {t("user_demands")}
             </a>
-          </li>
+          </li> */}
           <li
-            className={`menu-item hidden-sm ${
-              selectedOption === "list-positions" ? "selected" : ""
-            }`}
+            className={`menu-item hidden-sm-sm ${selectedOption === "list-positions" ? "selected" : ""
+              }`}
           >
             <a
               href="#"
@@ -310,9 +322,8 @@ export default function NavBar() {
             </a>
           </li>
           <li
-            className={`menu-item hidden-sm ${
-              selectedOption === "parameters" ? "selected" : ""
-            }`}
+            className={`menu-item hidden-sm ${selectedOption === "parameters" ? "selected" : ""
+              }`}
           >
             <a
               href="#"
@@ -322,9 +333,31 @@ export default function NavBar() {
               {t("parameters_menu")}
             </a>
           </li>
+          <li className={`menu-item hidden-sm-dropdown ${selectedOption === "parameters" ? "selected" : ""}`}>
+            <a href="#" className="menu-link"  >
+              ...
+            </a>
+            <ul className="submenu">
+              {/* <li className={`submenu-item ${selectedOption === "list-positions" ? "selected" : ""}`}>
+                <a href="#" className="submenu-link" onClick={() => handleOptionClick("list-positions")}>
+                  {t("position_demands")}
+                </a>
+              </li> */}
+              <li className={`submenu-item ${selectedOption === "parameters" ? "selected" : ""}`}>
+                <a href="#" className="submenu-link" onClick={() => handleOptionClick("parameters")}>
+                  {t("parameters_menu")}
+                </a>
+              </li>
+            </ul>
+          </li>
         </ul>
       </div>
-      {renderComponent}
-    </>
+
+
+        {renderComponent}
+
+
+
+    </div>
   );
 }

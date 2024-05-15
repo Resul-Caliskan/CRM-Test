@@ -3,18 +3,32 @@ import {
   LinkedinOutlined,
   MailOutlined,
   PhoneOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import logo from "../assets/link.png";
 import phoneIcon from "../assets/phone.png";
 import mailIcon from "../assets/email.png";
 import degreeIcon from "../assets/school.png";
- 
-import React, { useState } from "react";
+import download from "../assets/download.png";
+import axios from "axios";
+
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
- 
+import { Document, Page, pdfjs } from "react-pdf";
+// bunu kaldırırsan pdfi açamazsın moruq
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.js`;
+
 export default function NomineeDetail({ nominee, onClose, isKnown }) {
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pdfUrl, setPdfUrl] = useState(null);
   const [activeTab, setActiveTab] = useState("experience");
+  const CV_URL = nominee.cvUrl;
   const { t } = useTranslation();
+
+  useEffect(() => {
+    fetchPdf();
+  }, []);
   if (!nominee) {
     return null;
   }
@@ -56,7 +70,57 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
     const censoredUrl = url.replace(username, "*****");
     return censoredUrl;
   };
- 
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  const handleDownloadCV = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const fileName = nominee.cvUrl;
+      console.log(fileName);
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/getcv`,
+        { fileName: fileName },
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("CV indirme hatası:", error);
+    }
+  };
+
+  const fetchPdf = async () => {
+    try {
+      console.log("PDF alınıyor...");
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/getcv`,
+        { fileName: nominee.cvUrl },
+        { responseType: "arraybuffer" }
+      );
+
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfUrl(pdfUrl);
+    } catch (error) {
+      console.error("PDF alınırken hata oluştu:", error);
+    }
+  };
+
   return (
     <div
       className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-gray-400 bg-opacity-90"
@@ -95,17 +159,15 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                   </div>
                 </div>
               </div>
- 
             </div>
             <div className="w-[100px]">
               <div className="text-xs font-sans w-auto">
                 {t("nomineeDetail.source")}
-                <div className="mb-4 mt-2 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55]">
+                <div className="mb-4 mt-2 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55] w-20">
                   Referans
                 </div>
               </div>
             </div>
- 
           </div>
  
           <div className="flex flex-col md:flex-row w-full">
@@ -258,25 +320,39 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
  
           <div className="bg-gray-100 my-2">
             <div className="bg-white rounded-lg border-b-2 ">
-              <div className="mt-4 mr-16 border-b-2 border-gray-200 w-full">
-                <button
-                  className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "experience"
-                    ? "border-blue-500 tab text-[#383838]"
-                    : "tab text-[#ADADAD]"
+              <div className="mt-4 mr-16 border-b-2 border-gray-200 w-full flex items-center justify-between">
+                <div>
+                  <button
+                    className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
+                      activeTab === "experience"
+                        ? "border-blue-500 tab text-[#383838]"
+                        : "tab text-[#ADADAD]"
                     }`}
-                  onClick={() => setActiveTab("experience")}
-                >
-                  {t("nomineeDetail.experience")}
-                </button>
-                <button
-                  className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "cv"
-                    ? "border-blue-500 tab text-[#383838]"
-                    : "tab text-[#ADADAD]"
+                    onClick={() => setActiveTab("experience")}
+                  >
+                    {t("nomineeDetail.experience")}
+                  </button>
+                  <button
+                    className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
+                      activeTab === "cv"
+                        ? "border-blue-500 tab text-[#383838]"
+                        : "tab text-[#ADADAD]"
                     }`}
-                  onClick={() => setActiveTab("cv")}
-                >
-                  {t("nomineeDetail.resume")}
-                </button>
+                    onClick={() => setActiveTab("cv")}
+                  >
+                    {t("nomineeDetail.resume")}
+                  </button>
+                </div>
+
+                {activeTab === "cv" && (
+                  <button onClick={() => handleDownloadCV()} className="ml-4">
+                    <img
+                      src={download}
+                      alt="Download Logo"
+                      className="h-4 w-4 mr-2"
+                    />
+                  </button>
+                )}
               </div>
  
               {activeTab === "experience" && (
@@ -308,18 +384,16 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
             </div>
  
             {activeTab === "cv" && (
-              <div className="">
-                <strong className="text-center">
-                  {t("nomineeDetail.resume_page")}
-                </strong>
+              <div className="text-center mt-4">
+                {pdfUrl ? (
+                  <Document file={pdfUrl} onLoadSuccess={() => {}}>
+                    <Page pageNumber={pageNumber} renderTextLayer={false} />
+                  </Document>
+                ) : (
+                  <p>Özgeçmiş Bulunamadı</p>
+                )}
               </div>
             )}
- 
-            {/* {!isKnown && activeTab === "cv" && (
-              <div className="text-center mt-4">
-                <strong>{t("nomineeDetail.resume_page")}</strong>
-              </div>
-            )} */}
           </div>
         </div>
       </div>

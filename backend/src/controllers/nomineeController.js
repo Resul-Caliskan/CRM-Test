@@ -2,6 +2,8 @@ const Nominee = require("../models/nominee");
 const Position = require("../models/position");
 const Customer = require("../models/customer");
 const { findMatches } = require("../utils/matchingCv");
+const fs = require('fs');
+const path = require('path');
 
 exports.getNomineeByCompanyId = async (req, res) => {
   try {
@@ -229,6 +231,42 @@ exports.addNominee = async (req, res) => {
     });
     await newNominee.save();
     res.status(201).json({ message: "Aday başarıyla eklendi." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+exports.getPdfById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const nominee = await Nominee.findById(id);
+    console.log(id);
+    if (!nominee) {
+      return res.status(404).json({ error: 'Nominee not found' });
+    }
+    const cvUrl = nominee.cvUrl;
+    if (!cvUrl) {
+      return res.status(404).json({ error: 'CV not found for this nominee' });
+    }
+    const fileName = path.basename(cvUrl);
+    console.log(fileName);
+    res.status(200).json({ fileName });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.downloadCv = (req, res) => {
+  try {
+    const fileName = req.body.fileName;
+    const filePath = path.join(__dirname, '/../../files', fileName);
+    if (!filePath) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    res.status(200).download(filePath);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

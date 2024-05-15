@@ -64,10 +64,10 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="w-screen h-screen bg-[#F9F9F9]">
       <UserNavbar />
-      <div className="h-full">{renderComponent}</div>
-    </div >
+      <div className="">{renderComponent}</div>
+    </div>
   );
 };
 export default App;

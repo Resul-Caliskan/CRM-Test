@@ -249,24 +249,38 @@ const AdminListPosition = () => {
       {loading ? (
         <Loading />
       ) : (
-        <ListComponent
-          handleAdd={handleAddPosition}
-          handleUpdate={handleEditPosition}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          dropdowns={
+        <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
+          <div
+            className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]
+             "
+          >
             <FilterComponent
               setFilters={setFilters}
               parameterOptions={parameterOptions}
+              isHorizontal={false}
             />
-          }
-          handleDelete={handleDeletePosition}
-          handleDetail={handlePositionDetails}
-          columns={columns}
-          data={data}
-          name={"Pozisyon Listesi"}
-          notification={true}
-        />
+          </div>
+          <div className="flex flex-col w-full contentCV overflow-auto ">
+            <ListComponent
+              handleAdd={handleAddPosition}
+              handleUpdate={handleEditPosition}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              dropdowns={
+                <FilterComponent
+                  setFilters={setFilters}
+                  parameterOptions={parameterOptions}
+                />
+              }
+              handleDelete={handleDeletePosition}
+              handleDetail={handlePositionDetails}
+              columns={columns}
+              data={data}
+              name={"Pozisyon Listesi"}
+              notification={true}
+            />
+          </div>
+        </div>
       )}
     </>
   );

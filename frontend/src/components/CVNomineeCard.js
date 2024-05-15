@@ -123,11 +123,13 @@ const NomineeCard = ({
       )}
       <div
         className={`grid ${
-          isKnown ? "grid-cols-4" : "grid-cols-3"
+          isKnown
+            ? "grid-cols-4 grid-rows-1 sm:grid-rows-2 sm:grid-cols-2 md:grid-rows-1 md:grid-cols-4"
+            : "grid-cols-3 grid-rows-1 sm:grid-rows-1 sm:grid-cols-3 "
         } bg-white px-2 py-3 border rounded-lg`}
       >
         <div className="flex justify-between">
-          <div className="p-2 border-r-2 mr-1 px-10 ">
+          <div className="p-2 md:border-r-2 px-3 lg:px-10 ">
             <h4 className="font-semibold text-lg ">
               {isKnown ? (
                 <Highlighter
@@ -157,7 +159,7 @@ const NomineeCard = ({
           <h4></h4>
         </div>
         {isKnown ? (
-          <div className="p-2 border-r-2 px-10">
+          <div className="p-2 md:border-r-2 px-3 lg:px-10">
             <h4 className="font-semibold text-[#4B4B4B] text-sm">
               {t("listCandidates.position_proposed")}
             </h4>
@@ -176,7 +178,7 @@ const NomineeCard = ({
         ) : (
           <></>
         )}
-        <div className="p-2 border-r-2 px-10">
+        <div className="p-2 md:border-r-2 px-3 lg:px-10">
           <h4 className="font-semibold text-[#4B4B4B] text-sm">
             {t("listCandidates.experiences")}
           </h4>
@@ -208,7 +210,13 @@ const NomineeCard = ({
             })}
           </ul>
         </div>
-        <div className="flex flex-row justify-around p-2">
+        <div
+          className={`flex ${
+            isKnown
+              ? "flex-col sm:flex-row md:flex-col lg:flex-row"
+              : "flex-row"
+          } justify-around p-2 ml-2`}
+        >
           <div className="">
             <h4 className="font-semibold text-[#4B4B4B] text-sm">
               {t("listCandidates.skills")}
@@ -226,7 +234,7 @@ const NomineeCard = ({
                 } else {
                   return (
                     <li
-                      className="list-disc text-[#6D6D6D] text-sm ml-4"
+                      className="list-disc text-[#6D6D6D] text-sm ml-4 text-wrap "
                       key={index}
                     >
                       <Highlighter
@@ -241,7 +249,7 @@ const NomineeCard = ({
               })}
             </ul>
           </div>
-          <div className="px-3"></div>
+          <div className="px-0 lg:px-3"></div>
           <div className="flex flex-col justify-around items-center">
             <Tooltip placement={"top"} title={t("details")}>
               <button

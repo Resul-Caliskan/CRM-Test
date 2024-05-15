@@ -267,10 +267,16 @@ const AddPosition = () => {
           const response2 = await axios.post(
             `${process.env.REACT_APP_API_URL}/api/notification/add`,
             {
-              message:
-                "Şirketiniz için  " +
-                values.jobtitle +
-                " pozisyonunu oluşturdu.",
+              message: {
+                tr_message:
+                  "Şirketiniz için " +
+                  values.jobtitle +
+                  " pozisyonu oluşturuldu.",
+
+                en_message:
+                  values.jobtitle +
+                  " position has been created for your company.",
+              },
               type: "nomineeDemand",
               url: `/position-detail/${response.data.positionId}`,
               companyId: "660688a38e88e341516e7acd",
@@ -309,7 +315,7 @@ const AddPosition = () => {
               positionAdress: values.address,
               preferredCompanies: preferredCompanies,
               bannedCompanies: bannedCompanies,
-
+              companies: companies,
               dateOfStart: selectedDate,
               companyId: companyId,
               companyName: companyName,
@@ -328,27 +334,51 @@ const AddPosition = () => {
             })
           );
 
-          const newCompanies = selectedCompany?.companies.filter(
+          const newBannedCompanies = bannedCompanies?.filter(
             (cmp) => !companies.includes(cmp)
           );
 
+          const newPreferredCompanies = preferredCompanies?.filter(
+            (cmp) => !companies.includes(cmp)
+          );
+
+          const newBannedAndPreferredCompanies = [
+            ...newPreferredCompanies,
+            ...newBannedCompanies,
+          ];
+
           await Promise.all(
-            newCompanies.map(async (newCompany) => {
-              await axios.put(
+            newBannedAndPreferredCompanies.map(async (newCompany) => {
+              try{ 
+                const response = await axios.put(
                 `${apiUrl}/api/customers/add-company/${companyId}`,
-                { companies: newCompany }
-              );
+                { company: newCompany }
+              );}
+              catch(error)
+              {
+                console.error(error)
+                console.log("HATA SE")
+              }
+
+              
             })
           );
           try {
             const response2 = await axios.post(
               `${process.env.REACT_APP_API_URL}/api/notification/add`,
               {
-                message:
-                  companyName +
-                  " için " +
-                  values.jobtitle +
-                  " pozisyon oluşturuldu.",
+                message: {
+                  tr_message:
+                    companyName +
+                    " için " +
+                    values.jobtitle +
+                    " pozisyonu oluşturuldu.",
+
+                  en_message:
+                    values.jobtitle +
+                    " position has been created for " +
+                    companyName,
+                },
                 type: "nomineeDemand",
                 url: `/admin-position-detail/${response.data.positionId}`,
                 companyId: companyId,
@@ -356,6 +386,7 @@ const AddPosition = () => {
                 receiverCompanyId: "660688a38e88e341516e7acd",
               }
             );
+            console.log("MUSTAFA "+response2.data)
             socket.emit("positionCreated", response2.data.notificationId);
           } catch (error) {
             console.error(error + "bildirim iletilemedi.");
@@ -623,7 +654,7 @@ const AddPosition = () => {
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Sektör Seç"
+                    placeholder={t("addPosition.preferred_sectors_placeholder")}
                     onChange={handleIndustryChange}
                   >
                     {industries.map((industry, index) => (
@@ -704,7 +735,7 @@ const AddPosition = () => {
                     mode="tags"
                     showSearch
                     optionFilterProp="children"
-                    placeholder="Yasaklı Şirket Seç"
+                    placeholder={t("addPosition.banned_companies_placeholder")}
                     onChange={handleBannedCompaniesChange}
                   >
                     {selectedCompany?.companies.map((company, index) => (
@@ -737,24 +768,44 @@ const AddPosition = () => {
                 }
                 name="preferredcompanies"
               >
-                <Select
-                  mode="tags"
-                  showSearch
-                  optionFilterProp="children"
-                  placeholder={t("addPosition.preferred_companies_placeholder")}
-                  onChange={handlePreferredCompaniesChange}
-                >
-                  {parameters.map((parameter, index) => {
-                    if (parameter.title === "Şirketler") {
-                      return parameter.values.map((value, idx) => (
-                        <Option key={`${parameter._id}-${idx}`} value={value}>
-                          {value}
-                        </Option>
-                      ));
-                    }
-                    return null;
-                  })}
-                </Select>
+                {user.role === "admin" ? (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder={t(
+                      "addPosition.preferred_companies_placeholder"
+                    )}
+                    onChange={handlePreferredCompaniesChange}
+                  >
+                    {parameters.map((parameter, index) => {
+                      if (parameter.title === "Şirketler") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
+                  </Select>
+                ) : (
+                  <Select
+                    mode="tags"
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder={t(
+                      "addPosition.preferred_companies_placeholder"
+                    )}
+                    onChange={handlePreferredCompaniesChange}
+                  >
+                    {selectedCompany?.companies.map((company, index) => (
+                      <Option key={`${index}`} value={company}>
+                        {company}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               </Form.Item>
 
               <Form.Item
