@@ -5,17 +5,19 @@ import axios from "axios";
 import socket from "../config/config";
 import Notification from "../utils/notification";
 import { useTranslation } from "react-i18next";
+
 const DemandNomineeModel = ({
   open,
   setOpen,
   nomineeId,
   positions,
   setIsRequested,
+  setIsClicked,
   setPositions,
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [selectedPositionIndex, setselectedPositionIndex] = useState(null);
+  const [selectedPositionIndex, setSelectedPositionIndex] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
   const companyId = getIdFromToken(localStorage.getItem("token"));
 
@@ -27,11 +29,12 @@ const DemandNomineeModel = ({
   };
 
   const handleCancel = () => {
+    setIsClicked(false);
     setOpen(false);
   };
 
   const handleSelectChange = (value) => {
-    setselectedPositionIndex(value);
+    setSelectedPositionIndex(value);
   };
 
   const handleRequest = async () => {
@@ -44,10 +47,7 @@ const DemandNomineeModel = ({
       );
       socket.emit("createDemand", id);
       setPositions((prevPositions) => {
-        // Seçilen pozisyonu kopyala
         const updatedPositions = [...prevPositions];
-
-        // Seçilen pozisyonun aday listesine yeni adayı ekle
         updatedPositions[selectedPositionIndex] = {
           ...updatedPositions[selectedPositionIndex],
           requestedNominees: [
@@ -55,10 +55,9 @@ const DemandNomineeModel = ({
             nomineeId,
           ],
         };
-
-        // Güncellenmiş pozisyon listesini döndür
         return updatedPositions;
       });
+
       try {
         const response = await axios.post(`${apiUrl}/api/notification/add`, {
           message:
@@ -77,6 +76,7 @@ const DemandNomineeModel = ({
       } catch (error) {
         console.error(error + "bildirim iletilemedi.");
       }
+      setIsClicked(false);
       setIsRequested(false);
       Notification("success", t("position_detail.request_success"));
     } catch (error) {
@@ -84,11 +84,24 @@ const DemandNomineeModel = ({
         Notification("error", t("position_detail.requested_already"));
       } else {
         Notification("error", t("position_detail.requested_error"));
-
         console.error("Aday talep edilirken bir hata oluştu:", error.message);
       }
+      setIsClicked(false);
     }
   };
+
+  // const generatePositionKey = (title, index) => {
+  //   const initials = title
+  //     .split(' ')
+  //     .map(word => word.charAt(0).toUpperCase())
+  //     .join('');
+  //   const keyCount = positions
+  //     .slice(0, index + 1)
+  //     .filter(position => position.jobtitle.split(' ').map(word => word.charAt(0).toUpperCase()).join('') === initials)
+  //     .length;
+  //   return `${initials}-${keyCount}`;
+  // };
+
   return (
     <Modal
       zIndex={1000}
@@ -115,8 +128,8 @@ const DemandNomineeModel = ({
         value={selectedPositionIndex}
       >
         {positions.map((position, index) => (
-          <Select.Option key={index} value={position.id}>
-            {position.jobtitle}
+          <Select.Option key={index} value={index}>
+            {`${position.jobtitle}`}
           </Select.Option>
         ))}
       </Select>

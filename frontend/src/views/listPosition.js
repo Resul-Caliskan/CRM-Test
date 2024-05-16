@@ -219,9 +219,7 @@ const ListPosition = () => {
         <Loading />
       ) : (
         <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
-          <div
-            className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]"
-          >
+          <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]">
             <FilterComponent
               setFilters={setFilters}
               parameterOptions={parameterOptions}
@@ -233,6 +231,7 @@ const ListPosition = () => {
               handleAdd={handleAddPosition}
               handleUpdate={handleEditPosition}
               searchTerm={searchTerm}
+              name={t("position_list")}
               setSearchTerm={setSearchTerm}
               dropdowns={
                 <FilterComponent

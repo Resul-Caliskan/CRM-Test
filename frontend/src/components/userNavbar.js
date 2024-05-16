@@ -216,7 +216,7 @@ export default function UserNavbar() {
             >
               <div className="h-full relative">
                 <div className="notification-list">
-                  {notifications.slice(0, 15).map((notification, index) => (
+                  {notifications.slice(0, 12).map((notification, index) => (
                     <div
                       key={index}
                       className={`notification-item ${
@@ -237,7 +237,7 @@ export default function UserNavbar() {
                     </div>
                   ))}
                 </div>
-                <div className="flex absolute bottom-1 w-full ">
+                <div className="flex  bottom-1 w-full ">
                   <Button
                     type="primary"
                     onClick={handleNotifications}

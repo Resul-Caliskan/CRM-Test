@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import CircularBar from "./circularBar";
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import { Pagination } from "antd";
-import { useTranslation } from 'react-i18next';
- 
+import { DeleteOutlined, LoadingOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { Pagination, Spin } from "antd";
+import { useTranslation } from "react-i18next";
+
 const NomineeList = ({
   currentNominees,
   removeNominee,
@@ -14,21 +14,23 @@ const NomineeList = ({
   droppableId,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const nomineesPerPage = 2;
   const { t } = useTranslation();
- 
+
   useEffect(() => {
     const totalPages = Math.ceil(currentNominees.length / nomineesPerPage);
     if (totalPages < currentPage) {
       setCurrentPage(totalPages || 1);
     }
   }, [currentNominees.length, currentPage, nomineesPerPage]);
- 
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
- 
+
   const handleRemoveNominee = (nomineeId) => {
+    setLoading(true);
     removeNominee(nomineeId);
     // If removing the last nominee on a page, go back one page
     const totalPages = Math.ceil(
@@ -37,21 +39,24 @@ const NomineeList = ({
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
+    setLoading(false);
   };
- 
+
   const indexOfLastNominee = currentPage * nomineesPerPage;
   const indexOfFirstNominee = indexOfLastNominee - nomineesPerPage;
   const nomineesToShow = currentNominees.slice(
     indexOfFirstNominee,
     indexOfLastNominee
   );
- 
+
   return (
-    <div className="sm:w-full lg:w-[430px] xl:w-[400px] 2xl:w-[430px]">
+    <div className="sm:w-full lg:w-full xl:w-[400px] 2xl:w-full md:w-full ">
       <div className="bg-white p-4 rounded border shadow rounded-2xl">
         <div className="flex flex-col justify-between items-start border-b border-gray-200 pb-2 mb-4 ">
           <h3 className="flex flex-row font-semibold text-lg text-center  text-left">
-            {isTarget ? t("nominee_list.assigned_nominees") :  t("nominee_list.cv_pool")}
+            {isTarget
+              ? t("nominee_list.assigned_nominees")
+              : t("nominee_list.cv_pool")}
           </h3>
           <div className="flex justify-center ">
             <Pagination
@@ -63,11 +68,10 @@ const NomineeList = ({
               total={currentNominees.length}
               pageSize={nomineesPerPage}
               showLessItems={true}
-             
             />
           </div>
         </div>
- 
+
         <Droppable droppableId={droppableId}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -79,14 +83,14 @@ const NomineeList = ({
                 >
                   {(provided) => (
                     <div
-                      className="flex flex-col bg-white rounded-2xl border shadow relative w-auto lg:w-[390px] xl:w-[370px] 2xl:w-[400px] mb-4"
+                      className="flex flex-col bg-white rounded-2xl border shadow relative w-auto lg:w-[390px] xl:w-[370px] 2xl:w-full md:w-full lg:w-full mb-4"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
                       <div className="p-4">
                         <CircularBar nominee={nominee}></CircularBar>
- 
+
                         <strong className="text-sm font-semibold font-sans">
                           {t("nominee_list.matched_skills")}
                         </strong>
@@ -110,7 +114,7 @@ const NomineeList = ({
                               }
                             })}
                           </ul>
- 
+
                           <div className="flex items-end justify-end">
                             {isTarget ? (
                               <button
@@ -123,7 +127,22 @@ const NomineeList = ({
                                   color="white"
                                   className="mr-1"
                                 />
-                                 {t("nominee_list.remove")}
+
+                                {loading ? (
+                                  <Spin
+                                    indicator={
+                                      <LoadingOutlined
+                                        style={{
+                                          fontSize: 16,
+                                          color: "white",
+                                        }}
+                                        spin
+                                      />
+                                    }
+                                  />
+                                ) : (
+                                  t("nominee_list.remove")
+                                )}
                               </button>
                             ) : (
                               <button
@@ -131,18 +150,32 @@ const NomineeList = ({
                                 onClick={() => addNominee(nominee.cv._id)}
                               >
                                 <PlusCircleOutlined size={2} className="mr-1" />
-                                {t("nominee_list.add")}
+                                {loading ? (
+                                  <Spin
+                                    indicator={
+                                      <LoadingOutlined
+                                        style={{
+                                          fontSize: 16,
+                                          color: "white",
+                                        }}
+                                        spin
+                                      />
+                                    }
+                                  />
+                                ) : (
+                                  t("nominee_list.add")
+                                )}
                               </button>
                             )}
                           </div>
                         </div>
                       </div>
- 
+
                       <button
                         className="w-full py-3 bg-[#99C2FF] hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
                         onClick={() => handleNomineeDetail(nominee.cv, true)}
                       >
-                         {t("nominee_list.details")}
+                        {t("nominee_list.details")}
                       </button>
                     </div>
                   )}
@@ -156,5 +189,5 @@ const NomineeList = ({
     </div>
   );
 };
- 
+
 export default NomineeList;

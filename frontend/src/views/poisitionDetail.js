@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetchData";
 import { login } from "../redux/authSlice";
 import socket from "../config/config";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
 const PositionDetail = () => {
@@ -151,15 +151,19 @@ const PositionDetail = () => {
       socket.emit("createDemand", id);
       try {
         const response = await axios.post(`${apiUrl}/api/notification/add`, {
-          message:{tr_message: response2.data.updatedPosition.companyName +
-            " " +
-            response2.data.updatedPosition.jobtitle +
-            " pozisyonu için yeni aday talep etti",
-          en_message:response2.data.updatedPosition.companyName+" has requested new candidate for "
-          +response2.data.updatedPosition.jobtitle+" position"
-          
+          message: {
+            tr_message:
+              response2.data.updatedPosition.companyName +
+              " " +
+              response2.data.updatedPosition.jobtitle +
+              " pozisyonu için yeni aday talep etti",
+            en_message:
+              response2.data.updatedPosition.companyName +
+              " has requested new candidate for " +
+              response2.data.updatedPosition.jobtitle +
+              " position",
           },
-           
+
           type: "nomineeDemand",
           url: `/admin-position-detail/${id}`,
           companyId: response2.data.updatedPosition.companyId,
@@ -191,7 +195,6 @@ const PositionDetail = () => {
       newButtonLoadingList[index] = false;
       setButtonLoadingList(newButtonLoadingList);
     }
-
   };
 
   const handleCancelRequest = async (nomineeId, index) => {
@@ -226,7 +229,6 @@ const PositionDetail = () => {
       newButtonLoadingList[index] = false;
       setButtonLoadingList(newButtonLoadingList);
     }
-
   };
 
   return (
@@ -246,29 +248,41 @@ const PositionDetail = () => {
           <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
             <div className="flex flex-row justify-start items-center ml-2">
               <button
-                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 0 ? "border-b-2  border-blue-400" : "border-white"
-                  } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 0
+                    ? "border-b-2  border-blue-400"
+                    : "border-white"
+                } `}
                 onClick={() => handleTabChange(0)}
               >
                 {t("position_detail.tab_detail")}
               </button>
               <button
-                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 1 ? "border-b-2  border-blue-400" : "border-white"
-                  } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 1
+                    ? "border-b-2  border-blue-400"
+                    : "border-white"
+                } `}
                 onClick={() => handleTabChange(1)}
               >
                 {t("position_detail.tab_shared")}
               </button>
               <button
-                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 2 ? "border-b-2  border-blue-400" : "border-white"
-                  } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 2
+                    ? "border-b-2  border-blue-400"
+                    : "border-white"
+                } `}
                 onClick={() => handleTabChange(2)}
               >
                 {t("position_detail.tab_pool")}
               </button>
               <button
-                className={`flex items-center justify-center border-b-2 m-2 ${selectedTab === 3 ? "border-b-2  border-blue-400" : "border-white"
-                  } `}
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 3
+                    ? "border-b-2  border-blue-400"
+                    : "border-white"
+                } `}
                 onClick={() => handleTabChange(3)}
               >
                 {t("position_detail.tab_requested")}
@@ -453,12 +467,27 @@ const PositionDetail = () => {
                         <div className="flex items-end justify-end">
                           <div className="w-[90px] flex items-center justify-center">
                             <button
+                              disabled={buttonLoadingList[index]}
                               className="w-20 px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
                               onClick={() => {
                                 handleRequestedNominee(nominee.cv?._id, index);
                               }}
                             >
-                              {buttonLoadingList[index] ? <Spin color="white" className="text-white" /> : t("position_detail.request")}
+                              {buttonLoadingList[index] ? (
+                                <Spin
+                                  indicator={
+                                    <LoadingOutlined
+                                      style={{
+                                        fontSize: 16,
+                                        color: "white",
+                                      }}
+                                      spin
+                                    />
+                                  }
+                                />
+                              ) : (
+                                t("position_detail.request")
+                              )}
                             </button>
                           </div>
                         </div>
@@ -516,14 +545,27 @@ const PositionDetail = () => {
                         <div className="flex items-end justify-end">
                           <div className="w-[90px] flex items-center justify-center">
                             <button
-
+                              disabled={buttonLoadingList[index]}
                               className="w-20 px-2 text-base text-white py-1 rounded-lg   bg-[#ED4245] hover:bg-[#ff1e25]  text-center "
-
                               onClick={() => {
                                 handleCancelRequest(nominee.cv?._id, index);
                               }}
                             >
-                              {buttonLoadingList[index] ? <Spin className="text-white" /> : t("position_detail.cancel_request")}
+                              {buttonLoadingList[index] ? (
+                                <Spin
+                                  indicator={
+                                    <LoadingOutlined
+                                      style={{
+                                        fontSize: 16,
+                                        color: "white",
+                                      }}
+                                      spin
+                                    />
+                                  }
+                                />
+                              ) : (
+                                t("position_detail.cancel_request")
+                              )}
                             </button>
                           </div>
                         </div>

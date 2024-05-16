@@ -716,7 +716,7 @@ const EditPosition = () => {
                     loading={submitLoading}
                     className="w-full bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold  px-4 rounded focus:outline-none focus:shadow-outline"
                   >
-                    {submitLoading ? <Spin /> : t("edit_position.update")}{" "}
+                    {t("edit_position.update")}
                   </Button>
                 </Form.Item>
               </Form>

@@ -217,7 +217,7 @@ const AdminPositionDetail = () => {
     }
   };
 
-  const moveNomineeToSuggested = (draggableId) => {
+  const moveNomineeToSuggested = async (draggableId) => {
     const movedNominee = suggestedNominees.find(
       (nominee) => nominee.cv._id === draggableId
     );
@@ -249,7 +249,7 @@ const AdminPositionDetail = () => {
     setNominees(newNominees);
 
     try {
-      const response = axios.put(
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
         { nomineeId: movedNominee.cv._id }
       );
@@ -261,7 +261,7 @@ const AdminPositionDetail = () => {
     } catch (error) {}
   };
 
-  const moveNomineeToNominees = (draggableId) => {
+  const moveNomineeToNominees = async (draggableId) => {
     const movedNominee = nominees.find(
       (nominee) => nominee.cv._id === draggableId
     );
@@ -274,7 +274,7 @@ const AdminPositionDetail = () => {
     setSuggestedNominees([...suggestedNominees, movedNominee]);
 
     try {
-      const response = axios.put(
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/delete/${id}`,
         { nomineeId: movedNominee.cv._id }
       );
@@ -296,8 +296,7 @@ const AdminPositionDetail = () => {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/notification/add`,
           {
-            message:
-             {
+            message: {
               tr_message:
                 position.jobtitle +
                 " pozisyonu için talep ettiğiniz aday reddedildi.",
@@ -383,7 +382,7 @@ const AdminPositionDetail = () => {
   };
 
   return (
-    <>
+    <div className="w-screen h-screen  bg-[#F9F9F9]">
       <NavBar />
       {loading ? (
         <Loading />
@@ -430,7 +429,7 @@ const AdminPositionDetail = () => {
                 <div className="flex relative">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
-                    <p>
+                      <p>
                         <strong className="font-semibold">
                           {t("admin_detail.company_name")}:{" "}
                         </strong>
@@ -520,8 +519,8 @@ const AdminPositionDetail = () => {
             {selectedTab === 1 && (
               <>
                 {" "}
-                <div className="flex justify-around items-center ">
-                  <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 xl:grid-cols-3 xl:gap-12">
+                <div className="w-full flex justify-around items-center ">
+                  <div className="w-full grid grid-cols-1 md:grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-12">
                     <DragDropContext onDragEnd={onDragEnd}>
                       <NomineeList
                         currentNominees={nominees}
@@ -560,7 +559,7 @@ const AdminPositionDetail = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -240,12 +240,11 @@ exports.getCustomerIndustries = async (req, res) => {
 
     const industries = customer.industries;
 
-    res.status(200).json({industries:industries});
+    res.status(200).json({ industries: industries });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 exports.companyAddToCustomer = async (req, res) => {
   try {
@@ -263,7 +262,7 @@ exports.companyAddToCustomer = async (req, res) => {
       },
       { new: true }
     );
-   
+
     res.status(200).json(updatedCustomer);
   } catch (error) {
     res.status(500).json({ error: error.message });

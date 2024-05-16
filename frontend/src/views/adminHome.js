@@ -86,7 +86,7 @@ const App = () => {
   return (
     <div className='w-screen h-screen  bg-[#F9F9F9]'>
       <NavBar />
-      {user && <div className='test'> {renderComponent}</div>}
+      {user && <div> {renderComponent}</div>}
     </div>
 
 

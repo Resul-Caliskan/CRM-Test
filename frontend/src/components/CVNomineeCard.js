@@ -7,10 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Notification from "../utils/notification";
 import "../components/style.css";
-import { Button, Tooltip } from "antd";
+import { Button, Spin, Tooltip } from "antd";
 import socket from "../config/config";
 import DemandNomineeModel from "./demandNomineeModel";
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  LoadingOutlined,
+  MinusOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 const NomineeCard = ({
   nominee,
@@ -31,6 +35,7 @@ const NomineeCard = ({
   const [isRequested, setIsRequested] = useState();
   const [favoriteSharedNominees, setFavoriteSharedNominees] = useState([]);
   const [positions, setPositions] = useState(position);
+  const [isClicked, setIsClicked] = useState(false);
   useEffect(() => {
     if (position) {
       checkNomineeInPositions(nominee._id, positions);
@@ -63,10 +68,12 @@ const NomineeCard = ({
     setIsNomineeDetailOpen(false);
   };
   const handleRequestNominee = (nominee) => {
+    setIsClicked(true);
     setOpen(true);
     setSelectedNominee(nominee._id);
   };
   const handleCancelRequest = async (nomineeId, positionId) => {
+    setIsClicked(true);
     try {
       const response = await axios.put(
         `${apiUrl}/api/positions/delete-request/${positionId}`,
@@ -102,6 +109,7 @@ const NomineeCard = ({
 
       socket.emit("notificationDeleted", positionId);
       Notification("success", t("position_detail.requestCancel_success"));
+      setIsClicked(false);
       if (response) {
         setIsRequested(true);
       }
@@ -132,6 +140,7 @@ const NomineeCard = ({
           positions={positions}
           setPositions={setPositions}
           setIsRequested={setIsRequested}
+          setIsClicked={setIsClicked}
         />
       )}
       <div
@@ -278,15 +287,31 @@ const NomineeCard = ({
                 {isRequested ? (
                   <Tooltip placement={"top"} title={t("request_position")}>
                     <button
+                      disabled={isClicked}
                       className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
                       onClick={() => handleRequestNominee(nominee)}
                     >
-                      <PlusOutlined className="size-4" />
+                      {isClicked ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined
+                              style={{
+                                fontSize: 16,
+                                color: "white",
+                              }}
+                              spin
+                            />
+                          }
+                        />
+                      ) : (
+                        <PlusOutlined className="size-4" />
+                      )}
                     </button>
                   </Tooltip>
                 ) : (
                   <Tooltip placement={"top"} title={t("cancel")}>
                     <button
+                      disabled={isClicked}
                       className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#ED4245] hover:bg-[#ff1e25]   text-center justify-center items-center"
                       onClick={() => {
                         handleCancelRequest(
@@ -295,7 +320,21 @@ const NomineeCard = ({
                         );
                       }}
                     >
-                      <MinusOutlined className="size-4" />
+                      {isClicked ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined
+                              style={{
+                                fontSize: 16,
+                                color: "white",
+                              }}
+                              spin
+                            />
+                          }
+                        />
+                      ) : (
+                        <MinusOutlined className="size-4" />
+                      )}
                     </button>
                   </Tooltip>
                 )}
