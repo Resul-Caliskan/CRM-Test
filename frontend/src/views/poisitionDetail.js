@@ -295,6 +295,12 @@ const PositionDetail = () => {
                 <div className="flex absolute">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2 text-sm font-thin">
+                    <p>
+                        <strong className="font-semibold">
+                          aaaaa {t("position_detail.tag")}:{" "}
+                        </strong>
+                        {position?.tag}
+                      </p>
                       <p>
                         <strong className="font-semibold">
                           {t("position_detail.department")}:{" "}

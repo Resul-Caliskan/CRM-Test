@@ -429,6 +429,13 @@ const AdminPositionDetail = () => {
                 <div className="flex relative">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
+                  
+                    <p>
+                        <strong className="font-semibold">
+                          {t("position_detail.tag")}:{" "}
+                        </strong>
+                        {position?.tag}
+                      </p>
                       <p>
                         <strong className="font-semibold">
                           {t("admin_detail.company_name")}:{" "}

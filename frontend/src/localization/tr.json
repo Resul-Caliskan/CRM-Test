@@ -308,7 +308,8 @@
     "requestCandidate_error": "Aday Talep Edilirken Bir Hata Oluştu:",
     "requestCancel_success": "Talep Başarıyla Silindi.",
     "requestCancel_error": "Talep silinirken bir hata oluştu:",
-    "notification_error": "Bildirim silinirken bir hata oluştu:"
+    "notification_error": "Bildirim silinirken bir hata oluştu:",
+    "tag":"Etiket"
   },
   "edit_position": {
     "back": "Geri Dön",

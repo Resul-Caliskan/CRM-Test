@@ -21,6 +21,15 @@ exports.addPosition = async (req, res) => {
       positionCountry: req.body.positionCountry,
     });
 
+    const companyNameFirstLetter = req.body.companyName[0].toUpperCase();
+    const jobTitleInitials = req.body.jobtitle
+      .split(' ')
+      .map(word => word[0].toUpperCase())
+      .join('');
+    const existingPositions = await Position.find({ tag: new RegExp(`^${companyNameFirstLetter}${jobTitleInitials}`, 'i') });
+    const index = existingPositions.length + 1;
+    newPosition.tag = `${companyNameFirstLetter}${jobTitleInitials}-${index}`;
+
     const duplicates = newPosition.requestedNominees.filter((value, index, self) => self.indexOf(value) !== index);
     if (duplicates.length > 0) {
       throw new Error('Duplicate entries found in requestedNominees.');

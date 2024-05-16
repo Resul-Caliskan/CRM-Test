@@ -20,6 +20,7 @@ const positionSchema = new mongoose.Schema({
   sharedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
   dateOfStart: { type: String, required: true },
   requestedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee"}],
+  tag:{type: String, required:true},
 
 });
 

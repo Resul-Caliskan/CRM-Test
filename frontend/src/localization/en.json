@@ -317,7 +317,8 @@
     "requestCandidate_error": "An error occurred while requesting a candidate:",
     "requestCancel_success": "Request successfully canceled.",
     "requestCancel_error": "An error occurred while canceling the request:",
-    "notification_error": "An error occurred while deleting the notification:"
+    "notification_error": "An error occurred while deleting the notification:",
+    "tag":"Tag"
   },
 
   "edit_position": {

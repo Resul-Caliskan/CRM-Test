@@ -90,18 +90,6 @@ const DemandNomineeModel = ({
     }
   };
 
-  // const generatePositionKey = (title, index) => {
-  //   const initials = title
-  //     .split(' ')
-  //     .map(word => word.charAt(0).toUpperCase())
-  //     .join('');
-  //   const keyCount = positions
-  //     .slice(0, index + 1)
-  //     .filter(position => position.jobtitle.split(' ').map(word => word.charAt(0).toUpperCase()).join('') === initials)
-  //     .length;
-  //   return `${initials}-${keyCount}`;
-  // };
-
   return (
     <Modal
       zIndex={1000}
@@ -129,7 +117,7 @@ const DemandNomineeModel = ({
       >
         {positions.map((position, index) => (
           <Select.Option key={index} value={index}>
-            {`${position.jobtitle}`}
+            {`${position.jobtitle} (${position.tag})`}
           </Select.Option>
         ))}
       </Select>
