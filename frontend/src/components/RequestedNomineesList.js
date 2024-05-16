@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { DeleteOutlined, CheckOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  CheckOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import CircularBar from "./circularBar";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import { useTranslation } from "react-i18next";
 
 const RequestedNomineeList = ({
@@ -13,6 +17,7 @@ const RequestedNomineeList = ({
   const [currentPage, setCurrentPage] = useState(1);
   const nomineesPerPage = 2;
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const totalPages = Math.ceil(requestedNominees.length / nomineesPerPage);
@@ -24,7 +29,12 @@ const RequestedNomineeList = ({
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
+  const onClick_Time = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  };
   const handleRemoveNominee = (nomineeId) => {
     removeNomineeFromDemanded(nomineeId);
     // If removing the last nominee on a page, go back one page
@@ -98,18 +108,58 @@ const RequestedNomineeList = ({
 
                   <div className="flex items-end justify-end ">
                     <button
+                      disabled={loading}
                       className="flex flex-row px-2 text-white py-1 rounded-lg text-base bg-[#FF4747] hover:bg-[#c84040] text-center justify-center items-center mr-2"
-                      onClick={() => handleRemoveNominee(nominee.cv._id)}
+                      onClick={() => {
+                        onClick_Time();
+                        handleRemoveNominee(nominee.cv._id);
+                      }}
                     >
-                      <DeleteOutlined color="white" className="mr-1" />
-                      {t("nominee_list.reject")}
+                      {loading ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined
+                              style={{
+                                fontSize: 20,
+                                color: "white",
+                              }}
+                              spin
+                            />
+                          }
+                        />
+                      ) : (
+                        <>
+                          <DeleteOutlined color="white" className="mr-1" />
+                          {t("nominee_list.reject")}
+                        </>
+                      )}
                     </button>
                     <button
+                      disabled={loading}
                       className="flex flex-row px-2 text-white py-1 rounded-lg text-base  bg-[#0057D9] hover:bg-[#0019d9]   text-center justify-center items-center"
-                      onClick={() => acceptNomineeFromDemanded(nominee.cv._id)}
+                      onClick={() => {
+                        onClick_Time();
+                        acceptNomineeFromDemanded(nominee.cv._id);
+                      }}
                     >
-                      <CheckOutlined className="mr-1" />
-                      {t("nominee_list.approve")}
+                      {loading ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined
+                              style={{
+                                fontSize: 20,
+                                color: "white",
+                              }}
+                              spin
+                            />
+                          }
+                        />
+                      ) : (
+                        <>
+                          <CheckOutlined className="mr-1" />
+                          {t("nominee_list.approve")}
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
