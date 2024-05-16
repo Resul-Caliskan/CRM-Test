@@ -216,7 +216,7 @@ export default function UserNavbar() {
             >
               <div className="h-full relative">
                 <div className="notification-list">
-                  {notifications.slice(0, 12).map((notification, index) => (
+                  {notifications.slice(0, 15).map((notification, index) => (
                     <div
                       key={index}
                       className={`notification-item ${

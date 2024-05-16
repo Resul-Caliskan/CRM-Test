@@ -402,7 +402,7 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
           </div>
         </div>
       </div>
-      <div className="h-full mt-20 rounded-lg">
+      <div className="h-full rounded-lg">
         <button
           onClick={onClose}
           className="bg-[#F3F3F3] text-[#000000] hover:text-gray-800 focus:outline-none rounded-md ml-1"
