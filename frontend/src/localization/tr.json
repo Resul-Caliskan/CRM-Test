@@ -499,7 +499,8 @@
     "matched_skills": "Eşleşen Yetenekler",
     "requested_nominees": "Talep Edilen Adaylar",
     "reject": "Reddet",
-    "approve": "Onayla"
+    "approve": "Onayla",
+    "cv_not_found":"Özgeçmiş Bulunamadı."
   },
   "admin_detail": {
     "company_name":"Şirket Adı",
@@ -535,7 +536,8 @@
     "matched_skills": "Eşleşen Yetenekler",
     "requested_nominees": "Talep Edilen Adaylar",
     "reject": "Reddet",
-    "approve": "Onayla"
+    "approve": "Onayla",
+    "cv_not_found":"Özgeçmiş Bulunamadı."
   },
   "customer_detail": {
     "company_info": "Firma Bilgileri",

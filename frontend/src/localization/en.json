@@ -511,7 +511,8 @@
     "matched_skills":"Matching Skills",
     "requested_nominees":"Requested Candidates",
     "reject":"Refuse",
-    "approve":"Confirm"
+    "approve":"Confirm",
+    "cv_not_found":"CV not found"
 
   },
   
@@ -550,8 +551,8 @@
       "matched_skills":"Matching Skills",
       "requested_nominees":"Requested Candidates",
       "reject":"Refuse",
-      "approve":"Confirm"
-
+      "approve":"Confirm",
+      "cv_not_found":"CV not found"
     },
     "customer_detail": {
       "company_info": "Company Information",

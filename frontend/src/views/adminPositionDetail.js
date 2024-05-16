@@ -382,7 +382,7 @@ const AdminPositionDetail = () => {
   };
 
   return (
-    <div className="w-screen h-screen  bg-[#F9F9F9]">
+    <div className="w-screen h-full  bg-[#F9F9F9]">
       <NavBar />
       {loading ? (
         <Loading />
@@ -400,7 +400,8 @@ const AdminPositionDetail = () => {
             <div className="flex flex-row justify-start items-center ml-2">
               <button
                 className={`flex items-center justify-center border-b-2 m-2 ${
-                  selectedTab === 0                     ? "border-b-2  border-blue-400"
+                  selectedTab === 0
+                    ? "border-b-2  border-blue-400"
                     : "border-white"
                 } `}
                 onClick={() => handleTabChange(0)}
@@ -409,7 +410,8 @@ const AdminPositionDetail = () => {
               </button>
               <button
                 className={`flex items-center justify-center border-b-2 m-2 ${
-                  selectedTab === 1                     ? "border-b-2  border-blue-400"
+                  selectedTab === 1
+                    ? "border-b-2  border-blue-400"
                     : "border-white"
                 } `}
                 onClick={() => handleTabChange(1)}
@@ -431,8 +433,7 @@ const AdminPositionDetail = () => {
                 <div className="flex absolute w-full">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
-                  
-                    <p>
+                      <p>
                         <strong className="font-semibold">
                           {t("position_detail.tag")}:{" "}
                         </strong>

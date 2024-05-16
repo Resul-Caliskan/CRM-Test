@@ -130,13 +130,10 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
         className="flex flex-row  w-3/6 h-[700px]  rounded-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        
         <div
           className="flex flex-col w-full h-[670px] overflow-auto p-4 rounded-lg border shadow bg-gray-100"
           onClick={(e) => e.stopPropagation()}
         >
-
-
           <div className="flex items-center h-[100px] border-b-2 border-gray-200 pb-2 bg-white p-[16px 24px] gap-16 border-t-0 border-l-0 border-b-0 rounded-md">
             <div className="w-full mb-4">
               <div className="mt-5">
@@ -304,7 +301,9 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                       <strong className="text-[#494949] ml-1">Linked In</strong>
                     </div>
                     <div className="flex items-center ml-2 px-2 py-1 text-[#5E5E5E] blur-[4px]">
-                      <span>{censorLinkedInUrl("linkedin.com/in/emilydoe")}</span>
+                      <span>
+                        {censorLinkedInUrl("linkedin.com/in/emilydoe")}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -330,101 +329,122 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                 <div className="mt-4 mr-16 border-b-2 border-gray-200 w-full flex items-center justify-between">
                   <div>
                     <button
-                      className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "experience"
-                        ? "border-blue-500 tab text-[#383838]"
-                        : "tab text-[#ADADAD]"
-                        }`}
+                      className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
+                        activeTab === "experience"
+                          ? "border-blue-500 tab text-[#383838]"
+                          : "tab text-[#ADADAD]"
+                      }`}
                       onClick={() => setActiveTab("experience")}
                     >
                       {t("nomineeDetail.experience")}
                     </button>
                     <button
-                      className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "cv"
-                        ? "border-blue-500 tab text-[#383838]"
-                        : "tab text-[#ADADAD]"
-                        }`}
+                      className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
+                        activeTab === "cv"
+                          ? "border-blue-500 tab text-[#383838]"
+                          : "tab text-[#ADADAD]"
+                      }`}
                       onClick={() => setActiveTab("cv")}
                     >
                       {t("nomineeDetail.resume")}
                     </button>
                   </div>
 
-                {activeTab === "cv" && (
-                  <button onClick={() => handleDownloadCV()} className="ml-4">
-                    <img
-                      src={download}
-                      alt="Download Logo"
-                      className="h-4 w-4 mr-2"
-                    />
-                  </button>
+                  {activeTab === "cv" && (
+                    <div>
+                      {isKnown ? (
+                        <button
+                          onClick={() => handleDownloadCV()}
+                          className="ml-4"
+                        >
+                          <img
+                            src={download}
+                            alt="Download Logo"
+                            className="h-4 w-4 mr-2"
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="ml-4"
+                          style={{ visibility: "hidden" }}
+                        >
+                          <img
+                            src={download}
+                            alt="Download Logo"
+                            className="h-4 w-4 mr-2"
+                          />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {activeTab === "experience" && (
+                  <div className="ml-2 mt-3 h-[200px] overflow-y-auto">
+                    <ul className="list-disc ml-4">
+                      {nominee.experience.map((exp, index) => (
+                        <li key={index}>
+                          <div>
+                            <strong>{t("nomineeDetail.position")}</strong>{" "}
+                            {exp.position}
+                          </div>
+                          <div>
+                            <strong>{t("nomineeDetail.company")}</strong>{" "}
+                            {exp.company}
+                          </div>
+                          <div>
+                            <strong>{t("nomineeDetail.duration")}</strong>{" "}
+                            {exp.duration}
+                          </div>
+                          <div>
+                            <strong>{t("nomineeDetail.description")}</strong>{" "}
+                            {exp.description}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
- 
-              {activeTab === "experience" && (
-                <div className="ml-2 mt-3 h-[200px] overflow-y-auto">
-                  <ul className="list-disc ml-4">
-                    {nominee.experience.map((exp, index) => (
-                      <li key={index}>
-                        <div>
-                          <strong>{t("nomineeDetail.position")}</strong>{" "}
-                          {exp.position}
-                        </div>
-                        <div>
-                          <strong>{t("nomineeDetail.company")}</strong>{" "}
-                          {exp.company}
-                        </div>
-                        <div>
-                          <strong>{t("nomineeDetail.duration")}</strong>{" "}
-                          {exp.duration}
-                        </div>
-                        <div>
-                          <strong>{t("nomineeDetail.description")}</strong>{" "}
-                          {exp.description}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+
+              {activeTab === "cv" && (
+                <div className="text-center mt-4">
+                  {isKnown && pdfUrl ? (
+                    <Document file={pdfUrl} onLoadSuccess={() => {}}>
+                      <Page pageNumber={pageNumber} renderTextLayer={false} />
+                    </Document>
+                  ) : (
+                    <p>{t("nominee_list.cv_not_found")}</p>
+                  )}
                 </div>
               )}
             </div>
- 
-            {activeTab === "cv" && (
-              <div className="text-center mt-4">
-                {(isKnown && pdfUrl) ? (
-                  <Document file={pdfUrl} onLoadSuccess={() => {}}>
-                    <Page pageNumber={pageNumber} renderTextLayer={false} />
-                  </Document>
-                ) : (
-                  <p>Özgeçmiş Bulunamadı</p>
-                )}
-              </div>
-            )}
           </div>
         </div>
-      </div>
-      <div className="h-full rounded-lg">
-        <button
-          onClick={onClose}
-          className="bg-[#F3F3F3] text-[#000000] hover:text-gray-800 focus:outline-none rounded-md ml-1"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2"
+        <div className="h-full rounded-lg">
+          <button
+            onClick={onClose}
+            className="bg-[#F3F3F3] text-[#000000] hover:text-gray-800 focus:outline-none rounded-md ml-1"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-              d="M8 16L16 8M8 8l8 8"
-            />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M8 16L16 8M8 8l8 8"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
     </div>
   );
 }
