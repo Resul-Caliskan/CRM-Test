@@ -131,7 +131,12 @@ const ListComponent = ({
           <div className="onlyData">
             <Table
               columns={[
+
+                
                 ...columns,
+                
+
+                
                 {
                   title: t("actions"),
                   key: "action",
@@ -201,6 +206,8 @@ const ListComponent = ({
                     </Space>
                   ),
                 },
+                
+                
               ]}
               dataSource={data}
               

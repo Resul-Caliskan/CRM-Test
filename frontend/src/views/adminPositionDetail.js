@@ -397,18 +397,20 @@ const AdminPositionDetail = () => {
           </Button>
           {/* TABS DIV */}
           <div className="flex w-full bg-white h-[71px] justify-start items-center rounded-2xl">
-            <div className="flex flex- row justify-start items-center ml-2">
+            <div className="flex flex-row justify-start items-center ml-2">
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 0 ? "border-b-2 pb-1 border-blue-400" : ""
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 0                     ? "border-b-2  border-blue-400"
+                    : "border-white"
                 } `}
                 onClick={() => handleTabChange(0)}
               >
                 {t("admin_detail.position_detail")}
               </button>
               <button
-                className={`flex items-center justify-center m-2 ${
-                  selectedTab === 1 ? "border-b-2 pb-1 border-blue-400" : ""
+                className={`flex items-center justify-center border-b-2 m-2 ${
+                  selectedTab === 1                     ? "border-b-2  border-blue-400"
+                    : "border-white"
                 } `}
                 onClick={() => handleTabChange(1)}
               >
@@ -426,7 +428,7 @@ const AdminPositionDetail = () => {
             {selectedTab === 0 && (
               <>
                 {" "}
-                <div className="flex relative">
+                <div className="flex absolute w-full">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
                   

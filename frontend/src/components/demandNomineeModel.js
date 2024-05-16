@@ -105,7 +105,7 @@ const DemandNomineeModel = ({
     >
       <Select
         showSearch
-        style={{ width: 200 }}
+        style={{ width: 250 }}
         placeholder={t("select_position")}
         loading={loading}
         optionFilterProp="children"
@@ -117,7 +117,7 @@ const DemandNomineeModel = ({
       >
         {positions.map((position, index) => (
           <Select.Option key={index} value={index}>
-            {`${position.jobtitle} (${position.tag})`}
+            {`(${position.tag}) ${position.jobtitle} `}
           </Select.Option>
         ))}
       </Select>

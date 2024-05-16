@@ -107,6 +107,7 @@ const ListPosition = () => {
   const [filters, setFilters] = useState({
     jobtitle: [],
     department: [],
+    tag:[],
     experienceperiod: [],
     modeofoperation: [],
     worktype: [],
@@ -127,11 +128,18 @@ const ListPosition = () => {
       ),
     },
     {
+      title: t("position_detail.tag"),
+      dataIndex: "tag",
+      key: "tag",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
       title: t("userListPosition.department"),
       dataIndex: "department",
       key: "department",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
+
 
     {
       title: t("userListPosition.experience_period"),
@@ -208,6 +216,7 @@ const ListPosition = () => {
     modeofoperation: position.modeofoperation,
     description: position.description,
     skills: position.skills,
+    tag : position.tag,
     worktype: position.worktype,
     companyId: position.companyId,
     companyName: position.companyName,

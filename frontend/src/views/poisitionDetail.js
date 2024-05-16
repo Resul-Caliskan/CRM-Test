@@ -289,15 +289,15 @@ const PositionDetail = () => {
               </button>
             </div>
           </div>
-          <div className="h-screen w-full justify-center items-cente">
+          <div className="w-full justify-between items-center ">
             {selectedTab === 0 && (
               <>
-                <div className="flex absolute">
+                <div className="flex absolute w-full">
                   <div className="w-[255px] rounded-xl bg-white p-4">
-                    <div className="flex flex-col gap-2 text-sm font-thin">
+                    <div className="flex flex-col text-sm font-thin">
                     <p>
                         <strong className="font-semibold">
-                          aaaaa {t("position_detail.tag")}:{" "}
+                          {t("position_detail.tag")}:{" "}
                         </strong>
                         {position?.tag}
                       </p>

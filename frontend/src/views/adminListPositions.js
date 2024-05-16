@@ -53,6 +53,12 @@ const AdminListPosition = () => {
       ),
     },
     {
+      title: t("position_detail.tag"),
+      dataIndex: "tag",
+      key: "tag",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
+    {
       title: t("userListPosition.department"),
       dataIndex: "department",
       key: "department",
@@ -144,6 +150,7 @@ const AdminListPosition = () => {
     modeofoperation: job.modeofoperation,
     description: job.description,
     skills: job.skills,
+    tag:job.tag,
     worktype: job.worktype,
     companyId: job.companyId,
     companyName: job.companyName,
