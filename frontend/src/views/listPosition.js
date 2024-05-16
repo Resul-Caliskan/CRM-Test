@@ -130,6 +130,7 @@ const ListPosition = () => {
     {
       title: t("position_detail.tag"),
       dataIndex: "tag",
+      className:"w-20",
       key: "tag",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
