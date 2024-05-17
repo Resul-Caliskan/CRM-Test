@@ -47,12 +47,6 @@ const AdminListPosition = () => {
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
-      title: t("admin_detail.company_name"),
-      dataIndex: "companyName",
-      key: "companyName",
-      render: (text) => highlightSearchTerm(text, searchTerm),
-    },
-    {
       title: t("userListPosition.job_title"),
       dataIndex: "jobtitle",
       key: "jobtitle",
@@ -64,12 +58,6 @@ const AdminListPosition = () => {
           {highlightSearchTerm(text, searchTerm)}
         </span>
       ),
-    },
-    {
-      title: t("position_detail.tag"),
-      dataIndex: "tag",
-      key: "tag",
-      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: t("position_detail.tag"),

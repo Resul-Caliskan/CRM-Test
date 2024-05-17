@@ -60,11 +60,18 @@ const DemandNomineeModel = ({
 
       try {
         const response = await axios.post(`${apiUrl}/api/notification/add`, {
-          message:
-            response2.data.updatedPosition.companyName +
-            " " +
-            response2.data.updatedPosition.jobtitle +
-            " pozisyonu için yeni aday talep etti",
+          message: {
+            tr_message:
+              response2.data.updatedPosition.companyName +
+              " " +
+              response2.data.updatedPosition.jobtitle +
+              " pozisyonu için yeni aday talep etti",
+            en_message:
+              response2.data.updatedPosition.companyName +
+              " has requested new candidate for " +
+              response2.data.updatedPosition.jobtitle +
+              " position",
+          },
           type: "nomineeDemand",
           url: `/admin-position-detail/${id}`,
           companyId: response2.data.updatedPosition.companyId,
