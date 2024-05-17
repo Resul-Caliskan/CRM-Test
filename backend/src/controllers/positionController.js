@@ -45,21 +45,69 @@ exports.addPosition = async (req, res) => {
 
 exports.getAllPositions = async (req, res) => {
   try {
-    const positions = await Position.aggregate([
-      {
-        $addFields: {
-          requestedNomineesCount: { $size: "$requestedNominees" },
-        },
-      },
-      {
-        $sort: { requestedNomineesCount: -1 },
-      },
-    ]);
-    res.status(200).json(positions);
+    let { page, pageSize, companyName, jobtitle, department, experienceperiod, modeofoperation, worktype, skills, search } = req.query;
+    page = parseInt(page) || 1;
+    pageSize = parseInt(pageSize) || 1;
+
+    const filter = {};
+    if (companyName) filter.companyName = companyName;
+    if (jobtitle) filter.jobtitle = jobtitle;
+    if (department) filter.department = department;
+    if (experienceperiod) filter.experienceperiod = experienceperiod;
+    if (modeofoperation) filter.modeofoperation = modeofoperation;
+    if (worktype) filter.worktype = worktype;
+    if (skills) {
+      filter.skills = { $all: skills.map(skill => skill) };
+    }
+    
+    let positions;
+    let totalCount;
+
+    if (search) {
+      // Perform search query
+      positions = await Position.find({
+        $or: [
+          { companyName: { $regex: search, $options: 'i' } },
+          { jobtitle: { $regex: search, $options: 'i' } },
+          { department: { $regex: search, $options: 'i' } },
+          { experienceperiod: { $regex: search, $options: 'i' } },
+          { modeofoperation: { $regex: search, $options: 'i' } },
+          { worktype: { $regex: search, $options: 'i' } },
+          { skills: { $elemMatch: { $regex: search, $options: 'i' } } }
+        ]
+      })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+      totalCount = await Position.countDocuments({
+        $or: [
+          { companyName: { $regex: search, $options: 'i' } },
+          { jobtitle: { $regex: search, $options: 'i' } },
+          { department: { $regex: search, $options: 'i' } },
+          { experienceperiod: { $regex: search, $options: 'i' } },
+          { modeofoperation: { $regex: search, $options: 'i' } },
+          { worktype: { $regex: search, $options: 'i' } },
+          { skills: { $elemMatch: { $regex: search, $options: 'i' } } }
+        ]
+      });
+    } else {
+      // Perform regular filtering
+      positions = await Position.find(filter)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+      totalCount = await Position.countDocuments(filter);
+    }
+
+    res.status(200).json({ positions, totalCount });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
 
 exports.getPositionById = async (req, res) => {
   try {

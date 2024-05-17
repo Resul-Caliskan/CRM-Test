@@ -398,6 +398,8 @@
     "email": "E-mail",
     "page_name": "Demand List"
   },
+  "GoTo":"GoTo",
+  "Page":"page",
   "profile": {
     "user_info": "User Information",
     "add_user": "Add User",

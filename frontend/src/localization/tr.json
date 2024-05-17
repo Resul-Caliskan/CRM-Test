@@ -378,6 +378,8 @@
     "back_login": "Giriş sayfasına geri dön",
     "move_button": "İlerle"
   },
+  "GoTo":"Git",
+  "Page":"sayfa",
   "userDemands": {
     "page_name": "Talep Listesi",
     "company_name": "Şirket Adı",

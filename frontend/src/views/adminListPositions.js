@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import filterFunction from "../utils/globalSearchFunction";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,10 @@ import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import Loading from "../components/loadingComponent";
 import socket from "../config/config";
 import { useTranslation } from "react-i18next";
+import { Avatar, Badge, Button, Input, Pagination, Space, Table, Tooltip } from "antd";
+import { EditOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import ConfirmPopUp from "../components/areUSure";
+import { debounce } from "lodash";
 
 const AdminListPosition = () => {
   const { t } = useTranslation();
@@ -18,11 +22,14 @@ const AdminListPosition = () => {
   const [requestedNominees, setRequestedNominees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPositions, setTotalPositions] = useState(0);
   const dispatch = useDispatch();
   const selectedOption = useSelector(
     (state) => state.selectedOption.selectedOption
   );
-
+  const [checkedItems, setCheckedItems] = useState([]);
   const [filters, setFilters] = useState({
     companyName: [],
     jobtitle: [],
@@ -33,6 +40,12 @@ const AdminListPosition = () => {
     skills: [],
   });
   const columns = [
+    {
+      title: t("admin_detail.company_name"),
+      dataIndex: "companyName",
+      key: "companyName",
+      render: (text) => highlightSearchTerm(text, searchTerm),
+    },
     {
       title: t("admin_detail.company_name"),
       dataIndex: "companyName",
@@ -51,6 +64,12 @@ const AdminListPosition = () => {
           {highlightSearchTerm(text, searchTerm)}
         </span>
       ),
+    },
+    {
+      title: t("position_detail.tag"),
+      dataIndex: "tag",
+      key: "tag",
+      render: (text) => highlightSearchTerm(text, searchTerm),
     },
     {
       title: t("position_detail.tag"),
@@ -150,7 +169,7 @@ const AdminListPosition = () => {
     modeofoperation: job.modeofoperation,
     description: job.description,
     skills: job.skills,
-    tag:job.tag,
+    tag: job.tag,
     worktype: job.worktype,
     companyId: job.companyId,
     companyName: job.companyName,
@@ -160,7 +179,7 @@ const AdminListPosition = () => {
   const [companyNames, setCompanyNames] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
-    fetchPositions();
+    fetchPositions(page, pageSize, searchTerm);
     fetchParameterOptions();
     fetchCompanyNames();
   }, []);
@@ -170,16 +189,37 @@ const AdminListPosition = () => {
       setPositions(positions);
     });
   }, []);
+  useEffect(() => {
+    setPage(1);
+    fetchPositions(1, pageSize, searchTerm);
+  }, [filters]);
 
-  const fetchPositions = async () => {
+  const fetchPositions = async (currentPage, pageSize, search) => {
+    setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/positions`
+        `${process.env.REACT_APP_API_URL}/api/positions`,
+        {
+          params: {
+            page: currentPage,
+            pageSize: pageSize,
+            companyName: filters.companyName,
+            jobtitle: filters.jobtitle,
+            department: filters.department,
+            experienceperiod: filters.experienceperiod,
+            modeofoperation: filters.modeofoperation,
+            worktype: filters.worktype,
+            skills: filters.skills,
+            search: search,
+          },
+        }
       );
-      setPositions(response.data);
-      setRequestedNominees(response.data.requestedNominees);
+      setPositions(response.data.positions);
+      setTotalPositions(response.data.totalCount);
     } catch (error) {
       console.error("Positions fetching failed:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -233,7 +273,7 @@ const AdminListPosition = () => {
         positions.filter((position) => position.positionId !== positionId)
       );
       Notification("success", "Pozisyon başarıyla silindi.", "");
-      fetchPositions();
+      fetchPositions(page, pageSize, searchTerm);
       fetchParameterOptions();
       fetchCompanyNames();
     } catch (error) {
@@ -257,11 +297,27 @@ const AdminListPosition = () => {
   const handleEditPosition = (positionId) => {
     navigate(`/edit-position/${positionId}`);
   };
+  const handlePageChange = (newPage, pageSize) => {
+    setPage(newPage);
+    setPageSize(pageSize);
+    fetchPositions(newPage, pageSize, searchTerm);
+  };
+  const handleSearch = useCallback(
+    debounce(async (event) => {
+      const { value } = event.target;
+      setSearchTerm(value.toLowerCase());
+      setPage(1);
+      await fetchPositions(1, pageSize, value);
+    }, 300),
+  );
+  const locale = {
+    jump_to: t("GoTo"),
+    page: t("Page"),
+    items_per_page: "/ " + t("Page"),
+  };
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
+      <div className="flex flex-col">
         <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
           <div
             className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]
@@ -271,32 +327,130 @@ const AdminListPosition = () => {
               setFilters={setFilters}
               parameterOptions={parameterOptions}
               isHorizontal={false}
+              checkedItems={checkedItems}
+              setCheckedItems={setCheckedItems}
             />
           </div>
           <div className="flex flex-col w-full contentCV overflow-auto ">
-            <ListComponent
-              handleAdd={handleAddPosition}
-              handleUpdate={handleEditPosition}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              dropdowns={
-                <FilterComponent
-                  setFilters={setFilters}
-                  parameterOptions={parameterOptions}
-                />
-              }
-              handleDelete={handleDeletePosition}
-              handleDetail={handlePositionDetails}
-              columns={columns}
-              data={data}
-              name={t("position_list")}
-              notification={true}
-            />
+
+            <div className="bodyContainer">
+              <div className="searchFilterButton">
+                <div className="search">
+                  <div className="searchButtonContainer">
+                    <Input
+                      placeholder={t("search_placeholder")}
+
+                      className="searchButton"
+                      onChange={handleSearch}
+                      suffix={<SearchOutlined />}
+                    ></Input>
+                  </div>
+                </div>
+                <div className="crudButtons">
+
+                  <Button
+                    type="primary"
+                    onClick={() => handleAddPosition()}
+                    icon={<PlusOutlined />}
+                    size="large"
+                    className="buttonAdd"
+                  >
+                    {t("new_record")}
+                  </Button>
+
+                </div>
+              </div>
+              <div className="listContent">
+                <div className="title">
+                  <h4 className="titleLabel">Pozizsyon Listesi</h4>
+                  <p className="titleContent">
+                    {t("total_results", { count: totalPositions })}
+                  </p>
+                </div>
+                <div className="listData">
+                  {loading ? (
+                    <Loading />
+                  ) : (
+                    <div className="onlyData">
+                      <Table
+                        columns={[
+                          ...columns,
+                          {
+                            title: t("actions"),
+                            key: "action",
+                            render: (text, record) => (
+                              <Space
+                                size="small"
+                                className="flex justify-center items-center"
+                              >
+
+                                <Tooltip
+                                  placement={"top"}
+                                  title={t("profile.buttons.edit")}
+                                >
+                                  <Button
+                                    type="link"
+                                    icon={<EditOutlined />}
+                                    onClick={() => {
+                                      handleEditPosition(record.id);
+                                    }}
+                                  ></Button>
+                                </Tooltip>
+                                <ConfirmPopUp
+                                  handleDelete={handleDeletePosition}
+                                  id={record.id}
+                                  isConfirm={false}
+                                />
+                                <Tooltip placement={"top"} title={t("details")}>
+                                  <button onClick={() => handlePositionDetails(record.id)}>
+                                    <Badge
+                                      count={record.requestedNominees?.length}
+                                      className=""
+                                      size="small"
+                                    >
+                                      <Avatar
+                                        className="bg-white text-blue-500"
+                                        shape="square"
+                                        icon={<InfoCircleOutlined />}
+                                        size="medium"
+                                      />
+                                    </Badge>
+                                  </button>
+                                </Tooltip>
+                              </Space>
+                            ),
+                          },
+                        ]}
+                        dataSource={data}
+                        mobileBreakPoint={768}
+                        pagination={false}
+                      />
+                      <Pagination
+                        className="flex justify-end pb-10 mt-5"
+                        total={totalPositions}
+                        pageSize={pageSize}
+                        current={page}
+                        onChange={handlePageChange}
+                        showSizeChanger
+                        showQuickJumper
+                        locale={locale}
+                        pageSizeOptions={["5", "10", "20", "50"]}
+                      />
+                    </div>)}
+                </div>
+              </div>
+              <div className="footer"></div>
+
+            </div>
+
           </div>
+
+
         </div>
-      )}
+
+      </div>
     </>
-  );
-};
+  )
+}
 
 export default AdminListPosition;

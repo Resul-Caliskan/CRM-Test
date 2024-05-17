@@ -22,6 +22,7 @@ const ListCustomers = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [checkedItems,setCheckedItems]=useState([]);
   const { user } = useSelector((state) => state.auth);
   const [filters, setFilters] = useState({
     sector: [],
@@ -192,18 +193,14 @@ const ListCustomers = () => {
               setFilters={setFilters}
               parameterOptions={parameterOptions}
               isHorizontal={false}
+              checkedItems={checkedItems}
+              setCheckedItems={setCheckedItems}
             />
           </div>
           <div className="flex flex-col w-full contentCV overflow-y-auto ">
             <ListComponent
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
-              dropdowns={
-                <FilterComponent
-                  setFilters={setFilters}
-                  parameterOptions={parameterOptions}
-                />
-              }
               handleAdd={handleAddCustomer}
               handleUpdate={handleEditCustomer}
               handleDelete={handleDelete}

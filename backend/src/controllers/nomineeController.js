@@ -7,21 +7,19 @@ const path = require('path');
 
 exports.getNomineeByCompanyId = async (req, res) => {
   try {
-    const isAdmin = req.body.isAdmin;
-    const companyId = req.body.companyId;
-    const positions = await Position.find({ companyId: companyId });
+    const { isAdmin, companyId, page, pageSize, filters, searchTerm } = req.body;
+    const positions = await Position.find({ companyId });
     let sharedNomineesFromPosition = [];
-    let title = [];
-
+    
     positions.forEach((position) => {
-      title.push(position.jobtitle);
       position.sharedNominees.forEach((aday) => {
         sharedNomineesFromPosition.push({
-          aday: aday,
+          aday,
           position: { id: position._id, title: position.jobtitle },
         });
       });
     });
+
     let sharedNominees = [];
     await Promise.all(
       sharedNomineesFromPosition.map(async (aday) => {
@@ -29,37 +27,55 @@ exports.getNomineeByCompanyId = async (req, res) => {
         sharedNominees.push({ nomineeInfo: nominee, position: aday.position });
       })
     );
-    let allCvs = [];
-    if (isAdmin) {
-      //buradaki $nin fonksiyonu sharedNominees içinde olan verilerin allCv'ye gelmemesini sağlıyor..
-      allCvs = await Nominee.find({
-        title: { $in: title },
-        _id: { $nin: sharedNominees.map((aday) => aday._id) },
-      });
-    } else {
-      allCvs = await Nominee.find(
-        {
-          title: { $in: title },
-          _id: { $nin: sharedNominees.map((aday) => aday._id) },
-        },
 
-        {
-          name: 0,
-          contact: 0,
-        }
+    sharedNominees = sharedNominees.filter((nominee) => {
+      return (
+        (filters.jobtitle.length === 0 || filters.jobtitle.includes(nominee.position.title)) &&
+        (filters.skills.length === 0 ||
+          filters.skills.every((skill) =>
+            nominee.nomineeInfo.skills.some((item) => item.toLowerCase() === skill.toLowerCase())
+          ))
       );
+    });
+    const sharedNomineeIds = sharedNominees.map(sharedNominee => sharedNominee.nomineeInfo._id);
+    const query = {};
+
+    if (filters.jobtitle.length > 0) {
+      query.title = { $in: filters.jobtitle };
     }
-    const favorites = await Customer.findById(companyId);
+
+    if (filters.skills.length > 0) {
+      query.skills = { $all: filters.skills.map(skill => skill) };
+    }
+    if (sharedNomineeIds.length > 0) {
+      query._id = { $nin: sharedNomineeIds };
+    }
+    const skip = (page - 1) * pageSize;
+    const limit = pageSize;
+
+    
+    if (searchTerm) {
+      const searchRegex = new RegExp(searchTerm, "i");
+      query.$or = [
+        { title: searchRegex },
+        { skills: { $elemMatch: { $regex: searchRegex } } }
+      ];
+    }
+    let allCvs = await Nominee.find(query).skip(skip).limit(limit);
+    const totalAllCvsCount = await Nominee.countDocuments(query);
 
     res.status(200).json({
-      sharedNominees: sharedNominees,
+      sharedNominees,
       allCvs: allCvs,
-      favorites: favorites.favorites,
+      totalCvsCount: totalAllCvsCount,
     });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
+    console.error(error);
   }
 };
+
 
 exports.addFavorite = async (req, res) => {
   console.log(req.body.nomineeId);

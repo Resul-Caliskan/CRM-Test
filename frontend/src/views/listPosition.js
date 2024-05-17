@@ -22,6 +22,7 @@ const ListPosition = () => {
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const [searchTerm, setSearchTerm] = useState("");
   const [parameterOptions, setParameterOptions] = useState([]);
+  const [checkedItems,setCheckedItems]=useState([]);
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
@@ -130,6 +131,7 @@ const ListPosition = () => {
     {
       title: t("position_detail.tag"),
       dataIndex: "tag",
+      className:"w-20",
       key: "tag",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
@@ -230,6 +232,8 @@ const ListPosition = () => {
         <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
           <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]">
             <FilterComponent
+            checkedItems={checkedItems}
+            setCheckedItems={setCheckedItems}
               setFilters={setFilters}
               parameterOptions={parameterOptions}
               isHorizontal={false}

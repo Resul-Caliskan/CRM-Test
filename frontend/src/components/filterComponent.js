@@ -6,18 +6,9 @@ import VerticalFilterContainer from "./filterMenu";
 import { useTranslation } from "react-i18next"; // i18n hook'u ekle
 
 const DropdownFilter = React.memo(
-  ({
-    title,
-    keyValue,
-    options,
-    onSelect,
-    isClear,
-    setIsClear,
-    isOpenInitially,
-  }) => {
-    const { t } = useTranslation(); // Tercüme için i18n hook'unu kullan
+  ({ title, keyValue, options, onSelect, isClear, setIsClear, checkedItems, setCheckedItems }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
-    const [checkedItems, setCheckedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const dropdownRef = useRef(null);
     const isHovered = useRef(false);
@@ -87,7 +78,7 @@ const DropdownFilter = React.memo(
         onMouseLeave={() => (isHovered.current = false)}
       >
         <button className="buttonDropdown" onClick={toggleDropdown}>
-          {t(title)} {selectedCount} {/* Başlık metnini tercüme et */}
+          {t(title)} {selectedCount} 
           {isOpen ? (
             <CaretUpOutlined className="ml-1" />
           ) : (
@@ -99,7 +90,7 @@ const DropdownFilter = React.memo(
           <div className="dropdown-content max-h-64">
             <Input
               allowClear={true}
-              placeholder={t("search")} 
+              placeholder={t("search")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-2 mt-2 h-8"
@@ -112,7 +103,7 @@ const DropdownFilter = React.memo(
                     checked={checkedItems.length === options.length}
                     onChange={() => handleCheckboxChange("__TUMU__")}
                   />
-                  {t("userListPosition.selectAll")} {/* Tümünü Seç metnini tercüme et */}
+                  {t("userListPosition.selectAll")}
                 </label>
               </li>
               {filteredOptions.map((option) => (
@@ -135,14 +126,16 @@ const DropdownFilter = React.memo(
   }
 );
 
+
 const FilterComponent = ({
   parameterOptions,
   setFilters,
   isHorizontal = true,
+  setCheckedItems,
+  checkedItems,
 }) => {
-  const { t } = useTranslation(); // Tercüme için i18n hook'unu kullan
+  const { t } = useTranslation();
   const [isClear, setIsClear] = useState(false);
-  const [openParameters, setOpenParameters] = useState({});
 
   const handleSelect = (key, value) => {
     setFilters((prevFilters) => {
@@ -161,24 +154,15 @@ const FilterComponent = ({
         [key]: [],
       }));
     });
-    setOpenParameters({});
+    setCheckedItems([]);
   };
 
   return (
     <>
       {isHorizontal ? (
-        <div
-          className={`flex ${
-            isHorizontal ? "flex-row" : "flex-col"
-          } gap-5 items-center justify-center mt-3`}
-        >
+        <div className={`flex ${isHorizontal ? "flex-row" : "flex-col"} gap-5 items-center justify-center mt-3`}>
           {!isHorizontal && (
-            <Button
-              type="link"
-              className="clearFilter"
-              block={!isHorizontal}
-              onClick={handleClearAll}
-            >
+            <Button type="link" className="clearFilter" block={!isHorizontal} onClick={handleClearAll}>
               {t("userListPosition.clearAll")}
             </Button>
           )}
@@ -191,22 +175,20 @@ const FilterComponent = ({
               onSelect={handleSelect}
               isClear={isClear}
               setIsClear={setIsClear}
-              isOpenInitially={!isHorizontal}
+              checkedItems={checkedItems}
+              setCheckedItems={setCheckedItems}
             />
           ))}
           {isHorizontal && (
-            <Button
-              type="link"
-              className="clearFilter"
-              block={!isHorizontal}
-              onClick={handleClearAll}
-            >
-              {t("userListPosition.clearAll")} {/* Tümünü Temizle metnini tercüme et */}
+            <Button type="link" className="clearFilter" block={!isHorizontal} onClick={handleClearAll}>
+              {t("userListPosition.clearAll")}
             </Button>
           )}
         </div>
       ) : (
         <VerticalFilterContainer
+          setCheckedItems={setCheckedItems}
+          checkedItems={checkedItems}
           parameterOptions={parameterOptions}
           handleSelect={handleSelect}
           isHorizontal={isHorizontal}

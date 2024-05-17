@@ -2,16 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Button, Checkbox, Input } from "antd";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+
 const VerticalFilterContainer = ({
   parameterOptions,
   isHorizontal,
   setFilters,
+  setCheckedItems,
+  checkedItems,
 }) => {
   const [searchTerms, setSearchTerms] = useState({});
-  const [checkedItems, setCheckedItems] = useState([]);
   const [openParameters, setOpenParameters] = useState({});
   const [isClear, setIsClear] = useState(false);
   const { t } = useTranslation();
+
   useEffect(() => {
     const initialOpenParameters = {};
     parameterOptions.forEach((parameter) => {
@@ -19,6 +22,7 @@ const VerticalFilterContainer = ({
     });
     setOpenParameters(initialOpenParameters);
   }, [parameterOptions]);
+
   const handleClearAll = () => {
     setIsClear(true);
     parameterOptions.forEach((parameter) => {
@@ -28,8 +32,10 @@ const VerticalFilterContainer = ({
         [key]: [],
       }));
     });
+    setCheckedItems([]);
     setOpenParameters({});
   };
+
   const handleSearchChange = (title, value) => {
     setSearchTerms((prevSearchTerms) => ({
       ...prevSearchTerms,
@@ -95,27 +101,17 @@ const VerticalFilterContainer = ({
 
   return (
     <div
-      className={`filter-container  ${
-        isHorizontal ? "horizontal" : "vertical"
-      }`}
+      className={`filter-container  ${isHorizontal ? "horizontal" : "vertical"}`}
     >
       {!isHorizontal && (
-
-        <Button
-                    type="primary"
-                    onClick={handleClearAll}
-                    className="w-full bg-[#0057D9] mb-2"
-                  >
-                   {t("nomineeDetail.clearAll")}
-                  </Button>
+        <Button type="primary" onClick={handleClearAll} className="w-full bg-[#0057D9] mb-2">
+          {t("nomineeDetail.clearAll")}
+        </Button>
       )}
       <ul className="filter-list">
         {parameterOptions.map((parameter) => (
           <li key={parameter.title}>
-            <span
-              className="border filterTitle "
-              onClick={() => toggleParameter(parameter.title)}
-            >
+            <span className="border filterTitle" onClick={() => toggleParameter(parameter.title)}>
               {parameter.title}{" "}
               {openParameters[parameter.title] ? (
                 <CaretUpOutlined className="ml-1" />
@@ -127,29 +123,20 @@ const VerticalFilterContainer = ({
               <div className="bg-[#FAFAFA] border rounded-md p-2 mb-2">
                 <Input
                   allowClear={true}
-                  placeholder= {t("nomineeDetail.search")}
+                  placeholder={t("nomineeDetail.search")}
                   value={searchTerms[parameter.title] || ""}
-                  onChange={(e) =>
-                    handleSearchChange(parameter.title, e.target.value)
-                  }
+                  onChange={(e) => handleSearchChange(parameter.title, e.target.value)}
                   className="mb-2 mt-2 h-8"
                 />
                 <ul className="filter-values">
-                  {filterOptions(
-                    parameter.values,
-                    searchTerms[parameter.title] || ""
-                  ).map((value) => (
-                    <li
-                      key={value}
-                      onChange={() => handleSelect(parameter.key, value)}
-                    >
+                  {filterOptions(parameter.values, searchTerms[parameter.title] || "").map((value) => (
+                    <li key={value} onChange={() => handleSelect(parameter.key, value)}>
                       <label>
                         <Checkbox
                           type="checkbox"
                           className="pr-2"
-                          onChange={() =>
-                            handleCheckboxChange(parameter.values, value)
-                          }
+                          checked={checkedItems.includes(value)}
+                          onChange={() => handleCheckboxChange(parameter.values, value)}
                         />
                         {value}
                       </label>
