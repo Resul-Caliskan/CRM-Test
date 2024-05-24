@@ -23,7 +23,7 @@ router.put("/positions/request/:id", positionController.requestNominee);
 router.put("/positions/delete-request/:id", positionController.deleteRequestedNomineeFromPosition);
 
 router.get("/positions/get", positionController.getPositionByCompanyId);
-
+router.get("/positions/get-all-nominees/:companyId", positionController.getAllPostionsByCompanyId);
 router.put("/positions/accept/:id", positionController.moveRequestedNomineeToSharedNominees);
 
 router.get(

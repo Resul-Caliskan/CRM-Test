@@ -7,7 +7,7 @@ import UserNavbar from "../components/userNavbar";
 import MarkdownEditor from "@uiw/react-markdown-editor";
 import CircularBar from "../components/circularBar";
 import Loading from "../components/loadingComponent";
-import { Button, Empty, Spin } from "antd";
+import { Button, Empty, Pagination, Spin } from "antd";
 import Notification from "../utils/notification";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,8 @@ const PositionDetail = () => {
   const [isKnown, setIsKnown] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0);
   const [position, setPosition] = useState(null);
+  const [suggestedNomineesPage, setSuggestedNomineesPage] = useState(1);
+  const [suggestedNomineesTotal, setSuggestedNomineesTotal] = useState(0);
   const apiUrl = process.env.REACT_APP_API_URL;
   const { id } = useParams();
 
@@ -42,14 +44,16 @@ const PositionDetail = () => {
       }
     });
   }, []);
-
+  useEffect(() => {
+    fetchSuggestedNominees(suggestedNomineesPage);
+  }, [suggestedNomineesPage])
   const [isOpen, setIsOpen] = useState(false);
   const handleTabChange = (index) => {
     setSelectedTab(index);
     if (index === 1)
       fetchSharedNominees();
     else if (index === 2)
-      fetchSuggestedNominees();
+      fetchSuggestedNominees(1);
     else
       fetchRequestedNominees();
   };
@@ -88,16 +92,18 @@ const PositionDetail = () => {
     }
     setLoading(false);
   };
-  
-  const fetchSuggestedNominees = async () => {
+
+  const fetchSuggestedNominees = async (page) => {
     setLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-suggested-nominees`,
-        { positionId: id, isAdmin: false }
+        { positionId: id, isAdmin: false, page: page, limit: 2 }
       );
       const suggested = response.data.suggestedAllCvs;
       setSuggestedNominees(suggested);
+      setSuggestedNomineesTotal(response.data.totalPages); // Assuming API returns total count
+      console.log(suggestedNomineesTotal);
     } catch (error) {
       setError(error.message);
     }
@@ -190,7 +196,7 @@ const PositionDetail = () => {
       setPosition(response2.data.updatedPosition);
       fetchRequestedNominees();
       fetchSharedNominees();
-      fetchSuggestedNominees();
+      fetchSuggestedNominees(1);
       Notification("success", t("position_detail.request_success"));
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -233,7 +239,7 @@ const PositionDetail = () => {
       );
       fetchRequestedNominees();
       fetchSharedNominees();
-      fetchSuggestedNominees();
+      fetchSuggestedNominees(1);
       socket.emit("createDemand", id);
       Notification("success", t("position_detail.requestCancel_success"));
     } catch (error) {
@@ -244,7 +250,9 @@ const PositionDetail = () => {
       setButtonLoadingList(newButtonLoadingList);
     }
   };
-
+  const handlePageChange = (page) => {
+    setSuggestedNomineesPage(page);
+  };
   return (
     <div className="w-full h-screen  bg-[#F9F9F9]">
       <UserNavbar />
@@ -448,84 +456,102 @@ const PositionDetail = () => {
           {selectedTab === 2 && (
             loading ? (
               <Loading />
-            ) : (<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-1 xl:grid-cols-4 gap-8 items-center justify-center">
-              {!suggestedNominees.length && (
-                <div className="flex w-screen  justify-center items-center">
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                </div>
-              )}
-              {suggestedNominees.map((nominee, index) => (
-                <div className="flex flex-col bg-white  rounded-2xl border shadow relative  w-auto m-3 2xl:w-[339px] ">
-                  <div className=" p-4">
-                    <CircularBar
-                      nominee={nominee}
-                      isKnown={false}
-                    ></CircularBar>
-
-                    <strong className="text-sm font-semibold font-sans">
-                      {t("position_detail.matched_skills")}
-                    </strong>
-                    <div class="mb-2 flex flex-row justify-around gap-2">
-                      <ul className="w-full h-[88px]">
-                        {nominee.commonSkills.map((skill, index) => {
-                          if (index > 3) {
-                          } else if (index === 3) {
-                            return (
-                              <li className="text-[#6D6D6D]" key={index}>
-                                ....
-                              </li>
-                            );
-                          } else {
-                            return (
-                              <li className="text-[#6D6D6D]" key={index}>
-                                {skill}
-                              </li>
-                            );
-                          }
-                        })}
-                      </ul>
-
-                      <div className="flex items-end justify-end">
-                        <div className="w-[90px] flex items-center justify-center">
-                          <button
-                            disabled={buttonLoadingList[index]}
-                            className="w-20 px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
-                            onClick={() => {
-                              handleRequestedNominee(nominee.cv?._id, index);
-                            }}
-                          >
-                            {buttonLoadingList[index] ? (
-                              <Spin
-                                indicator={
-                                  <LoadingOutlined
-                                    style={{
-                                      fontSize: 16,
-                                      color: "white",
-                                    }}
-                                    spin
-                                  />
-                                }
-                              />
-                            ) : (
-                              t("position_detail.request")
-                            )}
-                          </button>
-                        </div>
+            ) :
+              (
+                <div className="flex flex-col">
+                  <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-1 xl:grid-cols-4 gap-8 items-center justify-center">
+                    {!suggestedNominees.length && (
+                      <div className="flex w-screen  justify-center items-center">
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                       </div>
-                    </div>
-                  </div>
+                    )}
+                    {suggestedNominees.map((nominee, index) => (
+                      <div className="flex flex-col bg-white  rounded-2xl border shadow relative  w-auto m-3 2xl:w-[339px] ">
+                        <div className=" p-4">
+                          <CircularBar
+                            nominee={nominee}
+                            isKnown={false}
+                          ></CircularBar>
 
-                  <button
-                    className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
-                    onClick={() => handleNomineeDetail(nominee.cv, false)}
-                  >
-                    {t("position_detail.details")}
-                  </button>
+                          <strong className="text-sm font-semibold font-sans">
+                            {t("position_detail.matched_skills")}
+                          </strong>
+                          <div class="mb-2 flex flex-row justify-around gap-2">
+                            <ul className="w-full h-[88px]">
+                              {nominee.commonSkills.map((skill, index) => {
+                                if (index > 3) {
+                                } else if (index === 3) {
+                                  return (
+                                    <li className="text-[#6D6D6D]" key={index}>
+                                      ....
+                                    </li>
+                                  );
+                                } else {
+                                  return (
+                                    <li className="text-[#6D6D6D]" key={index}>
+                                      {skill}
+                                    </li>
+                                  );
+                                }
+                              })}
+                            </ul>
+
+                            <div className="flex items-end justify-end">
+                              <div className="w-[90px] flex items-center justify-center">
+                                <button
+                                  disabled={buttonLoadingList[index]}
+                                  className="w-20 px-2 text-base text-white py-1 rounded-lg  bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
+                                  onClick={() => {
+                                    handleRequestedNominee(nominee.cv?._id, index);
+                                  }}
+                                >
+                                  {buttonLoadingList[index] ? (
+                                    <Spin
+                                      indicator={
+                                        <LoadingOutlined
+                                          style={{
+                                            fontSize: 16,
+                                            color: "white",
+                                          }}
+                                          spin
+                                        />
+                                      }
+                                    />
+                                  ) : (
+                                    t("position_detail.request")
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          className="w-full py-3 bg-[#99C2FF]  hover:bg-[#63a1ff] rounded-b-2xl items-center justify-center text-sm text-[#0057D9] font-semibold"
+                          onClick={() => handleNomineeDetail(nominee.cv, false)}
+                        >
+                          {t("position_detail.details")}
+                        </button>
+                      </div>
+
+
+                    ))}
+
+                  </div>
+                  <div className="flex justify-center mt-4">
+                    {suggestedNominees.length !==0 && <Pagination
+                      disabled={false}
+                      current={suggestedNomineesPage}
+                      total={suggestedNomineesTotal * 2}
+                      onChange={handlePageChange}
+                      pageSize={2}
+                    /> }
+                  </div>
                 </div>
-              ))}
-            </div>
-            )
+              )
+
           )}
+
           {selectedTab === 3 && (
             loading ? (
               <Loading />
@@ -606,7 +632,7 @@ const PositionDetail = () => {
               ))}
             </div>
             )
-            )}
+          )}
         </div>
       </div>
       {isNomineeDetailOpen && (

@@ -282,6 +282,20 @@ exports.deleteRequestedNomineeFromPosition = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+exports.getAllPostionsByCompanyId = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+    const positions = await Position.find({ companyId });
+
+    if (!positions) {
+      return res.status(404).json({ message: "Bu şirket için pozisyon bulunamadı." });
+    }
+
+    res.status(200).json({ positions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.getPositionByCompanyId = async (req, res) => {
   try {

@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import { ArrowLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { getIdFromToken } from "../utils/getIdFromToken";
 
 const { Option } = Select;
 const phoneUtil = PhoneNumberUtil.getInstance();
@@ -29,7 +30,7 @@ const UserForm = () => {
   const [companies, setCompanies] = useState([]);
   const [phone, setPhone] = useState("");
   const { t } = useTranslation();
-
+  const customerId = getIdFromToken(localStorage.getItem("token"));
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   useEffect(() => {
@@ -47,13 +48,24 @@ const UserForm = () => {
       });
   };
 
+  const getCompanyName = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers/get-companies/${customerId}`);
+      return response.data.companyName;
+    } catch (error) {
+      console.error("Company fetching failed:", error);
+      return "";
+    }
+  };
+
   const handleFormSubmit = async (values) => {
     setLoading(true);
     console.log(values.name);
     console.log(values.surname);
+    const companyName=getCompanyName();
     try {
       const formData = {
-        companyName: values.companyName,
+        companyName: user.role === "admin" ? values.companyName : companyName, 
         name: values.name,
         surname: values.surname,
         role: user.role === "admin" ? values.role : "user",
@@ -61,7 +73,7 @@ const UserForm = () => {
         phone: phone,
       };
 
-      const companyId = companies[formData.companyName]._id;
+      const companyId = user.role === "admin" ?  companies[formData.companyName]._id : customerId;
 
       const userResponse = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/customers/add/${companyId}`,
@@ -120,7 +132,7 @@ const UserForm = () => {
               layout="vertical"
               className="pb-5 my-1 px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-5"
             >
-              <Form.Item
+            {user.role === "admin" &&  <Form.Item
                 label={t("addUser.company_name_label")}
                 name="companyName"
                 className="w-full"
@@ -138,7 +150,7 @@ const UserForm = () => {
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Form.Item>}
 
              {user.role==='admin' && <Form.Item
                 label={
