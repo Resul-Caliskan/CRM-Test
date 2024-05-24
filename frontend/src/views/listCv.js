@@ -121,9 +121,9 @@ const CVList = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${apiUrl}/api/positions/get/${companyId}`
+        `${apiUrl}/api/positions/get-all-nominees/${companyId}`
       );
-      setPositions(response.data);
+      setPositions(response.data.positions);
     } catch (error) {
       console.error("Positions fetching failed:", error);
     } finally {
