@@ -67,7 +67,7 @@ export default function Profile() {
                 <p className="hidden sm:block">{t("profile.user_info")}</p>
               </div>
             </li>
-            {user.role === 'admin' && (
+            {(user.role === 'admin'|| user.role === 'user-admin') &&  (
               <li
                 onClick={() => setActiveItem("userManagement")}
                 className={`${activeItem === "userManagement" && "text-black bg-gray-100  rounded-lg"

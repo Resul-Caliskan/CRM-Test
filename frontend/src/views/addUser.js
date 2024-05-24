@@ -49,13 +49,14 @@ const UserForm = () => {
 
   const handleFormSubmit = async (values) => {
     setLoading(true);
-
+    console.log(values.name);
+    console.log(values.surname);
     try {
       const formData = {
         companyName: values.companyName,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        role: values.role,
+        name: values.name,
+        surname: values.surname,
+        role: user.role === "admin" ? values.role : "user",
         email: values.email,
         phone: phone,
       };
@@ -66,6 +67,8 @@ const UserForm = () => {
         `${process.env.REACT_APP_API_URL}/api/customers/add/${companyId}`,
         {
           email: formData.email,
+          name:formData.name,
+          surname:formData.surname,
           password: "123456",
           role: formData.role,
           phone: formData.phone,
@@ -78,8 +81,8 @@ const UserForm = () => {
           `${process.env.REACT_APP_API_URL}/api/sendemail`,
           {
             recipientEmail: formData.email,
-            name: formData.firstName,
-            surname: formData.lastName,
+            name: formData.name,
+            surname: formData.surname,
           }
         );
         Notification(
@@ -137,7 +140,7 @@ const UserForm = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item
+             {user.role==='admin' && <Form.Item
                 label={
                   <span>
                     {t("addUser.select_role")}{" "}
@@ -157,18 +160,18 @@ const UserForm = () => {
                   <Option value="user">{t("addUser.user")}</Option>
                   <Option value="user-admin">{t("addUser.system_user")}</Option>
                 </Select>
-              </Form.Item>
+              </Form.Item>}
 
               <Form.Item
                 label={t("addUser.name")}
-                name="firstName"
+                name="name"
                 rules={[{ required: true, message: t("addUser.name_message") }]}
               >
                 <Input className="h-9" placeholder={t("addUser.name")} />
               </Form.Item>
               <Form.Item
                 label={t("addUser.surname")}
-                name="lastName"
+                name="surname"
                 rules={[
                   { required: true, message: t("addUser.surname_message") },
                 ]}

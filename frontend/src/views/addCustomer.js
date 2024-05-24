@@ -45,54 +45,30 @@ const CompanyForm = () => {
   let countryData = Country.getAllCountries();
   const [country, setCountry] = useState();
   const handleCountryChange = (value) => {
-    const selectedCountry = countryData[value];
-
+    const selectedCountry = countryData.find((country) => country.isoCode === value);
     setCountry(selectedCountry);
+    setstateData(State.getStatesOfCountry(value));
+    setCountyData([]); // Clear county data when country changes
   };
+  
 
   const handleCityChange = (value) => {
-    const selectedCityInfo = stateData.find((city) => city.isoCode === value);
+    const selectedCityInfo = stateData.find((city) => city.name === value);
     setState(selectedCityInfo);
   };
+  useEffect(() => {
+    if (state && country) {
+      setCountyData(City.getCitiesOfState(country.isoCode, state.isoCode));
+    }
+  }, [state, country]);
 
   const handleCountyChange = (value) => {
+    console.log("county:" + value)
     const selectedCountyInfo = countyData.find(
       (county) => county.name === value
     );
     setCounty(selectedCountyInfo);
   };
-  const fetchTurkeyProvinces = async () => {
-    try {
-      const response = await axios.get(
-        "https://turkiyeapi.dev/api/v1/provinces"
-      );
-      if (response.status === 200) {
-        // Check if response data is an array
-        if (Array.isArray(response.data.data)) {
-          // Initialize an empty array to store city names
-          const cityNames = [];
-          // Iterate over each province and extract city names
-          response.data.data.forEach((province, index) => {
-            cityNames.push(province);
-          });
-          // Set state or perform any other actions with the city names array
-          setstateData(cityNames);
-          return cityNames;
-        } else {
-          console.error("Response data is not an array:", response.data);
-        }
-      } else {
-        console.error(
-          "Request to fetch Turkey provinces failed with status:",
-          response.status
-        );
-      }
-    } catch (error) {
-      console.error("Error occurred while fetching Turkey provinces:", error);
-      // Handle error if needed
-    }
-  };
-
   useEffect(() => {
     if (!user || user.role === null) {
       fetchData()
@@ -114,9 +90,7 @@ const CompanyForm = () => {
   }, [country]);
 
   useEffect(() => {
-    if (country?.isoCode === "TR") {
-    } else {
-    }
+    console.log("coutry code:" + country?.isoCode + " şehir: " + state?.isoCode);
     setCountyData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
   }, [state]);
 
@@ -142,6 +116,7 @@ const CompanyForm = () => {
   };
   const handleSubmit = async (values) => {
     setLoading(true);
+    console.log("şehiiir:" + state.name);
     try {
       const response = await axios.post(`${apiUrl}/api/customers`, {
         companyname: values.companyName,
@@ -149,7 +124,7 @@ const CompanyForm = () => {
         companysector: values.industry,
         companyadress: values.address,
         companycity: state.name,
-        companycountry: country.name,
+        companycountry: country.isoCode,
         companycounty: county.name,
         companyweb: values.website,
         contactname: values.contactPerson,
@@ -158,7 +133,7 @@ const CompanyForm = () => {
       });
 
       if (response.status === 201) {
-        Notification("success", t("customerAdd.customer_add_success"));
+        Notification("success", t("addCustomer.customer_add_success"));
         setTimeout(() => {
           dispatch(setSelectedOption("list-customers"));
         }, 500);
@@ -178,7 +153,7 @@ const CompanyForm = () => {
         errorMessage = error.response.data.error;
       }
       console.error("Error occurred while adding customer:", error);
-      Notification("error", t("customerAdd.customer_add_error"));
+      Notification("error", t("addCustomer.customer_add_error"));
     }
   };
 
@@ -220,11 +195,13 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Input
+                     data-test="companyname"
                       placeholder={t("addCustomer.company_name_placeholder")}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                   </Form.Item>
                   <Form.Item
+                  data-test="companytype"
                     label={t("addCustomer.company_type_label")}
                     name="companyType"
                     rules={[
@@ -258,6 +235,7 @@ const CompanyForm = () => {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Form.Item
+                  data-test="companyindustry"
                     label={t("addCustomer.industry_label")}
                     name="industry"
                     rules={[
@@ -288,6 +266,7 @@ const CompanyForm = () => {
                     </Select>
                   </Form.Item>
                   <Form.Item
+                  
                     label={t("addCustomer.website_label")}
                     name="website"
                     rules={[
@@ -298,6 +277,7 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Input
+                    data-test="website"
                       placeholder={t("addCustomer.website_placeholder")}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
@@ -305,6 +285,7 @@ const CompanyForm = () => {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Form.Item
+                  
                     label={t("addCustomer.contact_person_label")}
                     name="contactPerson"
                     rules={[
@@ -315,6 +296,7 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Input
+                    data-test="contactperson"
                       placeholder={t("addCustomer.contact_person_placeholder")}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
@@ -332,6 +314,7 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Input
+                    data-test="contactmail"
                       placeholder={t("addCustomer.contact_email_placeholder")}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
@@ -362,12 +345,17 @@ const CompanyForm = () => {
                     ]}
                   >
                     <PhoneInput
+                    
                       defaultCountry="tr"
                       value={phone}
                       onChange={(phone) => setPhone(phone)}
+                      inputProps={{
+                        'data-test': 'phone'
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
+                  
                     label={t("addCustomer.country_label")}
                     name="country"
                     rules={[
@@ -378,28 +366,25 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Select
+                     data-test="country"
                       showSearch
                       style={{ width: "100%" }}
                       value={country ? country.isoCode : undefined}
                       placeholder={t("addCustomer.country_placeholder")}
                       optionFilterProp="children"
-                      onChange={(value) => {
-                        handleCountryChange(value);
-                      }}
+                      onChange={handleCountryChange}
                       filterOption={(input, option) =>
-                        option.children
-                          .toString()
-                          .toLowerCase()
-                          .indexOf(input.toString().toLowerCase()) >= 0
+                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
                     >
-                      {Object.keys(countryData).map((countryCode, index) => (
-                        <Option key={index} value={countryCode}>
-                          {countryData[countryCode].name}
+                      {countryData.map((country, index) => (
+                        <Option key={index} value={country.isoCode}>
+                          {t(`countries.${country.isoCode}`, country.name)}
                         </Option>
                       ))}
                     </Select>
                   </Form.Item>
+
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Form.Item
@@ -413,6 +398,7 @@ const CompanyForm = () => {
                     ]}
                   >
                     <Select
+                     data-test="city"
                       showSearch
                       style={{ width: "100%" }}
                       value={state ? state.isoCode : undefined}
@@ -460,15 +446,16 @@ const CompanyForm = () => {
                     name="ilce"
                     rules={[
                       {
-                        required: true,
+
                         message: t("addCustomer.county_message"),
                       },
                     ]}
                   >
                     <Select
+                    data-test="county"
                       showSearch
                       style={{ width: "100%" }}
-                      value={county ? county.name : undefined}
+                      value={county ? county.name : null}
                       placeholder={t("addCustomer.county_placeholder")}
                       optionFilterProp="children"
                       onChange={(value) => {
@@ -519,12 +506,14 @@ const CompanyForm = () => {
                   ]}
                 >
                   <Input.TextArea
+                  data-test="address"
                     placeholder={t("addCustomer.address_placeholder")}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   />
                 </Form.Item>
                 <Form.Item>
                   <Button
+                  data-test="addCustomer"
                     type="primary"
                     htmlType="submit"
                     loading={loading}

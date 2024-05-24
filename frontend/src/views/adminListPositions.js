@@ -350,7 +350,7 @@ const AdminListPosition = () => {
               </div>
               <div className="listContent">
                 <div className="title">
-                  <h4 className="titleLabel">Pozizsyon Listesi</h4>
+                  <h4 className="titleLabel">{t("userListPosition.position_list")}</h4>
                   <p className="titleContent">
                     {t("total_results", { count: totalPositions })}
                   </p>

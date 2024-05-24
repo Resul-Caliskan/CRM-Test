@@ -192,7 +192,7 @@ const EditCustomerForm = () => {
                                 </div>
                             </div>
 
-                            <div className="mb-4 mt-4 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55] w-[150px]">
+                            <div className="mb-4 mt-4 flex flex-wrap inline-block bg-blue-200 rounded-full px-3 py-1 text-sm font-semibold text-[#2B4D55] w-[200px]">
                                 {t("customer_detail.company_info")}
                             </div>
                             <div className="flex items-center bg-white shadow-sm rounded-lg h-auto p-4">
@@ -237,10 +237,10 @@ const EditCustomerForm = () => {
                                                     <span>{customerData.companyweb}</span>
                                                 </div>
                                                 <div className="flex items-center mb-2">
-                                                    <span>{customerData.companycountry}</span>
+                                                <span>{t(`countries.${customerData.companycountry}`)}</span>
                                                 </div>
                                                 <div className="flex items-center mb-2">
-                                                    <span>{customerData.companycounty}</span>
+                                                    <span>{customerData.companycity}</span>
                                                 </div>
                                                 <div className="flex items-center mb-2">
                                                     <span>{customerData.companycounty}</span>

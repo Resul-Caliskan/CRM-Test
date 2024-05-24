@@ -1,5 +1,6 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 import NomineeDetail from "../components/nomineeDetail";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,14 +15,15 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import Loading from "../components/loadingComponent";
 import { Badge, Button } from "antd";
 import socket from "../config/config";
-import NomineeList from "../components/NomineeList";
 import RequestedNomineeList from "../components/RequestedNomineesList";
 import { useTranslation } from "react-i18next";
+import { current } from "@reduxjs/toolkit";
+import SharedNomineeList from "../components/sharedNomineeList";
+import NomineeList from "./nomineeList";
 
 const AdminPositionDetail = () => {
   const { t } = useTranslation();
   const [nominees, setNominees] = useState([]);
-  const [suggestedNominees, setSuggestedNominees] = useState([]);
   const [requestedNominees, setRequestedNominees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +34,11 @@ const AdminPositionDetail = () => {
   const { id } = useParams();
   const [show, setShow] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [company, setCompany] = useState();
   const [isOpen, setIsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages,setTotalPages]=useState(1);
+  const suggestedNominees = useRef([]);
   const [numOfReqNominees, setNumOfReqNominees] = useState(0);
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -53,11 +59,16 @@ const AdminPositionDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    fetchSuggestedNominees(currentPage,1);
+  }, [currentPage])
+
+
+
+  useEffect(() => {
     socket.on("demandCreated", (response) => {
       if (response.id === id) {
         setRequestedNominees(response.allCVs.requestedNominees);
         setNominees(response.allCVs.sharedNominees);
-        setSuggestedNominees(response.allCVs.suggestedAllCvs);
       }
     });
   }, []);
@@ -88,7 +99,8 @@ const AdminPositionDetail = () => {
       );
       setPosition(response.data);
       setLoading(false);
-      fetchNominees(response.data.requestedNominees);
+      fetchSharedhNominees();
+      fetchRequestedNominees();
       return response.data;
     } catch (error) {
       console.error("Error fetching position:", error);
@@ -97,27 +109,72 @@ const AdminPositionDetail = () => {
       return null;
     }
   };
-  const fetchNominees = async () => {
+  const getCompanyById = async (id) => {
+    console.log(id);
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/customers/${id}`
+      );
+      const companyInfo = response.data;
+      setCompany(companyInfo);
+      console.log("AAAAAAAAAA "+response.data);
+      return companyInfo;
+    } catch (error) {
+      console.error("Error fetching company:", error);
+      setError(error.message);
+
+      return null;
+    }
+  };
+  const fetchSharedhNominees = async () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/nominee/get-position-nominees`,
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-position-shared-nominees`,
         { positionId: id, isAdmin: true }
       );
-
       const nomineesData = response.data.sharedNominees;
-      const suggestedData = response.data.suggestedAllCvs;
-      const requestedNominees = response.data.requestedNominees;
-
       setNominees(nomineesData);
-      setSuggestedNominees(suggestedData);
-      setRequestedNominees(requestedNominees);
       setLoading(false);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
+  const fetchSuggestedNominees = async (page,limit) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-position-suggested-nominees`,
+        { positionId: id, isAdmin: true , page , limit }
+      );
+      const { suggestedAllCvs, totalPages, currentPage, totalNominees } = response.data;
+      setTotalPages(totalPages);
+      suggestedNominees.current = suggestedAllCvs;
+      setLoading(false);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
+  const fetchRequestedNominees = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-position-requested-nominees`,
+        { positionId: id, isAdmin: true }
+      );
+      const requested = response.data.requestedNominees;
+      setRequestedNominees(requested);
+      setLoading(false);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
   const handleNomineeDetail = (nominee, isKnown) => {
     if (nominee && nominee._id) {
       setIsKnown(isKnown);
@@ -130,7 +187,7 @@ const AdminPositionDetail = () => {
     }
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) {
       return;
@@ -144,7 +201,7 @@ const AdminPositionDetail = () => {
     }
 
     if (destination.droppableId === "nominees") {
-      const movedNominee = suggestedNominees.find(
+      const movedNominee = suggestedNominees.current.find(
         (nominee) => nominee.cv._id === draggableId
       );
       if (!movedNominee) {
@@ -169,15 +226,15 @@ const AdminPositionDetail = () => {
 
       const newNominees = Array.from(nominees);
       newNominees.splice(destination.index, 0, movedNominee);
-      const newSuggestedNominees = suggestedNominees.filter(
+      suggestedNominees.current = suggestedNominees.current.filter(
         (nominee) => nominee.cv._id !== draggableId
       );
 
       setNominees(newNominees);
-      setSuggestedNominees(newSuggestedNominees);
+      
 
       try {
-        const response = axios.put(
+        const response =  await axios.put(
           `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
           { nomineeId: movedNominee.cv._id }
         );
@@ -185,6 +242,7 @@ const AdminPositionDetail = () => {
           "success",
           `${movedNominee.cv?.name} ${t("admin_detail.added_success")}`
         );
+        fetchSuggestedNominees(1,1);
         socket.emit("createDemand", id);
       } catch (error) {}
     } else if (destination.droppableId === "suggestedNominees") {
@@ -195,16 +253,15 @@ const AdminPositionDetail = () => {
         return;
       }
 
-      const newSuggestedNominees = Array.from(suggestedNominees);
+      const newSuggestedNominees = Array.from(suggestedNominees.current);
       newSuggestedNominees.splice(destination.index, 0, movedNominee);
       const newNominees = nominees.filter(
         (nominee) => nominee.cv._id !== draggableId
       );
 
-      setSuggestedNominees(newSuggestedNominees);
       setNominees(newNominees);
       try {
-        const response = axios.put(
+        const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/api/positions/delete/${id}`,
           { nomineeId: movedNominee.cv._id }
         );
@@ -212,17 +269,18 @@ const AdminPositionDetail = () => {
           "success",
           `${movedNominee.cv?.name} ${t("admin_detail.removed_success")}`
         );
+        fetchSuggestedNominees(1,1);
         socket.emit("createDemand", id);
       } catch (error) {}
     }
   };
 
   const moveNomineeToSuggested = async (draggableId) => {
-    const movedNominee = suggestedNominees.find(
+    const movedNominee = suggestedNominees.current.find(
       (nominee) => nominee.cv._id === draggableId
     );
 
-    const newSuggestedNominees = suggestedNominees.filter(
+    const newSuggestedNominees = suggestedNominees.current.filter(
       (nominee) => nominee.cv._id !== draggableId
     );
 
@@ -245,9 +303,9 @@ const AdminPositionDetail = () => {
 
     const newNominees = [...nominees, movedNominee];
 
-    setSuggestedNominees(newSuggestedNominees);
+   
     setNominees(newNominees);
-
+    suggestedNominees.current=newSuggestedNominees;
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/add/${id}`,
@@ -257,7 +315,10 @@ const AdminPositionDetail = () => {
         "success",
         `${movedNominee.cv?.name} ${t("admin_detail.added_success")}`
       );
+      
       socket.emit("createDemand", id);
+      fetchSuggestedNominees(1,1);
+      setCurrentPage(1);
     } catch (error) {}
   };
 
@@ -269,10 +330,8 @@ const AdminPositionDetail = () => {
     const newNominees = nominees.filter(
       (nominee) => nominee.cv._id !== draggableId
     );
-
+    
     setNominees(newNominees);
-    setSuggestedNominees([...suggestedNominees, movedNominee]);
-
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/positions/delete/${id}`,
@@ -282,6 +341,8 @@ const AdminPositionDetail = () => {
         "success",
         `${movedNominee.cv?.name}${t("admin_detail.removed_success")}`
       );
+      fetchSuggestedNominees(1,1);
+      setCurrentPage(1);
       socket.emit("createDemand", id);
     } catch (error) {}
   };
@@ -325,11 +386,29 @@ const AdminPositionDetail = () => {
         (nominee) => nominee.cv._id !== nomineeId
       );
       setRequestedNominees(newNominees);
+      fetchSuggestedNominees(1,1);
       socket.emit("createDemand", id);
       Notification("success", ` ${t("admin_detail.removed_success")}`);
     } catch (error) {
       Notification("error", `  ${t("admin_detail.removed_error")}`);
     }
+
+    const companyInfo = await getCompanyById(position.companyId);
+      try {
+       
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/sendemail-reject`,
+          {
+            userIds: companyInfo.users,
+            position:position,
+            subject: "Candidate Rejected",
+          }
+        );
+        console.log(`Email sent successfully to user with ID: ${user}`);
+      } catch (error) {
+        console.error(`Error sending email to user with ID: ${user}`, error);
+      }
+  
   };
 
   const acceptNomineeFromDemanded = async (nomineeId) => {
@@ -374,19 +453,37 @@ const AdminPositionDetail = () => {
 
       setRequestedNominees(newNominees);
       setNominees([...nominees, movedNominee]);
+      fetchSuggestedNominees(1,1);
       socket.emit("createDemand", id);
       Notification("success", ` ${t("admin_detail.approve")}`);
     } catch (error) {
       Notification("error", `  ${t("admin_detail.approve_error")}`);
     }
+
+    const companyInfo = await getCompanyById(position.companyId);
+    console.log("ŞİRKETT"+companyInfo);
+    console.log("pozisyon"+position);
+    
+      try {
+        // Her bir kullanıcı için ayrı ayrı mail gönderme işlemini gerçekleştirin
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/sendemail-approve`,
+          {
+            userIds: companyInfo.users,
+            position:position,
+            subject: "Candidate Approved",
+          }
+        );
+        console.log(`Email sent successfully to user with ID: ${user}`);
+      } catch (error) {
+        console.error(`Error sending email to user with ID: ${user}`, error);
+      }
+    
   };
 
   return (
-    <div className="w-screen h-full  bg-[#F9F9F9]">
+    <div className="w-full h-full  bg-[#F9F9F9]">
       <NavBar />
-      {loading ? (
-        <Loading />
-      ) : (
         <div className="body">
           <Button
             type="link"
@@ -427,10 +524,12 @@ const AdminPositionDetail = () => {
             </div>
           </div>
           <div className="w-full justify-between items-center ">
-            {selectedTab === 0 && (
+          {loading ? (
+        <Loading />
+      ) : ( selectedTab === 0 && (
               <>
                 {" "}
-                <div className="flex absolute w-full">
+                <div className="flex  w-full bg-[#F9F9F9]">
                   <div className="w-[255px] rounded-xl bg-white p-4">
                     <div className="flex flex-col gap-2  text-sm font-thin">
                       <p>
@@ -525,25 +624,29 @@ const AdminPositionDetail = () => {
                   </div>
                 </div>
               </>
-            )}
-            {selectedTab === 1 && (
+            ))}
+            {loading ? (
+        <Loading />
+      ) : ( selectedTab === 1 && (
               <>
                 {" "}
                 <div className="w-full flex justify-around items-center ">
                   <div className="w-full grid grid-cols-1 md:grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-12">
                     <DragDropContext onDragEnd={onDragEnd}>
-                      <NomineeList
+                       <NomineeList
                         currentNominees={nominees}
                         removeNominee={moveNomineeToNominees}
                         handleNomineeDetail={handleNomineeDetail}
                         addNominee={moveNomineeToSuggested}
                         droppableId={"nominees"}
-                      />
-                      <NomineeList
-                        currentNominees={suggestedNominees}
-                        removeNominee={moveNomineeToNominees}
+                      /> 
+                      <SharedNomineeList
+                        suggestedNominees={suggestedNominees.current}
                         handleNomineeDetail={handleNomineeDetail}
                         addNominee={moveNomineeToSuggested}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        totalPages={totalPages}
                         isTarget={false}
                         droppableId={"suggestedNominees"}
                       />
@@ -557,7 +660,7 @@ const AdminPositionDetail = () => {
                   </div>
                 </div>
               </>
-            )}
+            ))}
 
             {isNomineeDetailOpen && (
               <NomineeDetail
@@ -568,7 +671,7 @@ const AdminPositionDetail = () => {
             )}
           </div>
         </div>
-      )}
+  
     </div>
   );
 };

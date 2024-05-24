@@ -64,7 +64,7 @@ const App = () => {
   }
 
   return (
-    <div className="w-screen h-screen bg-[#F9F9F9]">
+    <div className="w-full h-screen bg-[#F9F9F9]">
       <UserNavbar />
       <div className="">{renderComponent}</div>
     </div>

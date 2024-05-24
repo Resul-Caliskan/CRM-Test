@@ -212,6 +212,7 @@ const Parameters = () => {
             </h1>
             <div className="searchButtonContainer ml-10">
               <Input
+              data-test="parametersearch"
                 placeholder={t("parameters.search_placeholder")}
                 className="searchButton"
                 onChange={handleSearch}
@@ -234,6 +235,7 @@ const Parameters = () => {
                     <div
                       className="parametersIcon w-[32px] h-[32px] bg-[#0057D9] hover:bg-[#0017D9] cursor-pointer gap-7 rounded-md flex items-center justify-center mr-2"
                       onClick={() => handleEditClick(param)}
+                      data-test="editparameter"
                     >
                       <img
                         src={parametersIcon}

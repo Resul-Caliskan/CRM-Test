@@ -25,7 +25,7 @@ router.get("/", customerController.getAllCustomers);
 
 router.get(
   "/:id",
-  authenticationMiddleware.authenticateToken,
+  
   customerController.getCustomerById
 );
 

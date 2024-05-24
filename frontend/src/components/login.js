@@ -200,6 +200,7 @@ export default function Login() {
             >
               <Space className={" block"}>
                 <Input
+                data-test='email'
                   value={email}
                   disabled={loading}
                   placeholder={t("login.mail_placeholder")}
@@ -291,6 +292,7 @@ export default function Login() {
               >
                 <Space className="block">
                   <Input
+                    data-test='password'
                     value={password}
                     placeholder={t("login.password_placeholder")}
                     rules={[
@@ -392,6 +394,7 @@ export default function Login() {
           emailError === false &&
           passwordError === false ? (
             <button
+              data-test="loginbutton"
               type="submit"
               className="bg-[#0057D9] text-white w-full h-9  rounded-lg flex items-center justify-center mt-5"
               onClick={handleSubmit}

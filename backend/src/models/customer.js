@@ -9,7 +9,7 @@ const customerSchema = new mongoose.Schema({
   companyadress: { type: String, required: true },
   companycity: { type: String, required: true },
   companycountry: { type: String, required: true },
-  companycounty: { type: String, required: true },
+  companycounty: { type: String},
   companyweb: { type: String, required: true },
   contactname: { type: String, required: true },
   contactmail: { type: String, required: true },

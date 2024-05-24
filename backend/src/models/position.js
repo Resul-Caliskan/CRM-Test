@@ -10,7 +10,7 @@ const positionSchema = new mongoose.Schema({
   skills:[{ type: String, required: true },],
   positionCountry:{ type: String, required: true },
   positionCity: { type: String, required: true },
-  positionCounty: { type: String, required: true },
+  positionCounty: { type: String},
   positionAdress:{ type: String, required: true },
   bannedCompanies:[{ type: String},],
   preferredCompanies:[{type:String}],
@@ -18,7 +18,7 @@ const positionSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
   companyName: { type: mongoose.Schema.Types.String, ref: "Customer" },
   sharedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee" }],
-  dateOfStart: { type: String, required: true },
+  dateOfStart: { type: String},
   requestedNominees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Nominee"}],
   tag:{type: String, required:true},
 

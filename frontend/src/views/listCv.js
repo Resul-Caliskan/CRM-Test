@@ -17,8 +17,9 @@ const CVList = () => {
   const navigate = useNavigate();
   const [sharedItems, setSharedItems] = useState([]);
   const [cvs, setCvs] = useState([]);
+  const [allNominees,setAllNominees]=useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
   const [searchTerm, setSearchTerm] = useState("");
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -35,10 +36,21 @@ const CVList = () => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalCvsCount, setTotalCvsCount] = useState(1);
+  const [positions, setPositions] = useState([]);
+
   const handleTabChange = (index) => {
     setSelectedTab(index);
+    setCurrent(1);
+    setPageSize(5);
+    if(index===0)
+      fetchAllNominees(1,filters,5,searchTerm);
+    else if(index === 1)
+      fetchSharedNominees(1,filters,5,searchTerm);
+    else 
+      fetchCVs(1,filters,5,searchTerm);
   };
-  const [positions, setPositions] = useState([]);
+
+ 
 
   const getAllFavorites = async (sharedItems, cvs) => {
     try {
@@ -73,52 +85,22 @@ const CVList = () => {
       console.error(error);
     }
   };
-  const filterCvs = (cvs, isNormal, searchTerm) => {
-    return cvs.filter((candidate) => {
-      const searchFields = ["title", "skills", "exprience"];
-      const searchTermFields = ["title", "skills", "name", "exprience"];
-      const { jobtitle, skills } = filters;
-      if (isNormal) {
-        return (
-          (jobtitle.length === 0 ||
-            jobtitle.includes(candidate.nomineeInfo.title) ||
-            jobtitle.includes(candidate.jobtitle)) &&
-          (skills.length === 0 ||
-            skills.some((skill) =>
-              candidate.nomineeInfo.skills
-                .map((s) => s.toLowerCase())
-                .includes(skill.toLowerCase())
-            )) &&
-          (searchTerm === "" ||
-            filterFunction(
-              searchTermFields,
-              candidate.nomineeInfo,
-              searchTerm.toLowerCase()
-            ))
-        );
-      }
-      return (
-        (jobtitle.length === 0 || jobtitle.includes(candidate.title)) &&
-        (skills.length === 0 ||
-          skills.some((skill) =>
-            candidate.skills
-              .map((s) => s.toLowerCase())
-              .includes(skill.toLowerCase())
-          )) &&
-        (searchTerm === "" ||
-          filterFunction(searchTermFields, candidate, searchTerm.toLowerCase()))
-      );
-    });
-  };
+  
   useEffect(() => {
     fetchParameterOptions();
     fetchPositions();
+    fetchAllNominees(current,filters,pageSize,searchTerm);
   }, [])
 
   useEffect(() => {
-    fetchCVs(1, filters, pageSize, searchTerm);
+    if(selectedTab===0)
+      fetchAllNominees(1,filters,5,searchTerm);
+    else if(selectedTab === 1)
+      fetchSharedNominees(1,filters,5,searchTerm);
+    else 
+      fetchCVs(1,filters,5,searchTerm);
     console.log(filters);
-  }, [filters]);
+  }, [filters,searchTerm]);
 
   const fetchParameterOptions = async () => {
     try {
@@ -137,7 +119,7 @@ const CVList = () => {
 
   const fetchPositions = async () => {
     try {
-      setLoading(true); // Set loading to true before making the request
+      setLoading(true);
       const response = await axios.get(
         `${apiUrl}/api/positions/get/${companyId}`
       );
@@ -148,36 +130,70 @@ const CVList = () => {
       setLoading(false);
     }
   };
+
+  const fetchSharedNominees=async(current, filters, pageSize, searchTerm)=>{
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-shared`,
+          { companyId: companyId,  filters: filters, page: current, pageSize: pageSize, searchTerm: searchTerm }
+      )
+      const sharedCvs=response.data.sharedNominees;
+      setSharedItems(sharedCvs);
+      setTotalCvsCount(response.data.totalCvsCount);
+    } catch (error) {
+      console.error(error);
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  const fetchAllNominees = async (current, filters, pageSize, searchTerm)=>{
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/nominee/get-all-nominees`,
+          { companyId: companyId,  filters: filters, page: current, pageSize: pageSize, searchTerm: searchTerm }
+      )
+      const allCvs=response.data.allNominees;
+      setAllNominees(allCvs);
+      setTotalCvsCount(response.data.totalCvsCount);
+    } catch (error) {
+      console.error(error);
+    }finally{
+      setLoading(false);
+    }
+  }
+  
+
   const fetchCVs = async (current, filters, pageSize, searchTerm) => {
 
-    console.log("İSTEKK GİTTİİ");
     setLoading(true);
     try {
       const postResponse = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-nominees`,
         { companyId: companyId, isAdmin: false, filters: filters, page: current, pageSize: pageSize, searchTerm: searchTerm }
       );
-      console.log("istek attı");
-      const shared = postResponse.data.sharedNominees;
+      // const shared = postResponse.data.sharedNominees;
       const cvPool = postResponse.data.allCvs;
-      setSharedItems(shared);
+      // setSharedItems(shared);
       setCvs(cvPool);
       setTotalCvsCount(postResponse.data.totalCvsCount);
       console.log("count:" + totalCvsCount);
       //getAllFavorites(shared, cvPool);
     } catch (error) {
       setError(error.message);
+    }finally{
+      setLoading(false);
     }
-    setLoading(false);
+   
   };
 
   const handleSearch = useCallback(
     debounce(async (value) => {
       setSearchTerm(value.toLowerCase());
-      setCurrent(1);
-      await fetchCVs(1, filters, pageSize, value.toLowerCase());
     }, 300),
-    [filters, pageSize]
+    [searchTerm]
   );
 
   const handleLocalization = (parameters) => {
@@ -198,21 +214,23 @@ const CVList = () => {
     console.log("current:" + current)
     setPageSize(pageSize);
     console.log("page size:" + pageSize);
-    fetchCVs(current, filters, pageSize);
+    if(selectedTab===0)
+      fetchAllNominees(current,filters,pageSize,searchTerm);
+    else if(selectedTab === 1)
+      fetchSharedNominees(current,filters,pageSize,searchTerm);
+    else 
+      fetchCVs(current,filters,pageSize,searchTerm);
   };
-
+  
   const locale = {
     jump_to: t("GoTo"),
     page: t("Page"),
     items_per_page: "/ " + t("Page"),
   };
 
-  // Yeni birleşik diziyi oluştur
-  const combinedItems = [...sharedItems, ...cvs];
-
   return (
     <>
-      (
+      
       <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
         <div
           className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]
@@ -268,18 +286,29 @@ const CVList = () => {
                   <>
                     <div className="cols-span-1 s:mp-4 md:border-r-2">
                       <ul>
-                        {combinedItems.map((nominee, index) => (
+                        {allNominees.map((nominee, index) => (
                           <NomineeCard
                             key={index}
-                            nominee={nominee.nomineeInfo || nominee}
+                            nominee={nominee.nomineeInfo}
                             companyId={companyId}
                             searchTerm={searchTerm}
                             positionRoute={nominee.position?.id}
-                            known={!!nominee.nomineeInfo}
+                            known={nominee?.isShared}
                             position={positions}
                           />
                         ))}
                       </ul>
+                      <Pagination
+                      className="w-full   flex justify-end pr-20"
+                      showQuickJumper
+                      locale={locale}
+                      total={totalCvsCount}
+                      onChange={onShowSizeChange}
+                      showSizeChanger
+                      current={current}
+                      pageSize={pageSize}
+                      pageSizeOptions={["1", "5", "10", "50"]}
+                    />
                     </div>
                   </>
                 )}
@@ -297,6 +326,17 @@ const CVList = () => {
                         />
                       ))}
                     </ul>
+                    <Pagination
+                      className="w-full   flex justify-end pr-20"
+                      showQuickJumper
+                      locale={locale}
+                      total={totalCvsCount}
+                      onChange={onShowSizeChange}
+                      showSizeChanger
+                      current={current}
+                      pageSize={pageSize}
+                      pageSizeOptions={["5", "10", "20", "50"]}
+                    />
                   </div>
                 )}
                 {selectedTab === 2 && (
@@ -331,7 +371,7 @@ const CVList = () => {
           </div>
         </div>
       </div>
-      )
+      
     </>
   );
 };

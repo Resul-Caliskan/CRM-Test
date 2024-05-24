@@ -21,7 +21,7 @@
     
 }
 .react-international-phone-country-selector{
-    width: 50px;
+    max-width: 50px;
 }
 .dropdownButton:hover,
 .dropdownButton.selected {
@@ -90,7 +90,7 @@
 
 .body {
 
-    height:100%;
+    height:auto;
     width: auto;
     display: flex;
     padding: 24px;

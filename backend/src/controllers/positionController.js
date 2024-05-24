@@ -136,6 +136,40 @@ exports.deletePosition = async (req, res) => {
 
 exports.updatePosition = async (req, res) => {
   try {
+    // Mevcut pozisyonu bul
+    const position = await Position.findById(req.params.id);
+    if (!position) {
+      return res.status(404).json({ message: "Pozisyon bulunamadı." });
+    }
+
+    // jobtitle veya companyName güncelleniyorsa, tag'i yeniden hesapla
+    let newTag = position.tag; // mevcut tag'i varsayılan olarak kullan
+    if (req.body.companyName || req.body.jobtitle) {
+      const tagCompanyName = req.body.companyName || position.companyName;
+      const tagJobTitle = req.body.jobtitle || position.jobtitle;
+      const companyNameFirstLetter = tagCompanyName[0].toUpperCase();
+      const jobTitleInitials = tagJobTitle
+        .split(' ')
+        .map(word => word[0].toUpperCase())
+        .join('');
+
+      // Yeni tag oluştur
+      let index = 1;
+      let potentialNewTag;
+      do {
+        potentialNewTag = `${companyNameFirstLetter}${jobTitleInitials}-${index}`;
+        // Aynı tag'e sahip başka bir pozisyon olup olmadığını kontrol et
+        const existingPosition = await Position.findOne({ tag: potentialNewTag });
+        if (existingPosition) {
+          index++;
+        } else {
+          break;
+        }
+      } while (true);
+      newTag = potentialNewTag;
+    }
+
+    // Pozisyonu güncelle
     const updatedPosition = await Position.findByIdAndUpdate(
       req.params.id,
       {
@@ -156,14 +190,28 @@ exports.updatePosition = async (req, res) => {
         positionAdress: req.body.positionAdress,
         positionCounty: req.body.positionCounty,
         positionCountry: req.body.positionCountry,
+        tag: newTag,
       },
       { new: true }
     );
+
+    if (!updatedPosition) {
+      return res.status(404).json({ message: "Pozisyon bulunamadı." });
+    }
+
+    // requestedNominees içinde kopya girişleri kontrol et
+    const duplicates = updatedPosition.requestedNominees.filter((value, index, self) => self.indexOf(value) !== index);
+    if (duplicates.length > 0) {
+      throw new Error('Duplicate entries found in requestedNominees.');
+    }
+
     res.status(200).json(updatedPosition);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 exports.addNomineeIdToPosition = async (req, res) => {
   try {
@@ -237,20 +285,48 @@ exports.deleteRequestedNomineeFromPosition = async (req, res) => {
 
 exports.getPositionByCompanyId = async (req, res) => {
   try {
-    const companyId = req.params.id;
-    const positions = await Position.find({ companyId: companyId });
-
-    if (!positions || positions.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Şirkete ait pozisyonlar bulunamadı." });
+    let { companyId,page, pageSize, jobtitle, department, experienceperiod, modeofoperation, worktype, skills, search } = req.query;
+    page = parseInt(page);
+    pageSize = parseInt(pageSize);
+    const query = {  };
+    // Apply filters
+    if(companyId) query.companyId=companyId;
+    if (jobtitle)
+      {
+        query.jobtitle = jobtitle;
+        console.log("girdi");
+      }
+    if (department) query.department = department;
+    if (experienceperiod) query.experienceperiod = experienceperiod;
+    if (modeofoperation) query.modeofoperation = modeofoperation;
+    if (worktype) query.worktype = worktype; // Corrected typo
+    if (skills) {
+      query.skills = { $all: skills.map(skill => skill) };
     }
 
-    res.status(200).json(positions);
+    if (search) {
+      query.$or = [
+        { jobtitle: { $regex: search, $options: 'i' } }, // Corrected variable name
+        { department: { $regex: search, $options: 'i' } },
+        { experienceperiod: { $regex: search, $options: 'i' } },
+        { modeofoperation: { $regex: search, $options: 'i' } },
+        { worktype: { $regex: search, $options: 'i' } },
+        { skills: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+
+    const total = await Position.countDocuments(query);
+    const positions = await Position.find(query)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json({ positions: positions, total: total });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.deleteNomineeIdFromPosition = async (req, res) => {
   try {

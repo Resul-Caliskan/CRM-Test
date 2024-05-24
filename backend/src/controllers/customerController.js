@@ -71,13 +71,14 @@ exports.userAddToCustomer = async (req, res) => {
     }
     const user = req.body;
     const newUser = new User({
+      name:user.name,
+      surname:user.surname,
       email: user.email,
       password: user.password,
       companyId: req.params.id,
       role: req.body.role,
       phone: req.body.phone,
     });
-    console.log(req.body.phone);
     newUser
       .save()
       .then(() => {})
@@ -95,6 +96,7 @@ exports.userAddToCustomer = async (req, res) => {
     );
     res.status(200).json(updatedCustomer);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -135,10 +137,32 @@ exports.deleteCustomer = async (req, res) => {
 };
 
 exports.getAllCustomers = async (req, res) => {
+  let { page , pageSize, searchTerm , sector,companytype } = req.query;
+  const skip = (page - 1) * pageSize;
+
+  const query = {};
+  if(sector) query.companysector=sector;
+  if(companytype) query.companytype=companytype;
+  // Apply search term
+  if (searchTerm) {
+    const regex = new RegExp(searchTerm, 'i'); // case-insensitive search
+    query.$or = [
+      { companyname: regex },
+      { companysector: regex },
+      { companycountry: regex },
+      { companycity: regex },
+      { contactname: regex },
+      { contactmail: regex },
+      { contactnumber: regex },
+    ];
+  }
   try {
-    const customers = await Customer.find();
-    res.status(200).json(customers);
+    const totalCustomers = await Customer.countDocuments(query);
+    const customers = await Customer.find(query).skip(skip).limit(parseInt(pageSize));
+
+    res.status(200).json({ customers, totalCustomers });
   } catch (error) {
+    console.error('Error fetching customers:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -146,6 +170,8 @@ exports.getAllCustomers = async (req, res) => {
 exports.getCustomerById = async (req, res) => {
   try {
     const customerId = req.params.id;
+
+   
     const customer = await Customer.findById(customerId);
 
     if (!customer) {
@@ -157,6 +183,7 @@ exports.getCustomerById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.getCustomerByName = async (req, res) => {
   try {
@@ -232,7 +259,8 @@ exports.getCustomerIndustries = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const customer = await Customer.findById(id);
+    // Sadece gerekli alanları seç
+    const customer = await Customer.findById(id).select('industries');
 
     if (!customer) {
       return res.status(404).json({ error: "Müşteri bulunamadı." });
@@ -240,7 +268,7 @@ exports.getCustomerIndustries = async (req, res) => {
 
     const industries = customer.industries;
 
-    res.status(200).json({ industries: industries });
+    res.status(200).json({ industries });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -292,7 +320,7 @@ exports.getCustomerCompanies = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(id).select('companies');
 
     if (!customer) {
       return res.status(404).json({ error: "Müşteri bulunamadı." });

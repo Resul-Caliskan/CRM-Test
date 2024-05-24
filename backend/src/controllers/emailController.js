@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const User = require("../models/user");
+const Position = require("../models/position");
 
 const sendEmail = async (req, res) => {
   try {
@@ -197,4 +198,118 @@ const sendChangePasswordMail = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
-module.exports = { sendEmail, sendChangePasswordMail };
+
+
+const approveCandidate = async (req, res) => {
+  const { userIds, subject, position } = req.body;
+
+  if (!position) {
+    return res.status(404).send('Position not found');
+  }
+
+  try {
+    // Kullanıcıları ID'lere göre bul
+    const users = await Promise.all(
+      userIds.map(async (id) => {
+        try {
+          const user = await User.findById(id);
+          if (!user) {
+            throw new Error(`User with ID ${id} not found`);
+          }
+          return user;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      })
+    );
+
+    // Tüm kullanıcıların e-posta adreslerini virgülle ayrılmış bir dizeye dönüştür
+    const recipientEmails = users.map(user => user.email).join(',');
+
+    // E-posta gönderim işlemi
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'resulcaliskansau@gmail.com',
+        pass: 'boou obke qieo vnqe',
+      },
+    });
+
+    const mailOptions = {
+      from: 'resulcaliskansau@gmail.com',
+      to: recipientEmails,
+      subject: subject,
+      html: `
+        <p> ${position.jobtitle} (${position.tag}) pozisyonu için oluşturduğunuz aday talebi onaylandı.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send('Email sent successfully');
+    console.log('Email sent to:', recipientEmails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error sending email');
+  }
+};
+
+
+
+const rejectCandidate = async (req, res) => {
+  const { userIds, subject,position} = req.body;
+
+  if (!position) {
+    return res.status(404).send('Position not found');
+  }
+
+  try {
+    // Kullanıcıları ID'lere göre bul
+    const users = await Promise.all(
+      userIds.map(async (id) => {
+        try {
+          const user = await User.findById(id);
+          if (!user) {
+            throw new Error(`User with ID ${id} not found`);
+          }
+          return user;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      })
+    );
+
+    // Tüm kullanıcıların e-posta adreslerini virgülle ayrılmış bir dizeye dönüştür
+    const recipientEmails = users.map(user => user.email).join(',');
+
+    // E-posta gönderim işlemi
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'resulcaliskansau@gmail.com',
+        pass: 'boou obke qieo vnqe',
+      },
+    });
+
+    const mailOptions = {
+      from: 'resulcaliskansau@gmail.com',
+      to: recipientEmails,
+      subject: subject,
+      html: `
+        <p> ${position.jobtitle} (${position.tag}) pozisyonu için oluşturduğunuz aday talebi reddedildi.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send('Email sent successfully');
+    console.log('Email sent to:', recipientEmails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error sending email');
+  }
+};
+
+module.exports = { sendEmail, sendChangePasswordMail,approveCandidate,rejectCandidate };

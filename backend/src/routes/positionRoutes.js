@@ -22,7 +22,7 @@ router.put("/positions/request/:id", positionController.requestNominee);
 
 router.put("/positions/delete-request/:id", positionController.deleteRequestedNomineeFromPosition);
 
-router.get("/positions/get/:id", positionController.getPositionByCompanyId);
+router.get("/positions/get", positionController.getPositionByCompanyId);
 
 router.put("/positions/accept/:id", positionController.moveRequestedNomineeToSharedNominees);
 
@@ -32,5 +32,5 @@ router.get(
   positionController.getPositionById
 );
 
-router.get("/positions/get/:id", positionController.getPositionByCompanyId);
+// router.get("/positions/get/:id", positionController.getPositionByCompanyId);
 module.exports = router;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import filterFunction from "../utils/globalSearchFunction";
@@ -11,6 +11,10 @@ import FilterComponent from "../components/filterComponent";
 import { highlightSearchTerm } from "../utils/highLightSearchTerm";
 import Loading from "../components/loadingComponent";
 import { useTranslation } from "react-i18next";
+import { Button, Input, Pagination, Space, Table, Tooltip } from "antd";
+import { EditOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import ConfirmPopUp from "../components/areUSure";
+import { debounce } from "lodash";
 
 const ListPosition = () => {
   const { t } = useTranslation();
@@ -22,33 +26,69 @@ const ListPosition = () => {
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const [searchTerm, setSearchTerm] = useState("");
   const [parameterOptions, setParameterOptions] = useState([]);
-  const [checkedItems,setCheckedItems]=useState([]);
+  const [checkedItems, setCheckedItems] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPositions, setTotalPositions] = useState(0);
   const userSelectedOption = useSelector(
     (state) => state.userSelectedOption.userSelectedOption
   );
   const dispatch = useDispatch();
+  const [filters, setFilters] = useState({
+    jobtitle: [],
+    department: [],
+    tag: [],
+    experienceperiod: [],
+    modeofoperation: [],
+    worktype: [],
+    skills: [],
+  });
 
   useEffect(() => {
     fetchParameterOptions();
-    fetchPositions();
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    setPage(1);
+    fetchPositions(1, pageSize, searchTerm);
+
+  }, [filters, searchTerm]);
 
   const handleAddPosition = () => {
     dispatch(setUserSelectedOption("add-position"));
   };
 
-  const fetchPositions = async () => {
+  const fetchPositions = async (newPage, newPageSize, term) => {
+    setLoading(true);
     try {
-      const response = await axios.get(
-        `${apiUrl}/api/positions/get/${companyId}`
-      );
-      setPositions(response.data);
-      setLoading(false);
+      const response = await axios.get(`${apiUrl}/api/positions/get`, {
+        params: {
+          companyId: companyId,
+          page: newPage,
+          pageSize: newPageSize,
+          jobtitle: filters.jobtitle,
+          department: filters.department,
+          experienceperiod: filters.experienceperiod,
+          modeofoperation: filters.modeofoperation,
+          worktype: filters.worktype,
+          skills: filters.skills,
+          search: term,
+        }
+
+      });
+
+      setPositions(response.data.positions);
+      setTotalPositions(response.data.total);
     } catch (error) {
+      console.error("Positions fetching failed:", error);
+    } finally {
       setLoading(false);
-      console.error("Customers fetching failed:", error);
     }
   };
+
+
+
+
   const fetchParameterOptions = async () => {
     try {
       const response = await axios.get(
@@ -105,15 +145,7 @@ const ListPosition = () => {
     }
   };
 
-  const [filters, setFilters] = useState({
-    jobtitle: [],
-    department: [],
-    tag:[],
-    experienceperiod: [],
-    modeofoperation: [],
-    worktype: [],
-    skills: [],
-  });
+
   const columns = [
     {
       title: t("userListPosition.job_title"),
@@ -122,7 +154,7 @@ const ListPosition = () => {
       render: (text, record) => (
         <span
           style={{ cursor: "pointer", textDecoration: "underline" }}
-          onClick={() => handlePositionDetails(record.id)}
+          onClick={() => handlePositionDetails(record._id)}
         >
           {highlightSearchTerm(text, searchTerm)}
         </span>
@@ -131,7 +163,7 @@ const ListPosition = () => {
     {
       title: t("position_detail.tag"),
       dataIndex: "tag",
-      className:"w-20",
+      className: "w-20",
       key: "tag",
       render: (text) => highlightSearchTerm(text, searchTerm),
     },
@@ -181,86 +213,189 @@ const ListPosition = () => {
       },
     },
   ];
-  const filteredPositions = positions.filter((position) => {
-    const searchFields = [
-      "jobtitle",
-      "department",
-      "experienceperiod",
-      "modeofoperation",
-      "worktype",
-      "skills",
-    ];
+  // const filteredPositions = positions.filter((position) => {
+  //   const searchFields = [
+  //     "jobtitle",
+  //     "department",
+  //     "experienceperiod",
+  //     "modeofoperation",
+  //     "worktype",
+  //     "skills",
+  //   ];
 
-    return (
-      (filters.jobtitle.length === 0 ||
-        filters.jobtitle.includes(position.jobtitle)) &&
-      (filters.department.length === 0 ||
-        filters.department.includes(position.department)) &&
-      (filters.experienceperiod.length === 0 ||
-        filters.experienceperiod.includes(position.experienceperiod)) &&
-      (filters.modeofoperation.length === 0 ||
-        filters.modeofoperation.includes(position.modeofoperation)) &&
-      (filters.worktype.length === 0 ||
-        filters.worktype.includes(position.worktype)) &&
-      (filters.skills.length === 0 ||
-        position.skills.some((skill) => filters.skills.includes(skill))) &&
-      (searchTerm === "" ||
-        filterFunction(searchFields, position, searchTerm.toLowerCase()))
-    );
-  });
+  //   return (
+  //     (filters.jobtitle.length === 0 ||
+  //       filters.jobtitle.includes(position.jobtitle)) &&
+  //     (filters.department.length === 0 ||
+  //       filters.department.includes(position.department)) &&
+  //     (filters.experienceperiod.length === 0 ||
+  //       filters.experienceperiod.includes(position.experienceperiod)) &&
+  //     (filters.modeofoperation.length === 0 ||
+  //       filters.modeofoperation.includes(position.modeofoperation)) &&
+  //     (filters.worktype.length === 0 ||
+  //       filters.worktype.includes(position.worktype)) &&
+  //     (filters.skills.length === 0 ||
+  //       position.skills.some((skill) => filters.skills.includes(skill))) &&
+  //     (searchTerm === "" ||
+  //       filterFunction(searchFields, position, searchTerm.toLowerCase()))
+  //   );
+  // });
 
-  const data = filteredPositions.map((position, index) => ({
-    key: index,
-    id: position._id,
-    department: position.department,
-    jobtitle: position.jobtitle,
-    experienceperiod: position.experienceperiod,
-    modeofoperation: position.modeofoperation,
-    description: position.description,
-    skills: position.skills,
-    tag : position.tag,
-    worktype: position.worktype,
-    companyId: position.companyId,
-    companyName: position.companyName,
-  }));
+  // const data = filteredPositions.map((position, index) => ({
+  //   key: index,
+  //   id: position._id,
+  //   department: position.department,
+  //   jobtitle: position.jobtitle,
+  //   experienceperiod: position.experienceperiod,
+  //   modeofoperation: position.modeofoperation,
+  //   description: position.description,
+  //   skills: position.skills,
+  //   tag : position.tag,
+  //   worktype: position.worktype,
+  //   companyId: position.companyId,
+  //   companyName: position.companyName,
+  // }));
 
+  const handlePageChange = (newPage, newPageSize) => {
+    setPage(newPage);
+    setPageSize(newPageSize);
+    fetchPositions(newPage, newPageSize, searchTerm);
+  };
+
+
+  const handleSearch = useCallback(
+    debounce(async (value) => {
+      if (typeof value === 'string') {
+        setSearchTerm(value.toLowerCase());
+      } else {
+        console.error('Search term is not a string:', value);
+      }
+    }, 300),
+    []
+  );
+
+  const locale = {
+    jump_to: t("GoTo"),
+    page: t("Page"),
+    items_per_page: "/ " + t("Page"),
+  };
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
-          <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]">
-            <FilterComponent
+
+      <div className="flex flex-row justify-evenly  bg-[#FAFAFA]">
+        <div className="hidden sideFilter  sm:flex  sm:flex-col sm:w-[280px] md:w-[30%]">
+          <FilterComponent
             checkedItems={checkedItems}
             setCheckedItems={setCheckedItems}
-              setFilters={setFilters}
-              parameterOptions={parameterOptions}
-              isHorizontal={false}
-            />
-          </div>
-          <div className="flex flex-col w-full contentCV overflow-auto ">
-            <ListComponent
-              handleAdd={handleAddPosition}
-              handleUpdate={handleEditPosition}
-              searchTerm={searchTerm}
-              name={t("position_list")}
-              setSearchTerm={setSearchTerm}
-              dropdowns={
-                <FilterComponent
-                  setFilters={setFilters}
-                  parameterOptions={parameterOptions}
-                />
-              }
-              handleDelete={handleDeletePosition}
-              handleDetail={handlePositionDetails}
-              columns={columns}
-              data={data}
-              title={t("userListPosition.position_list")}
-            />
+            setFilters={setFilters}
+            parameterOptions={parameterOptions}
+            isHorizontal={false}
+          />
+        </div>
+        <div className="flex flex-col w-full contentCV overflow-auto ">
+          <div className="bodyContainer">
+            <div className="searchFilterButton">
+              <div className="search">
+                <div className="searchButtonContainer">
+                  <Input
+                    placeholder={t("search_placeholder")}
+                    className="searchButton"
+                    onChange={(e) => handleSearch(e.target.value)}
+                    suffix={<SearchOutlined />}
+                  />
+                </div>
+              </div>
+              <div className="crudButtons">
+
+                <Button
+                  type="primary"
+                  onClick={() => handleAddPosition}
+                  icon={<PlusOutlined />}
+                  size="large"
+                  className="buttonAdd"
+                >
+                  {t("new_record")}
+                </Button>
+              </div>
+            </div>
+            <div className="listContent">
+              <div className="title">
+                <h4 className="titleLabel">Pozisyon Listesi</h4>
+                <p className="titleContent">
+                  {t("total_results", { count: totalPositions })}
+                </p>
+              </div>
+              <div className="listData">
+                <div className="onlyData">
+                  {loading ? (
+                    <Loading />
+                  ) : (<Table
+                    columns={[
+                      ...columns,
+                      {
+                        title: t("actions"),
+                        key: "action",
+                        render: (text, record) => (
+                          <Space
+                            size="small"
+                            className="flex justify-center items-center"
+                          >
+                            <Tooltip
+                              placement={"top"}
+                              title={t("profile.buttons.edit")}
+                            >
+                              <Button
+                                type="link"
+                                icon={<EditOutlined />}
+                                onClick={() => {
+                                  handleEditPosition(record._id);
+                                }}
+                              ></Button>
+                            </Tooltip>
+
+                            <ConfirmPopUp
+                              handleDelete={handleDeletePosition}
+                              id={record._id}
+                              isConfirm={false}
+                            />
+
+                            <Tooltip placement={"top"} title={t("details")}>
+                              <Button
+                                type="link"
+                                icon={<InfoCircleOutlined />}
+                                onClick={() => handlePositionDetails(record._id)}
+                              ></Button>
+                            </Tooltip>
+
+                          </Space>
+                        ),
+                      },
+
+
+                    ]}
+                    dataSource={positions}
+                    pagination={false}
+                    mobileBreakPoint={768}
+                  />)}
+                  <Pagination
+                    className="flex justify-end pb-10 mt-5"
+                    total={totalPositions}
+                    pageSize={pageSize}
+                    current={page}
+                    onChange={handlePageChange}
+                    showSizeChanger
+                    showQuickJumper
+                    locale={locale}
+                    pageSizeOptions={["1", "2", "5", "50"]}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="footer"></div>
           </div>
         </div>
-      )}
+      </div>
+
     </>
   );
 };

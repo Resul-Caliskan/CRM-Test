@@ -329,25 +329,25 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
                 <div className="mt-4 mr-16 border-b-2 border-gray-200 w-full flex items-center justify-between">
                   <div>
                     <button
-                      className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
-                        activeTab === "experience"
+                      className={`ml-2 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "experience"
                           ? "border-blue-500 tab text-[#383838]"
                           : "tab text-[#ADADAD]"
-                      }`}
+                        }`}
                       onClick={() => setActiveTab("experience")}
                     >
                       {t("nomineeDetail.experience")}
                     </button>
-                    <button
-                      className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${
-                        activeTab === "cv"
-                          ? "border-blue-500 tab text-[#383838]"
-                          : "tab text-[#ADADAD]"
-                      }`}
-                      onClick={() => setActiveTab("cv")}
-                    >
-                      {t("nomineeDetail.resume")}
-                    </button>
+                    {isKnown && pdfUrl ? (
+                      <button
+                        className={`ml-4 flex-1 text-center py-2 focus:outline-none border-b-2 border-transparent hover:border-gray-500 ${activeTab === "cv"
+                            ? "border-blue-500 tab text-[#383838]"
+                            : "tab text-[#ADADAD]"
+                          }`}
+                        onClick={() => setActiveTab("cv")}
+                      >
+                        {t("nomineeDetail.resume")}
+                      </button>
+                    ) : ("")}
                   </div>
 
                   {activeTab === "cv" && (
@@ -409,14 +409,12 @@ export default function NomineeDetail({ nominee, onClose, isKnown }) {
               </div>
 
               {activeTab === "cv" && (
-                <div className="text-center mt-4">
-                  {isKnown && pdfUrl ? (
-                    <Document file={pdfUrl} onLoadSuccess={() => {}}>
-                      <Page pageNumber={pageNumber} renderTextLayer={false} />
-                    </Document>
-                  ) : (
-                    <p>{t("nominee_list.cv_not_found")}</p>
-                  )}
+                <div className="ml-2 mt-3 h-[200px]">
+
+                  <Document file={pdfUrl} onLoadSuccess={() => { }}>
+                    <Page pageNumber={pageNumber} renderTextLayer={false} />
+                  </Document>
+
                 </div>
               )}
             </div>

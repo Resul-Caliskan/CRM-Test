@@ -28,7 +28,6 @@ function initWebSocket(server) {
 
             // nominees dizisi artık tüm nominee'leri içerir
 
-            let requestedCv = findMatches(position.skills, nominees);
             const response2 = await getNominees(positionId, true);
 
             io.emit('demandCreated', { allCVs: response2, id: positionId });

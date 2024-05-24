@@ -84,7 +84,7 @@ const App = () => {
       renderComponent = <ListCustomers />;
   }
   return (
-    <div className="w-screen h-screen  bg-[#F9F9F9]">
+    <div className="w-full h-screen  bg-[#F9F9F9]">
       <div className="h-full ">
         <NavBar />
         {user && <div> {renderComponent}</div>}

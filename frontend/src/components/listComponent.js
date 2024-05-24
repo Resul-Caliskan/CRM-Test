@@ -109,6 +109,8 @@ const ListComponent = ({
         <div className="crudButtons">
           {handleAdd && (
             <Button
+             data-test="newrecord"
+             data-id="unique-button-id"
               type="primary"
               onClick={() => handleAdd()}
               icon={<PlusOutlined />}

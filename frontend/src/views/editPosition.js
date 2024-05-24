@@ -47,7 +47,7 @@ const EditPosition = () => {
   const [contentValue, setcontentValue] = useState("");
   const [loadingAi, setLoadingAi] = useState(false);
   const [isFetch, setIsFetch] = useState(true);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState();
   const [state, setState] = useState();
   const [stateData, setstateData] = useState();
   const [countyData, setCountyData] = useState();
@@ -90,18 +90,19 @@ const EditPosition = () => {
     setCountyData(City.getCitiesOfState(isoCode, state?.isoCode));
   }, [state]);
 
-  useEffect(() => {
-    stateData && setState(stateData[0]);
-  }, [stateData]);
+  // useEffect(() => {
+  //   stateData && setState(stateData[0]);
+  // }, [stateData]);
 
-  useEffect(() => {
-    county && setCounty(countyData[0]);
-  }, [countyData]);
+  // useEffect(() => {
+  //   county && setCounty(countyData[0]);
+  // }, [countyData]);
 
   const fetchPosition = async () => {
     try {
       const data = await fetchPositionDetails(id);
       setPositionData(data);
+      console.log(data);
       setcontentValue(data.description);
       setIsFetch(false);
       setLoading(false);
@@ -112,7 +113,6 @@ const EditPosition = () => {
   };
 
   const handleBannedCompaniesChange = (value) => {
-    // Eğer value bir dizi değilse diziye dönüştür
     if (!Array.isArray(value)) {
       value = value.split("\n");
     }
@@ -266,6 +266,7 @@ const EditPosition = () => {
     <>
       {user?.role === "admin" && <NavBar />}
       {user?.role === "user" && <UserNavbar />}
+      {user?.role === "user-admin" && <UserNavbar />}
       {loading ? (
         <Loading />
       ) : (
@@ -510,7 +511,7 @@ const EditPosition = () => {
                   </Select>
                 </Form.Item>
 
-                {positionData.bannedCompanies && (
+               
                   <Form.Item
                     label={t("edit_position.banned_companies")}
                     name="bannedcompanies"
@@ -523,14 +524,19 @@ const EditPosition = () => {
                       onChange={handleBannedCompaniesChange}
                       defaultValue={positionData.bannedCompanies}
                     >
-                      {positionData.bannedCompanies.map((company, index) => (
-                        <Option key={index} value={company}>
-                          {company}
-                        </Option>
-                      ))}
+                     {parameters.map((parameter, index) => {
+                      if (parameter.title === "Şirketler") {
+                        return parameter.values.map((value, idx) => (
+                          <Option key={`${parameter._id}-${idx}`} value={value}>
+                            {value}
+                          </Option>
+                        ));
+                      }
+                      return null;
+                    })}
                     </Select>
                   </Form.Item>
-                )}
+             
 
                 <Form.Item
                   label={t("edit_position.preferred_companies")}
@@ -625,7 +631,7 @@ const EditPosition = () => {
                   name="positionCounty"
                   rules={[
                     {
-                      required: true,
+                      
                       message: t("edit_position.enter_county"),
                     },
                   ]}

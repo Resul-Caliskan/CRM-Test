@@ -176,6 +176,7 @@ export default function UserInfo() {
           <Form.Item
             label={t("profile.labels.email")}
             name="email"
+            className="col-span-1"
             rules={[
               {
                 required: true,
@@ -190,6 +191,7 @@ export default function UserInfo() {
           <Form.Item
             label={t("profile.labels.phone")}
             name="phone"
+            className="col-span-1"
             rules={[
               {
                 required: true,
@@ -207,13 +209,13 @@ export default function UserInfo() {
             ]}
           >
             <PhoneInput
-              className="h-9 w-full"
+              className="h-9"
               defaultCountry="tr"
               value={phone}
               onChange={(phone) => setPhone(phone)}
             />
           </Form.Item>
-          <Form.Item className=" w-full md:col-span-2">
+          <Form.Item className=" w-full lg:col-span-2">
             <Button
               className="border w-full  bg-indigo-600 hover:bg-indigo-500 text-white flex justify-center"
               type="primary"

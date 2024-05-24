@@ -296,6 +296,7 @@ export default function UserNavbar() {
               href="#"
               className="menu-link"
               onClick={() => handleOptionClick("candidates")}
+              data-test="candidatetab"
             >
               {t("candidates")}
             </a>

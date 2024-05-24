@@ -99,6 +99,7 @@ const CustomToolbar = ({ handleAskAi, isLoading, t }) => (
     <button className="ql-italic"></button>
 
     <Button
+     data-test="aidescription"
       disabled={isLoading}
       className="ql-insertStar mb-1"
       onClick={handleAskAi}

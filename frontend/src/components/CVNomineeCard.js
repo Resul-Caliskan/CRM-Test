@@ -178,7 +178,6 @@ const NomineeCard = ({
               />
             </h2>
           </div>
-          <h4></h4>
         </div>
         {isKnown ? (
           <div className="p-2 md:border-r-2 px-3 lg:px-10">
@@ -275,6 +274,7 @@ const NomineeCard = ({
           <div className="flex flex-col justify-around items-center">
             <Tooltip placement={"top"} title={t("details")}>
               <button
+              data-test="nomineedetail"
                 className="flex flex-row p-3 text-white  rounded-lg text-base bg-[#0057D9] hover:bg-[#0019d9]  text-center justify-center items-center"
                 onClick={() => handleNomineeDetail(nominee, isKnown)}
               >

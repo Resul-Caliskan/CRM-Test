@@ -30,6 +30,7 @@ export default function SetPassword() {
   const {t,i18n}=useTranslation();
   useEffect(() => {
     if (id) {
+      console.log(id);
       const token = jwtDecode(id);
       setUserId(token.id);
     }
@@ -49,7 +50,7 @@ export default function SetPassword() {
     const { value } = e.target;
     setPassword(value);
     setPasswordError("");
-    const newErrors = validateForm(email, value);
+    const newErrors = validateForm(email, value,t);
     setErrors(newErrors);
     setPasswordError(newErrors.password || "");
   };

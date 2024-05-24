@@ -8,4 +8,9 @@ router.post('/sendemail', emailController.sendEmail);
 
 router.post('/sendemail-password', emailController.sendChangePasswordMail);
 
+router.post('/sendemail-approve', emailController.approveCandidate);
+
+router.post('/sendemail-reject', emailController.rejectCandidate);
+
+
 module.exports = router;

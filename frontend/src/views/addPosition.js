@@ -1,15 +1,5 @@
 import React, { useEffect, useState, createContext } from "react";
-import {
-  Form,
-  DatePicker,
-  Button,
-  Select,
-  Input,
-  Modal,
-  Space,
-  Alert,
-  Popover,
-} from "antd";
+import {Form,DatePicker,Button,Select,Input,Modal,Space,Popover} from "antd";
 import { setUserSelectedOption } from "../redux/userSelectedOptionSlice";
 import axios from "axios";
 import Notification from "../utils/notification";
@@ -46,14 +36,11 @@ const AddPosition = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [parameters, setParameters] = useState([]);
   const [companies, setCompanies] = useState([]);
-  const [selectedItem, setSelectedItem] = useState("");
   const [selectedDate, setSelectedDate] = useState();
   const [stateData, setstateData] = useState();
   const [countyData, setCountyData] = useState();
   const [state, setState] = useState();
-  const [county, setCounty] = useState();
-  const [country, setCountry] = useState();
-  let countryData = Country.getAllCountries();
+  const [county, setCounty] = useState("");
   const [isoCode, setIsoCode] = useState("");
   const dispatch = useDispatch();
   const [aiResponse, setAiResponse] = useState(" ");
@@ -61,25 +48,13 @@ const AddPosition = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [bannedCompanies, setBannedCompanies] = useState(null);
   const [industry, setIndustry] = useState(null);
-
   const [preferredCompanies, setPreferredCompanies] = useState(null);
   const companyId = getIdFromToken(localStorage.getItem("token"));
   const { user } = useSelector((state) => state.auth);
   const [modal, contextHolder] = Modal.useModal();
+  let countryData = Country.getAllCountries();
   const [industries, setIndustries] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
-  const selectedOption = useSelector(
-    (state) => state.selectedOption.selectedOption
-  );
-  const userSelectedOption = useSelector(
-    (state) => state.userSelectedOption.userSelectedOption
-  );
-  const findIsoCode = (countryName) => {
-    countryData.forEach((item) => {
-      if (item.name === countryName) setIsoCode(item.isoCode);
-    });
-  };
-
   const handleBannedCompaniesChange = (value) => {
     if (!Array.isArray(value)) {
       value = value.split("\n");
@@ -104,17 +79,14 @@ const AddPosition = () => {
   const handleDateChange = (date, dateString) => {
     setSelectedDate(dateString);
   };
-  const handleCountryChange = (value) => {
-    findIsoCode(value);
-    const selectedCountry = countryData[value];
-    setCountry(selectedCountry);
-  };
+ 
   const handleCityChange = (value) => {
     const selectedCityInfo = stateData.find((city) => city.isoCode === value);
     setState(selectedCityInfo);
   };
 
   const handleCountyChange = (value) => {
+    
     const selectedCountyInfo = countyData.find(
       (county) => county.name === value
     );
@@ -131,6 +103,14 @@ const AddPosition = () => {
       console.error("Error fetching industries:", error);
     }
   };
+
+  useEffect(() => {
+    setstateData(State.getStatesOfCountry(isoCode));
+  }, [isoCode]);
+  useEffect(() => {
+    setCountyData(City.getCitiesOfState(isoCode, state?.isoCode));
+  }, [state]);
+
   useEffect(() => {
     if (!user || user.role === null) {
       fetchData()
@@ -152,26 +132,7 @@ const AddPosition = () => {
     fetchCompany();
     fetchIndustries();
     fetchCompanies();
-    findIsoCode(selectedCompany?.companycountry);
-  }, [contentValue, form, isoCode]);
-
-  // useEffect(() => {
-  //   form.setFieldsValue({ description: aiResponse });
-  // }, [aiResponse, form]);
-  useEffect(() => {
-    setstateData(State.getStatesOfCountry(isoCode));
-  }, [isoCode]);
-  useEffect(() => {
-    setCountyData(City.getCitiesOfState(isoCode, state?.isoCode));
-  }, [state]);
-
-  useEffect(() => {
-    stateData && setState(stateData[0]);
-  }, [stateData]);
-
-  useEffect(() => {
-    county && setCounty(countyData[0]);
-  }, [countyData]);
+  }, [contentValue, form]);
 
   const fetchParameters = async () => {
     await axios
@@ -230,7 +191,9 @@ const AddPosition = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/customers/${companyId}`
       );
-      findIsoCode(response.data.companycountry);
+      // findIsoCode(response.data.companycountry);
+      // setIsoCode(response.data.companycountry);
+      if(user?.role !== "admin") setIsoCode(response.data.companycountry);
       setSelectedCompany(response.data);
     } catch (error) {
       console.error("Company fetching error:", error);
@@ -240,6 +203,7 @@ const AddPosition = () => {
   const handleSubmit = async (values) => {
     setSubmitLoading(true);
     try {
+     
       if (user.role === "admin") {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/positions`,
@@ -357,10 +321,7 @@ const AddPosition = () => {
               catch(error)
               {
                 console.error(error)
-                console.log("HATA SE")
               }
-
-              
             })
           );
           try {
@@ -386,7 +347,6 @@ const AddPosition = () => {
                 receiverCompanyId: "660688a38e88e341516e7acd",
               }
             );
-            console.log("MUSTAFA "+response2.data)
             socket.emit("positionCreated", response2.data.notificationId);
           } catch (error) {
             console.error(error + "bildirim iletilemedi.");
@@ -413,10 +373,13 @@ const AddPosition = () => {
     }
   };
   const handleCompanyChange = (value) => {
-    setSelectedCompany(value);
-    findIsoCode(companies[value]?.companycountry);
+    // setSelectedCompany(companies[value]);
+    // findIsoCode(companies[value]?.companycountry);
   };
+  const handleCountryChange = (value) => {
+    setIsoCode(companies[value].companycountry);
 
+  };
   return (
     <>
       {loading ? (
@@ -449,6 +412,7 @@ const AddPosition = () => {
             >
               {user.role === "admin" && (
                 <Form.Item
+                data-test="positioncompany"
                   label={t("addPosition.companyName_label")}
                   name="companyName"
                   rules={[
@@ -474,6 +438,7 @@ const AddPosition = () => {
                 </Form.Item>
               )}
               <Form.Item
+              data-test="jobtitle"
                 label={t("addPosition.jobTitle_label")}
                 name="jobtitle"
                 rules={[
@@ -501,6 +466,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="department"
                 label={t("addPosition.department_label")}
                 name="department"
                 rules={[
@@ -529,6 +495,7 @@ const AddPosition = () => {
               </Form.Item>
 
               <Form.Item
+              data-test="experienceperiod"
                 label={t("addPosition.experiencePeriod_label")}
                 name="experienceperiod"
                 rules={[
@@ -556,6 +523,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="modeofoperation"
                 label={t("addPosition.modeOfOperation_label")}
                 name="modeofoperation"
                 rules={[
@@ -583,6 +551,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="workingtype"
                 label={t("addPosition.workingType_label")}
                 name="workingType"
                 rules={[
@@ -610,6 +579,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="industries"
                 label={
                   <ReachableContext.Provider value="Light">
                     <Space>
@@ -666,6 +636,7 @@ const AddPosition = () => {
                 )}
               </Form.Item>
               <Form.Item
+              data-test="skills"
                 label={t("addPosition.skills_label")}
                 name="skills"
                 rules={[
@@ -691,6 +662,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="bannedcompanies"
                 label={
                   <ReachableContext.Provider value="Light">
                     <Space>
@@ -748,6 +720,7 @@ const AddPosition = () => {
               </Form.Item>
 
               <Form.Item
+             
                 label={
                   <ReachableContext.Provider value="Light">
                     <Space>
@@ -812,14 +785,10 @@ const AddPosition = () => {
                 name="date"
                 label={t("addPosition.startDate_label")}
                 className=""
-                rules={[
-                  {
-                    required: true,
-                    message: t("addPosition.startDate_message"),
-                  },
-                ]}
+                
               >
                 <DatePicker
+                data-test="date"
                   className="w-full"
                   onChange={handleDateChange}
                   format={dateFormat}
@@ -828,8 +797,9 @@ const AddPosition = () => {
                 />
               </Form.Item>
               <Form.Item
+              data-test="city"
                 label={t("addPosition.city_label")}
-                name="companycity"
+                name="company"
                 rules={[
                   { required: true, message: t("addPosition.city_message") },
                 ]}
@@ -877,16 +847,17 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+              data-test="county"
                 label={t("addPosition.county_label")}
                 name="companycounty"
                 rules={[
-                  { required: true, message: t("addPosition.county_message") },
+                  {  message: t("addPosition.county_message") },
                 ]}
               >
                 <Select
                   showSearch
                   style={{ width: "100%" }}
-                  value={state ? state.isoCode : undefined}
+                  value={state ? state.name : undefined}
                   placeholder={t("addPosition.county_placeholder")}
                   optionFilterProp="children"
                   onChange={(value) => {
@@ -926,6 +897,7 @@ const AddPosition = () => {
                 </Select>
               </Form.Item>
               <Form.Item
+             
                 label={t("addPosition.address_label")}
                 name="address"
                 rules={[
@@ -933,6 +905,7 @@ const AddPosition = () => {
                 ]}
               >
                 <Input.TextArea
+                data-test="positionaddress"
                   placeholder={t("addPosition.address_placeholder")}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
@@ -949,6 +922,7 @@ const AddPosition = () => {
                 ]}
               >
                 <EditableContent
+               
                   t={t}
                   key={aiResponse}
                   content={aiResponse}
@@ -959,6 +933,7 @@ const AddPosition = () => {
               </Form.Item>
               <Form.Item className="col-start-1 col-end-3 text-center">
                 <Button
+                  data-test="saveposition"
                   type="primary"
                   htmlType="submit"
                   loading={submitLoading}

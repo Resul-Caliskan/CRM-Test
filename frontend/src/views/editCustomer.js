@@ -45,6 +45,7 @@ const EditCustomerForm = () => {
   let countryData = Country.getAllCountries();
   const [country, setCountry] = useState();
   const { t, i18n } = useTranslation();
+  const [gCountry, setgCountry] = useState();
 
   useSelector((state) => state.selectedOption.selectedOption);
 
@@ -53,7 +54,7 @@ const EditCustomerForm = () => {
     setCountry(selectedCountry);
   };
 
-  const handleCityChange = (value) => {
+  const handleCityChange = (value) => { 
     const selectedCityInfo = stateData.find((city) => city.isoCode === value);
     setState(selectedCityInfo);
   };
@@ -63,6 +64,18 @@ const EditCustomerForm = () => {
       (county) => county.name === value
     );
     setCounty(selectedCountyInfo);
+  };
+  const fetchCustomerData = async () => {
+    try {
+      const customerData = await getCustomerDataFromID(id);
+      setCustomerData(customerData);
+      const customerCountry = countryData.find((country) => country.name === customerData.companycountry);
+  
+      setCountry(customerCountry);
+    } catch (error) {
+      console.error("Müşteri bilgileri alınırken bir hata oluştu:", error);
+    }
+    setLoading(false);
   };
   useEffect(() => {
     if (!user || user.role === null) {
@@ -77,15 +90,7 @@ const EditCustomerForm = () => {
           console.error(error);
         });
     }
-    const fetchCustomerData = async () => {
-      try {
-        const customerData = await getCustomerDataFromID(id);
-        setCustomerData(customerData);
-      } catch (error) {
-        console.error("Müşteri bilgileri alınırken bir hata oluştu:", error);
-      }
-      setLoading(false);
-    };
+   
     fetchParameters();
     fetchCustomerData();
   }, [id]);
@@ -121,7 +126,21 @@ const EditCustomerForm = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/customers/${id}`
       );
-      setCustomerData(response.data);
+         // Müşteri verilerini al
+    const customerData = response.data;
+    
+    // Companycountry değerini al
+    const companyCountryCode = customerData.companycountry;
+    
+    // Companycountry değerini i18n çevirileriyle eşleştir
+    const translatedCountryName = t(`countries.${companyCountryCode}`);
+    
+    // Eşleşen ülke adını müşteri verilerine ekle
+    customerData.companycountry = translatedCountryName;
+    
+    // Müşteri verilerini ayarla
+    setCustomerData(customerData);
+
       return response.data;
     } catch (error) {
       setLoading(false);
@@ -140,7 +159,7 @@ const EditCustomerForm = () => {
           companytype: values.companytype,
           companysector: values.companysector,
           companyadress: values.companyadress,
-          companycountry: country ? country.name : values.companycountry,
+          companycountry: country ? country.isoCode : values.companycountry,
           companycity: state ? state.name : values.companycity,
           companycounty: county ? county.name : values.companycounty,
           companyweb: values.companyweb,
@@ -358,8 +377,6 @@ const EditCustomerForm = () => {
                     <Select
                       showSearch
                       style={{ width: "100%" }}
-                      value="sds"
-                      placeholder={t("editCustomer.country_placeholder")}
                       optionFilterProp="children"
                       onChange={(value) => {
                         handleCountryChange(value);
@@ -373,7 +390,9 @@ const EditCustomerForm = () => {
                     >
                       {Object.keys(countryData).map((countryCode, index) => (
                         <Option key={index} value={countryCode}>
-                          {countryData[countryCode].name}
+                        
+                        {t(`countries.${countryData[countryCode].isoCode}`)}
+
                         </Option>
                       ))}
                     </Select>
@@ -438,7 +457,7 @@ const EditCustomerForm = () => {
                     name="companycounty"
                     rules={[
                       {
-                        required: true,
+                        
                         message: t("editCustomer.county_message"),
                       },
                     ]}

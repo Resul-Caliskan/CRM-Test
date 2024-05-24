@@ -312,6 +312,7 @@ export default function NavBar() {
           <li
             className={`menu-item hidden-sm-sm ${selectedOption === "list-positions" ? "selected" : ""
               }`}
+              data-test="listposition"
           >
             <a
               href="#"
@@ -324,6 +325,7 @@ export default function NavBar() {
           <li
             className={`menu-item hidden-sm ${selectedOption === "parameters" ? "selected" : ""
               }`}
+              data-test="systemparameters"
           >
             <a
               href="#"
