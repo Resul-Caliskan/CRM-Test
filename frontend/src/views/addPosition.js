@@ -176,9 +176,9 @@ const AddPosition = () => {
   };
   const fetchCompanies = async () => {
     await axios
-      .get(`${process.env.REACT_APP_API_URL}/api/customers`)
+      .get(`${process.env.REACT_APP_API_URL}/api/customers/all-customers`)
       .then((response) => {
-        setCompanies(response.data);
+        setCompanies(response.data.customers);
         setLoading(false);
       })
       .catch((error) => {

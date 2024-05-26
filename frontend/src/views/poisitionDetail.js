@@ -98,7 +98,7 @@ const PositionDetail = () => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/nominee/get-position-suggested-nominees`,
-        { positionId: id, isAdmin: false, page: page, limit: 2 }
+        { positionId: id, isAdmin: false, page: page, limit: 4 }
       );
       const suggested = response.data.suggestedAllCvs;
       setSuggestedNominees(suggested);
@@ -544,7 +544,7 @@ const PositionDetail = () => {
                       current={suggestedNomineesPage}
                       total={suggestedNomineesTotal * 2}
                       onChange={handlePageChange}
-                      pageSize={2}
+                      pageSize={4}
                     /> }
                   </div>
                 </div>

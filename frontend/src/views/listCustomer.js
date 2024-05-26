@@ -209,7 +209,7 @@ const ListCustomers = () => {
 
                 <Button
                   type="primary"
-                  onClick={() => handleAddCustomer}
+                  onClick={handleAddCustomer}
                   icon={<PlusOutlined />}
                   size="large"
                   className="buttonAdd"
@@ -220,7 +220,7 @@ const ListCustomers = () => {
             </div>
             <div className="listContent">
               <div className="title">
-                <h4 className="titleLabel">Pozisyon Listesi</h4>
+                <h4 className="titleLabel">{t("listCustomer.company_list")}</h4>
                 <p className="titleContent">
                   {t("total_results", { count: customers.length })}
                 </p>

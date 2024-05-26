@@ -136,6 +136,21 @@ exports.deleteCustomer = async (req, res) => {
   }
 };
 
+exports.getCustomers = async (req, res) => {
+  try {
+    const customers = await Customer.find();
+
+    if (!customers || customers.length === 0) {
+      return res.status(404).json({ message: "Müşteri bulunamadı." });
+    }
+
+    res.status(200).json({ customers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.getAllCustomers = async (req, res) => {
   let { page , pageSize, searchTerm , sector,companytype } = req.query;
   const skip = (page - 1) * pageSize;

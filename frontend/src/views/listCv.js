@@ -307,7 +307,7 @@ const CVList = () => {
                       showSizeChanger
                       current={current}
                       pageSize={pageSize}
-                      pageSizeOptions={["1", "5", "10", "50"]}
+                      pageSizeOptions={["5", "10", "20", "50"]}
                     />
                     </div>
                   </>
@@ -322,6 +322,7 @@ const CVList = () => {
                           companyId={companyId}
                           searchTerm={searchTerm}
                           positionRoute={nominee.position.id}
+                          position={positions}
                           known={true}
                         />
                       ))}

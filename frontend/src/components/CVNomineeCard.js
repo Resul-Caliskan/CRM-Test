@@ -37,10 +37,11 @@ const NomineeCard = ({
   const [positions, setPositions] = useState(position);
   const [isClicked, setIsClicked] = useState(false);
   useEffect(() => {
-    if (position) {
-      checkNomineeInPositions(nominee._id, positions);
+    if (nominee && positions) {
+       checkNomineeInPositions(nominee._id, positions);
+      
     }
-  }, [positions]);
+  }, [nominee, positions]);
 
   const handlePositionDetails = (positionId) => {
     if (positionId) {
@@ -79,7 +80,7 @@ const NomineeCard = ({
         `${apiUrl}/api/positions/delete-request/${positionId}`,
         { nomineeId: nomineeId }
       );
-
+      const updatedPosition = response.data;
       try {
         const response2 = await axios.delete(
           `${apiUrl}/api/notification/delete/${positionId}/${nomineeId}`
@@ -119,15 +120,12 @@ const NomineeCard = ({
   };
   const checkNomineeInPositions = (nomineeId, positions) => {
     for (let i = 0; i < positions.length; i++) {
-      for (let j = 0; j < positions[i].requestedNominees.length; j++) {
-        if (positions[i].requestedNominees[j] === nomineeId) {
-          setIsRequested(false);
-          return positions[i];
-        }
+      if (positions[i].requestedNominees.includes(nomineeId)) {
+          setIsRequested(true);
+        return positions[i];
       }
     }
-    setIsRequested(true);
-    return false;
+    setIsRequested(false);
   };
 
   return (
@@ -284,7 +282,7 @@ const NomineeCard = ({
             {!isKnown && (
               <>
                 {" "}
-                {isRequested ? (
+                {!isRequested ? (
                   <Tooltip placement={"top"} title={t("request_position")}>
                     <button
                       disabled={isClicked}

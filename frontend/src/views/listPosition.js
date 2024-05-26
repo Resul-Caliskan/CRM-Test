@@ -309,7 +309,7 @@ const ListPosition = () => {
 
                 <Button
                   type="primary"
-                  onClick={() => handleAddPosition}
+                  onClick={handleAddPosition}
                   icon={<PlusOutlined />}
                   size="large"
                   className="buttonAdd"
@@ -386,7 +386,7 @@ const ListPosition = () => {
                     showSizeChanger
                     showQuickJumper
                     locale={locale}
-                    pageSizeOptions={["1", "2", "5", "50"]}
+                    pageSizeOptions={["5", "10", "20", "50"]}
                   />
                 </div>
               </div>

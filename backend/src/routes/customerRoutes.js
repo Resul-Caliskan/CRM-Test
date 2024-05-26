@@ -22,7 +22,7 @@ router.delete(
 );
 
 router.get("/", customerController.getAllCustomers);
-
+router.get("/all-customers",customerController.getCustomers);
 router.get(
   "/:id",
   
